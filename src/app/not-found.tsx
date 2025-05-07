@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 export default function NotFound() {
   return (
     <div className="-mt-22 flex h-screen flex-col items-center justify-center gap-8">
-      <Image src={Logo} alt="Pick Road" />
+      <Image src={Logo} alt="Pick Road" className="dark:invert" />
       <div className="text-center">
         <div className="text-md mb-2 font-medium">
           페이지를 찾을 수 없습니다

@@ -5,7 +5,7 @@ export default function LoginHeader() {
   return (
     <header className="flex flex-col items-center space-y-4">
       <div>
-        <Image src={Logo} alt="Pick Road" />
+        <Image src={Logo} alt="Pick Road" className="dark:invert" />
       </div>
       <p className="text-subtext text-sm">
         Pick-Road의 서비스를 이용하시려면 로그인을 해주세요

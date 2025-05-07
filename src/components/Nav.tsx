@@ -21,7 +21,7 @@ export default function Nav() {
           <li key={item.id}>
             <Link
               href={item.href}
-              className="text-neutral-500 transition-colors hover:text-neutral-700"
+              className="opacity-60 transition-opacity hover:opacity-100"
             >
               {item.name}
             </Link>

@@ -10,7 +10,7 @@ export default function GlobalError({ error }: { error: Error }) {
     <html>
       <body>
         <div className="-mt-22 flex h-screen flex-col items-center justify-center gap-6">
-          <Image src={Logo} alt="Pick Road" />
+          <Image src={Logo} alt="Pick Road" className="dark:invert" />
           <div className="text-center">
             <div className="text-md mb-2 font-medium">오류가 발생했습니다</div>
             <div className="text-sm text-neutral-500">

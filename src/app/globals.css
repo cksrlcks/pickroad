@@ -44,6 +44,7 @@
 }
 
 :root {
+  --font-pretendard: "Pretendard Variable", sans-serif;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
@@ -118,5 +119,22 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+body {
+  font-family: var(--font-pretendard);
+}
+
+button {
+  cursor: pointer;
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    scrollbar-width: none;
   }
 }

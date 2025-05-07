@@ -31,7 +31,7 @@ export default function SocialLogin() {
       </li>
       <li>
         <SocialButton
-          className="border-[#f2d413] bg-[#fee400] hover:bg-[#fed800]"
+          className="border-[#f2d413] bg-[#fee400] text-slate-950 hover:bg-[#fed800]"
           icon={IconKakao}
           label="카카오로 시작하기"
           onClick={handleKakaoLogin}

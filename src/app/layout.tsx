@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -8,7 +9,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="scrollbar-hide">
+    <html lang="ko" className="scrollbar-hide" suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
@@ -18,13 +19,20 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <div className="pt-22">
-          <Header />
-          <div className="px-4">
-            <main className="mx-auto w-full max-w-3xl">{children}</main>
-            <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="pt-22">
+            <Header />
+            <div className="px-4">
+              <main className="mx-auto w-full max-w-3xl">{children}</main>
+              <Toaster />
+            </div>
           </div>
-        </div>
+        </ThemeProvider>
       </body>
     </html>
   );

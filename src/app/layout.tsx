@@ -28,7 +28,7 @@ export default function RootLayout({
           <div className="pt-22">
             <Header />
             <div className="px-4">
-              <main className="mx-auto w-full max-w-3xl">{children}</main>
+              <main className="mx-auto w-full max-w-4xl">{children}</main>
               <Toaster />
             </div>
           </div>

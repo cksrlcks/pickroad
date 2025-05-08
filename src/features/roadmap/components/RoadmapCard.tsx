@@ -4,18 +4,24 @@ import Image from "next/image";
 import PlaceholderImage from "@/assets/img/placeholder.svg";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { dateToAgo } from "@/lib/utils";
-import { Roadmap } from "../type";
+import { RoadmapCompact } from "../type";
 
 type RoadmapCardProps = {
-  roadmap: Roadmap;
+  roadmap: RoadmapCompact;
 };
 
-export default function RoadmapCard({ roadmap }: RoadmapCardProps) {
-  const color = roadmap.color ? roadmap.color[roadmap.color.theme] : undefined;
-  const bgColor = color?.darkColor || "#000";
-  const textColor = color?.darkTextColor || "#fff";
-  const badgeBgColor = color?.lightColor || "#fff";
-  const badgeTextColor = color?.lightTextColor || "#000";
+export function RoadmapCard({ roadmap }: RoadmapCardProps) {
+  const paletteString =
+    roadmap.theme === "vibrant"
+      ? roadmap.themeVibrantPalette
+      : roadmap.themeMutedPalette;
+  const [, , darkColor, darkTextColor, lightColor, lightTextColor] =
+    paletteString?.split(".") || [];
+
+  const bgColor = darkColor || "#000";
+  const textColor = darkTextColor || "#fff";
+  const badgeBgColor = lightColor || "#fff";
+  const badgeTextColor = lightTextColor || "#000";
 
   return (
     <div
@@ -47,7 +53,7 @@ export default function RoadmapCard({ roadmap }: RoadmapCardProps) {
           }}
         />
       </div>
-      <div className="relative z-1 -mt-[100%] flex h-full flex-col justify-end px-6 py-5">
+      <div className="relative z-1 -mt-[100%] flex h-full flex-col justify-end px-5 py-4 md:px-6 md:py-5">
         <div className="mb-2 -ml-[4px]">
           {roadmap.category && (
             <span
@@ -90,7 +96,7 @@ export default function RoadmapCard({ roadmap }: RoadmapCardProps) {
               className="inline-block h-1 w-1 rounded-full"
               style={{ background: badgeBgColor }}
             ></i>
-            {dateToAgo(roadmap.createdAt)}
+            {roadmap.createdAt && dateToAgo(roadmap.createdAt)}
           </div>
         </div>
       </div>

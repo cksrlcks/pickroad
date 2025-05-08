@@ -25,9 +25,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="pt-22">
+          <div className="py-30">
             <Header />
-            <div className="px-4">
+            <div className="px-6 md:px-10">
               <main className="mx-auto w-full max-w-4xl">{children}</main>
               <Toaster />
             </div>

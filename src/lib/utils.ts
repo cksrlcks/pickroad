@@ -4,17 +4,45 @@ import "dayjs/locale/ko";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { twMerge } from "tailwind-merge";
 
+/**
+ * 테일윈드 classname 병합
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * 상대시간 표시
+ */
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
-export function dateToAgo(date: string) {
+export function dateToAgo(date: string | Date) {
   const parsedDate = dayjs(date);
   if (!parsedDate.isValid()) {
-    throw new Error("Invalid date");
+    console.error("Invalid date");
+    return null;
   }
 
   return parsedDate.fromNow();
+}
+
+/**
+ * 날짜 포맷팅
+ */
+export function formatDate(date: string | Date) {
+  const parsedDate = dayjs(date);
+  if (!parsedDate.isValid()) {
+    console.error("Invalid date");
+    return null;
+  }
+
+  return parsedDate.format("YYYY년 MM월 DD일");
+}
+
+/**
+ * URL 체크
+ */
+export function isUrl(url: string) {
+  const urlRegex = /^https?:\/\//;
+  return urlRegex.test(url);
 }

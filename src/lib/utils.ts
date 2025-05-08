@@ -27,6 +27,19 @@ export function dateToAgo(date: string | Date) {
 }
 
 /**
+ * 날짜 포맷팅
+ */
+export function formatDate(date: string | Date) {
+  const parsedDate = dayjs(date);
+  if (!parsedDate.isValid()) {
+    console.error("Invalid date");
+    return null;
+  }
+
+  return parsedDate.format("YYYY년 MM월 DD일");
+}
+
+/**
  * URL 체크
  */
 export function isUrl(url: string) {

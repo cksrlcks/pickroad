@@ -5,11 +5,7 @@ import { revalidatePath, unstable_cache } from "next/cache";
 import { headers } from "next/headers";
 import { inArray, sql, and, eq } from "drizzle-orm";
 import { ulid } from "ulid";
-import {
-  CreateRoadmapForm,
-  EditRoadmapForm,
-  roadmapInsertSchema,
-} from "@/features/roadmap/type";
+import { RoadmapForm, roadmapInsertSchema } from "@/features/roadmap/type";
 import { auth } from "@/lib/auth";
 import { r2 } from "@/lib/r2-client";
 import { db } from "..";
@@ -122,7 +118,7 @@ export const uploadToR2 = async (file: File) => {
   return `${process.env.R2_CDN_URL}/${key}`;
 };
 
-export async function createRoadmap(form: CreateRoadmapForm) {
+export async function createRoadmap(form: RoadmapForm) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -211,7 +207,7 @@ export async function createRoadmap(form: CreateRoadmapForm) {
   }
 }
 
-export async function editRoadmap(form: EditRoadmapForm) {
+export async function editRoadmap(form: RoadmapForm) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

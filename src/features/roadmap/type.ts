@@ -80,7 +80,4 @@ export const roadmapInsertSchema = roadmapBaseInsertSchema
     tags: z.array(roadmapCategoriesInsertSchema.shape.name).optional(),
     items: z.array(roadmapItemsInsertSchema).optional(),
   });
-export const roadmapEditSchema = roadmapInsertSchema;
-
-export type CreateRoadmapForm = z.infer<typeof roadmapInsertSchema>;
-export type EditRoadmapForm = z.infer<typeof roadmapEditSchema>;
+export type RoadmapForm = z.infer<typeof roadmapInsertSchema>;

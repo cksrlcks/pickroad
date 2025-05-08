@@ -53,7 +53,7 @@ export function RoadmapCard({ roadmap }: RoadmapCardProps) {
           }}
         />
       </div>
-      <div className="relative z-1 -mt-[100%] flex h-full flex-col justify-end px-6 py-5">
+      <div className="relative z-1 -mt-[100%] flex h-full flex-col justify-end px-5 py-4 md:px-6 md:py-5">
         <div className="mb-2 -ml-[4px]">
           {roadmap.category && (
             <span

@@ -8,6 +8,13 @@
       "when": 1746709512738,
       "tag": "0000_parallel_dust",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1746718844558,
+      "tag": "0001_slimy_loki",
+      "breakpoints": true
     }
   ]
 }

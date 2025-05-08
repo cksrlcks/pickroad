@@ -19,8 +19,14 @@ export const roadmaps = pgTable("roadmaps", {
   title: text("title").notNull(),
   subTitle: text("sub_title").notNull(),
   description: text("description"),
-  createdAt: timestamp("created_at", { mode: "string" }).defaultNow(),
-  updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow(),
+  createdAt: timestamp("created_at", {
+    mode: "string",
+    withTimezone: true,
+  }).defaultNow(),
+  updatedAt: timestamp("updated_at", {
+    mode: "string",
+    withTimezone: true,
+  }).defaultNow(),
   categoryId: integer("category_id").references(() => categories.id, {
     onDelete: "set null",
   }),

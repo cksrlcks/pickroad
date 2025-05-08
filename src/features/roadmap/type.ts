@@ -23,9 +23,13 @@ export type Roadmap = Omit<RoadmapBase, "categoryId" | "authorId"> & {
   likeCount: number;
 };
 
-export type RoadmapCompact = Omit<Roadmap, "items" | "tags" | "likeCount">;
+export type RoadmapCompact = Omit<
+  Roadmap,
+  "items" | "tags" | "likeCount" | "isLiked"
+>;
 
 export const roadmapBaseInsertSchema = createInsertSchema(roadmaps, {
+  externalId: (schema) => schema.optional(),
   title: () =>
     z
       .string({ required_error: "필수 입력입니다." })
@@ -68,24 +72,15 @@ export const roadmapTagsInsertSchema = createInsertSchema(tags, {
 export const roadmapItemsInsertSchema = createInsertSchema(roadmapItems);
 
 export const roadmapInsertSchema = roadmapBaseInsertSchema
-  .pick({
-    title: true,
-    subTitle: true,
-    description: true,
-    authorId: true,
-    categoryId: true,
-    thumbnail: true,
-    theme: true,
-    themeVibrantPalette: true,
-    themeMutedPalette: true,
+  .omit({
+    createdAt: true,
+    updatedAt: true,
   })
   .extend({
-    tags: z.array(roadmapCategoriesInsertSchema.shape.name),
-    items: z.array(roadmapItemsInsertSchema),
+    tags: z.array(roadmapCategoriesInsertSchema.shape.name).optional(),
+    items: z.array(roadmapItemsInsertSchema).optional(),
   });
-export const roadmapEditSchema = roadmapInsertSchema.extend({
-  id: roadmapBaseInsertSchema.shape.id,
-});
+export const roadmapEditSchema = roadmapInsertSchema;
 
 export type CreateRoadmapForm = z.infer<typeof roadmapInsertSchema>;
 export type EditRoadmapForm = z.infer<typeof roadmapEditSchema>;

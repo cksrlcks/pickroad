@@ -16,7 +16,10 @@ export const likes = pgTable(
       .references(() => user.id, { onDelete: "cascade" }),
     targetType: text("target_type").notNull(),
     targetId: integer("target_id").notNull(),
-    createdAt: timestamp("created_at").defaultNow(),
+    createdAt: timestamp("created_at", {
+      mode: "string",
+      withTimezone: true,
+    }).defaultNow(),
   },
   (table) => [
     primaryKey({ columns: [table.userId, table.targetType, table.targetId] }), //중복 제한을 위해 복합 primary key 지정

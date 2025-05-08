@@ -8,7 +8,6 @@ import { ulid } from "ulid";
 import {
   CreateRoadmapForm,
   EditRoadmapForm,
-  roadmapEditSchema,
   roadmapInsertSchema,
 } from "@/features/roadmap/type";
 import { auth } from "@/lib/auth";
@@ -22,7 +21,7 @@ export const getRoadmaps = unstable_cache(
       .select({ count: sql<number>`count(*)` })
       .from(roadmaps);
 
-    const raw = await db.query.roadmaps.findMany({
+    const data = await db.query.roadmaps.findMany({
       with: {
         category: true,
         author: true,
@@ -39,25 +38,14 @@ export const getRoadmaps = unstable_cache(
 
     return {
       totalCount: totalCount,
-      data: raw.map((r) => ({
-        id: r.id,
-        title: r.title,
-        subTitle: r.subTitle,
-        description: r.description,
-        thumbnail: r.thumbnail,
-        createdAt: r.createdAt,
-        updatedAt: r.updatedAt,
-        category: r.category,
-        author: r.author,
-        tags: r.tags,
-      })),
+      data,
     };
   },
 );
 
-export const getRoadmap = unstable_cache(async (id: number) => {
+export const getRoadmap = unstable_cache(async (externalId: string) => {
   const roadmap = await db.query.roadmaps.findFirst({
-    where: eq(roadmaps.id, id),
+    where: eq(roadmaps.externalId, externalId),
     with: {
       category: true,
       author: true,
@@ -73,7 +61,9 @@ export const getRoadmap = unstable_cache(async (id: number) => {
   const [{ count: likeCount }] = await db
     .select({ count: sql<number>`count(*)` })
     .from(likes)
-    .where(and(eq(likes.targetType, "roadmap"), eq(likes.targetId, id)));
+    .where(
+      and(eq(likes.targetType, "roadmap"), eq(likes.targetId, roadmap.id)),
+    );
 
   return {
     ...roadmap,
@@ -81,6 +71,39 @@ export const getRoadmap = unstable_cache(async (id: number) => {
     likeCount,
   };
 });
+
+export const getRoadmapWithSession = async (externalId: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  const roadmap = await getRoadmap(externalId);
+
+  if (!roadmap) return null;
+
+  let isLiked = false;
+
+  if (session) {
+    const row = await db
+      .select({
+        exists: sql<boolean>`EXISTS (
+          SELECT * FROM ${likes}
+          WHERE ${likes.targetType} = 'roadmap'
+          AND ${likes.targetId} = ${roadmap.id}
+          AND ${likes.userId} = ${session.user.id}
+        )`,
+      })
+      .from(likes)
+      .then((res) => res[0]);
+
+    isLiked = row?.exists ?? false;
+  }
+
+  return {
+    ...roadmap,
+    isLiked,
+  };
+};
 
 export const uploadToR2 = async (file: File) => {
   const buffer = await file.arrayBuffer();
@@ -196,11 +219,18 @@ export async function editRoadmap(form: EditRoadmapForm) {
   if (!session) {
     return {
       success: false,
+      message: "로그인을 해주세요",
+    };
+  }
+
+  if (form?.authorId !== session.user.id) {
+    return {
+      success: false,
       message: "권한이 없습니다.",
     };
   }
 
-  const parsed = roadmapEditSchema.safeParse(form);
+  const parsed = roadmapInsertSchema.safeParse(form);
 
   if (!parsed.success) {
     return {
@@ -266,11 +296,55 @@ export async function editRoadmap(form: EditRoadmapForm) {
     });
 
     revalidatePath("/");
-    revalidatePath(`/roadmap/${form.id}`);
+    revalidatePath(`/roadmap/${form.externalId}`);
 
     return {
       success: true,
       message: "성공적으로 수정되었습니다.",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "에러가 발생했습니다.",
+    };
+  }
+}
+
+export async function deleteRoadmap(id: number) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return {
+      success: false,
+      message: "로그인을 해주세요",
+    };
+  }
+
+  const roadmap = await db.query.roadmaps.findFirst({
+    where: eq(roadmaps.id, id),
+    columns: {
+      authorId: true,
+    },
+  });
+
+  if (roadmap?.authorId !== session.user.id) {
+    return {
+      success: false,
+      message: "권한이 없습니다.",
+    };
+  }
+
+  try {
+    await db.delete(roadmaps).where(eq(roadmaps.id, id));
+
+    revalidatePath("/");
+
+    return {
+      success: true,
+      message: "성공적으로 삭제했습니다.",
     };
   } catch (error) {
     console.error(error);

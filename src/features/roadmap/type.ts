@@ -1,57 +1,91 @@
-// todo: drizzle schema에서 타입 추출하기
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod";
+import { FILE_LIMIT_SIZE } from "@/constants";
+import { categories, roadmapItems, roadmaps, tags } from "@/db/schema";
+import { Author } from "../auth/type";
 
-export type Roadmap = {
-  id: string;
-  title: string;
-  subTitle: string;
-  description: string | null;
-  createdAt: string;
-  updatedAt: string;
-  category: {
-    id: number;
-    name: string;
-  } | null;
-  author: {
-    id: string;
-    name: string;
-    email: string;
-    image: string | null;
-  } | null;
-  tags:
-    | {
-        id: number;
-        name: string;
-      }[]
-    | null;
-  items:
-    | {
-        id: number;
-        title: string;
-        description: string | null;
-        thumbnail: string | null;
-        url: string;
-      }[]
-    | null;
+export const roadmapSchema = createSelectSchema(roadmaps);
+export const categorySchema = createSelectSchema(categories);
+export const tagSchema = createSelectSchema(tags);
+export const roadmapItemSchema = createSelectSchema(roadmapItems);
+
+export type RoadmapBase = z.infer<typeof roadmapSchema>;
+export type RoadmapCategory = z.infer<typeof categorySchema>;
+export type RoadmapTag = z.infer<typeof tagSchema>;
+export type RoadmapItem = z.infer<typeof roadmapItemSchema>;
+
+export type Roadmap = Omit<RoadmapBase, "categoryId" | "authorId"> & {
+  category: RoadmapCategory | null;
+  author: Author | null;
+  tags: RoadmapTag[] | null;
+  items: RoadmapItem[] | null;
   isLiked: boolean | null;
   likeCount: number;
-  thumbnail: string | null;
-  color: {
-    theme: "vibrant" | "muted";
-    vibrant: {
-      color: string;
-      textColor: string;
-      darkColor: string;
-      darkTextColor: string;
-      lightColor: string;
-      lightTextColor: string;
-    };
-    muted: {
-      color: string;
-      textColor: string;
-      darkColor: string;
-      darkTextColor: string;
-      lightColor: string;
-      lightTextColor: string;
-    };
-  } | null;
 };
+
+export type RoadmapCompact = Omit<Roadmap, "items" | "tags" | "likeCount">;
+
+export const roadmapBaseInsertSchema = createInsertSchema(roadmaps, {
+  title: () =>
+    z
+      .string({ required_error: "필수 입력입니다." })
+      .trim()
+      .min(2, { message: "2글자 이상 입력해주세요" }),
+  subTitle: () =>
+    z
+      .string({ required_error: "필수 입력입니다." })
+      .trim()
+      .min(2, { message: "2글자 이상 입력해주세요" }),
+  thumbnail: (schema) =>
+    z
+      .union([
+        z
+          .instanceof(File)
+          .refine(
+            (file) =>
+              [
+                "image/jpeg",
+                "image/jpg",
+                "image/png",
+                "image/svg+xml",
+                "image/webp",
+              ].includes(file.type),
+            {
+              message: "이미지는 jpeg, jpg, png, svg, webp 형식만 허용됩니다.",
+            },
+          )
+          .refine((file) => file.size < FILE_LIMIT_SIZE * 1024 * 1024, {
+            message: `${FILE_LIMIT_SIZE}MB이하인 이미지만 등록 가능합니다.`,
+          }),
+        schema,
+      ])
+      .optional(),
+});
+export const roadmapCategoriesInsertSchema = createInsertSchema(categories);
+export const roadmapTagsInsertSchema = createInsertSchema(tags, {
+  name: (schema) => schema.trim().min(2, { message: "두글자 이상 적어주세요" }),
+});
+export const roadmapItemsInsertSchema = createInsertSchema(roadmapItems);
+
+export const roadmapInsertSchema = roadmapBaseInsertSchema
+  .pick({
+    title: true,
+    subTitle: true,
+    description: true,
+    authorId: true,
+    categoryId: true,
+    thumbnail: true,
+    theme: true,
+    themeVibrantPalette: true,
+    themeMutedPalette: true,
+  })
+  .extend({
+    tags: z.array(roadmapCategoriesInsertSchema.shape.name),
+    items: z.array(roadmapItemsInsertSchema),
+  });
+export const roadmapEditSchema = roadmapInsertSchema.extend({
+  id: roadmapBaseInsertSchema.shape.id,
+});
+
+export type CreateRoadmapForm = z.infer<typeof roadmapInsertSchema>;
+export type EditRoadmapForm = z.infer<typeof roadmapEditSchema>;

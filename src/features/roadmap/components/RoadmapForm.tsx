@@ -38,6 +38,7 @@ import { useOgData } from "../hooks/useOgData";
 import {
   Roadmap,
   RoadmapCategory,
+  RoadmapCompact,
   RoadmapForm as RoadmapFormType,
   RoadmapFormWithUploadedUrl,
   roadmapInsertSchema,
@@ -86,6 +87,25 @@ export default function RoadmapForm({
     !form.formState.isValid ||
     form.formState.isSubmitting ||
     isFetchingMetadata;
+
+  const formData = form.watch();
+  const previewData = {
+    ...formData,
+    id: 0,
+    externalId: "sample_id",
+    createdAt: new Date().toISOString(),
+    updatedAt: null,
+    theme: formData.theme || null,
+    themeVibrantPalette: formData.themeVibrantPalette || null,
+    themeMutedPalette: formData.themeMutedPalette || null,
+    title: formData.title || "타이틀",
+    subTitle: formData.subTitle || "서브타이틀",
+    description: formData.description || null,
+    thumbnail: preview,
+    author: session?.user || null,
+    category:
+      categories.find((item) => item.id === formData.categoryId) ?? null,
+  } as RoadmapCompact;
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
@@ -163,8 +183,6 @@ export default function RoadmapForm({
     });
   };
 
-  const previewData = form.watch();
-
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "items",
@@ -174,26 +192,7 @@ export default function RoadmapForm({
     <div className="flex flex-col justify-between gap-14 md:flex-row">
       <div className="mx-auto w-full max-w-[320px]">
         <figure className="relative aspect-[265/350]">
-          <RoadmapCard
-            roadmap={{
-              ...previewData,
-              id: 0,
-              externalId: "sample_id",
-              createdAt: new Date().toISOString(),
-              updatedAt: null,
-              theme: previewData.theme || null,
-              themeVibrantPalette: previewData.themeVibrantPalette || null,
-              themeMutedPalette: previewData.themeMutedPalette || null,
-              title: previewData.title || "타이틀",
-              subTitle: previewData.subTitle || "서브타이틀",
-              description: previewData.description || null,
-              thumbnail: preview,
-              author: session?.user || null,
-              category:
-                categories.find((item) => item.id === previewData.categoryId) ??
-                null,
-            }}
-          />
+          <RoadmapCard roadmap={previewData} />
         </figure>
       </div>
       <div className="flex-1">

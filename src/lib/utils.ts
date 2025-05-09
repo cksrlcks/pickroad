@@ -42,7 +42,13 @@ export function formatDate(date: string | Date) {
 /**
  * URL 체크
  */
-export function isUrl(url: string) {
-  const urlRegex = /^https?:\/\//;
-  return urlRegex.test(url);
+export function isValidUrl(url: string | null | undefined) {
+  if (!url) return false;
+
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
 }

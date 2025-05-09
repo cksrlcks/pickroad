@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, KeyboardEvent, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { FolderUp, X } from "lucide-react";
@@ -33,7 +33,8 @@ import { DEFAULT_COLORS, FILE_LIMIT_SIZE, ROADMAP_THEMES } from "@/constants";
 import { authClient } from "@/lib/auth-client";
 import { getColorByString } from "@/lib/color";
 import { uploadImageByClient } from "@/lib/r2-client";
-import { isUrl } from "@/lib/utils";
+import { isValidUrl } from "@/lib/utils";
+import { useOgData } from "../hooks/useOgData";
 import {
   Roadmap,
   RoadmapCategory,
@@ -42,12 +43,6 @@ import {
   roadmapInsertSchema,
 } from "../type";
 import { RoadmapCard } from "./RoadmapCard";
-
-type MetaData = {
-  title: string;
-  description: string;
-  image: string;
-};
 
 type RoadmapFormProps = {
   initialData?: Roadmap;
@@ -67,8 +62,8 @@ export default function RoadmapForm({
   const isEditMode = initialData !== undefined;
 
   const [preview, setPreview] = useState(initialData?.thumbnail ?? "");
-  const [isMetaFetching, setIsMetaFetching] = useState(false);
   const { data: session } = authClient.useSession();
+  const { fetchOgData, isFetching: isFetchingMetadata } = useOgData();
 
   const form = useForm<RoadmapFormType>({
     resolver: zodResolver(roadmapInsertSchema),
@@ -86,6 +81,11 @@ export default function RoadmapForm({
         }
       : {},
   });
+
+  const isDisabledSubmit =
+    !form.formState.isValid ||
+    form.formState.isSubmitting ||
+    isFetchingMetadata;
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
@@ -142,19 +142,33 @@ export default function RoadmapForm({
     };
   };
 
+  const handleAddItem = async (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter" || isFetchingMetadata) return;
+    e.preventDefault();
+
+    const url = e.currentTarget.value.trim();
+    if (!isValidUrl(url)) {
+      toast.error("정확한 url을 입력해주세요");
+      return;
+    }
+
+    e.currentTarget.value = "";
+    const data = await fetchOgData(url);
+
+    append({
+      url,
+      title: data?.title || "",
+      description: data?.description || "",
+      thumbnail: data?.image || "",
+    });
+  };
+
   const previewData = form.watch();
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "items",
   });
-
-  const getUrlData = async (url: string): Promise<MetaData | undefined> => {
-    if (!isUrl(url)) return undefined;
-    const res = await fetch(`/api/og-preview?url=${encodeURIComponent(url)}`);
-    const data = await res.json();
-    return data;
-  };
 
   return (
     <div className="flex flex-col justify-between gap-14 md:flex-row">
@@ -519,27 +533,7 @@ export default function RoadmapForm({
               <FormLabel>링크 추가</FormLabel>
               <FormControl>
                 <Input
-                  onKeyDown={async (e) => {
-                    if (e.key !== "Enter" || isMetaFetching) return;
-                    e.preventDefault();
-
-                    const url = e.currentTarget.value.trim();
-                    e.currentTarget.value = "";
-
-                    if (!url) return;
-
-                    setIsMetaFetching(true);
-
-                    const data = await getUrlData(url);
-
-                    append({
-                      url,
-                      title: data?.title || "",
-                      description: data?.description || "",
-                      thumbnail: data?.image || "",
-                    });
-                    setIsMetaFetching(false);
-                  }}
+                  onKeyDown={handleAddItem}
                   placeholder="링크를 붙여넣고 Enter를 눌러 추가"
                 />
               </FormControl>
@@ -547,10 +541,7 @@ export default function RoadmapForm({
 
             <Separator />
 
-            <Button
-              type="submit"
-              disabled={!form.formState.isValid || form.formState.isSubmitting}
-            >
+            <Button type="submit" disabled={isDisabledSubmit}>
               {isEditMode ? "수정" : "작성"}
             </Button>
           </form>

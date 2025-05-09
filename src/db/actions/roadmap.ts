@@ -6,12 +6,15 @@ import { revalidatePath, unstable_cache } from "next/cache";
 import { headers } from "next/headers";
 import { inArray, sql, and, eq } from "drizzle-orm";
 import { ulid } from "ulid";
+import urlMetadata from "url-metadata";
 import {
   RoadmapFormWithUploadedUrl,
   roadmapInsertSchema,
+  RoadmapItemMetaData,
 } from "@/features/roadmap/type";
 import { auth } from "@/lib/auth";
 import { r2 } from "@/lib/r2-client";
+import { isValidUrl } from "@/lib/utils";
 import { db } from "..";
 import { likes, roadmapItems, roadmaps, roadmapTags, tags } from "../schema";
 
@@ -349,3 +352,34 @@ export async function deleteRoadmap(id: number) {
 export const getCategories = unstable_cache(async () => {
   return await db.query.categories.findMany();
 });
+
+export const getOgData = async (url: string) => {
+  if (!isValidUrl(url)) {
+    return {
+      success: false,
+      message: "정확한 url을 입력해주세요",
+    };
+  }
+
+  try {
+    const data = await urlMetadata(url, {
+      cache: "force-cache",
+    });
+
+    return {
+      success: true,
+      message: "메타데이터를 성고적으로 가져왔습니다.",
+      payload: {
+        title: data["og:title"] || data.title,
+        image: data["og:image"],
+        description: data["og:desciption"] || data.description,
+      } as RoadmapItemMetaData,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "메타데이터를 가져오는 데 실패했습니다.",
+    };
+  }
+};

@@ -13,6 +13,11 @@ export type RoadmapBase = z.infer<typeof roadmapSchema>;
 export type RoadmapCategory = z.infer<typeof categorySchema>;
 export type RoadmapTag = z.infer<typeof tagSchema>;
 export type RoadmapItem = z.infer<typeof roadmapItemSchema>;
+export type RoadmapItemMetaData = {
+  title: string;
+  description: string;
+  image: string;
+};
 
 export type Roadmap = Omit<RoadmapBase, "categoryId" | "authorId"> & {
   category: RoadmapCategory | null;

@@ -1,11 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, KeyboardEvent, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { FolderUp, X } from "lucide-react";
-import { Vibrant } from "node-vibrant/browser";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,23 +30,19 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { DEFAULT_COLORS, FILE_LIMIT_SIZE, ROADMAP_THEMES } from "@/constants";
 import { authClient } from "@/lib/auth-client";
-import { getColorByString } from "@/lib/color";
+import { getColorByString, getImagePalette } from "@/lib/color";
 import { uploadImageByClient } from "@/lib/r2-client";
-import { isUrl } from "@/lib/utils";
+import { isValidUrl } from "@/lib/utils";
+import { useOgData } from "../hooks/useOgData";
 import {
   Roadmap,
   RoadmapCategory,
+  RoadmapCompact,
   RoadmapForm as RoadmapFormType,
   RoadmapFormWithUploadedUrl,
   roadmapInsertSchema,
 } from "../type";
 import { RoadmapCard } from "./RoadmapCard";
-
-type MetaData = {
-  title: string;
-  description: string;
-  image: string;
-};
 
 type RoadmapFormProps = {
   initialData?: Roadmap;
@@ -67,8 +62,8 @@ export default function RoadmapForm({
   const isEditMode = initialData !== undefined;
 
   const [preview, setPreview] = useState(initialData?.thumbnail ?? "");
-  const [isMetaFetching, setIsMetaFetching] = useState(false);
   const { data: session } = authClient.useSession();
+  const { fetchOgData, isFetching: isFetchingMetadata } = useOgData();
 
   const form = useForm<RoadmapFormType>({
     resolver: zodResolver(roadmapInsertSchema),
@@ -86,6 +81,30 @@ export default function RoadmapForm({
         }
       : {},
   });
+
+  const isDisabledSubmit =
+    !form.formState.isValid ||
+    form.formState.isSubmitting ||
+    isFetchingMetadata;
+
+  const formData = form.watch();
+  const previewData = {
+    ...formData,
+    id: 0,
+    externalId: "sample_id",
+    createdAt: new Date().toISOString(),
+    updatedAt: null,
+    theme: formData.theme || null,
+    themeVibrantPalette: formData.themeVibrantPalette || null,
+    themeMutedPalette: formData.themeMutedPalette || null,
+    title: formData.title || "타이틀",
+    subTitle: formData.subTitle || "서브타이틀",
+    description: formData.description || null,
+    thumbnail: preview,
+    author: session?.user || null,
+    category:
+      categories.find((item) => item.id === formData.categoryId) ?? null,
+  } as RoadmapCompact;
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
@@ -109,77 +128,85 @@ export default function RoadmapForm({
     }
   });
 
-  const getImageData = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    e: ChangeEvent<HTMLInputElement>,
+    onChange: (file: File | undefined) => void,
+  ) => {
     const file = e.target.files?.[0];
-    const displayUrl = URL.createObjectURL(e.target.files![0]);
-    const palette = await Vibrant.from(displayUrl).getPalette();
+    if (!file) return;
+    const displayUrl = URL.createObjectURL(file);
+    const palette = await getImagePalette(displayUrl);
 
-    const vibrant_palette = [
-      palette.Vibrant?.hex || "#000",
-      palette.Vibrant?.bodyTextColor || "#fff",
-      palette.DarkVibrant?.hex || "#000",
-      palette.DarkVibrant?.bodyTextColor || "#fff",
-      palette.LightVibrant?.hex || "#fff",
-      palette.LightVibrant?.bodyTextColor || "#000",
-    ];
+    form.setValue("theme", "vibrant");
+    form.setValue("themeVibrantPalette", palette.vibrant_palette.join("."));
+    form.setValue("themeMutedPalette", palette.muted_palette.join("."));
 
-    const muted_palette = [
-      palette.Muted?.hex || "#000",
-      palette.Muted?.bodyTextColor || "#fff",
-      palette.DarkMuted?.hex || "#000",
-      palette.DarkMuted?.bodyTextColor || "#fff",
-      palette.LightMuted?.hex || "#fff",
-      palette.LightMuted?.bodyTextColor || "#000",
-    ];
-
-    return {
-      file,
-      displayUrl,
-      palette: {
-        vibrant_palette,
-        muted_palette,
-      },
-    };
+    setPreview(displayUrl);
+    onChange(file);
   };
 
-  const previewData = form.watch();
+  const handleAddItem = async (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key !== "Enter" || isFetchingMetadata) return;
+    e.preventDefault();
+
+    const url = e.currentTarget.value.trim();
+    if (!isValidUrl(url)) {
+      toast.error("정확한 url을 입력해주세요");
+      return;
+    }
+
+    e.currentTarget.value = "";
+    const data = await fetchOgData(url);
+
+    append({
+      url,
+      title: data?.title || "",
+      description: data?.description || "",
+      thumbnail: data?.image || "",
+    });
+  };
+
+  const handleTagKeyDown = (
+    e: KeyboardEvent<HTMLInputElement>,
+    field: {
+      value: string[] | undefined;
+      onChange: (value: string[] | undefined) => void;
+    },
+  ) => {
+    if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    const value = e.currentTarget.value.trim();
+    if (value) {
+      const newTags = new Set([...(field.value || []), value]);
+      e.currentTarget.value = "";
+      field.onChange(Array.from(newTags));
+    }
+  };
+
+  const handleTagRemove = (
+    tag: string,
+    field: {
+      value: string[] | undefined;
+      onChange: (value: string[] | undefined) => void;
+    },
+  ) => {
+    const newTags = field.value?.filter((item) => item !== tag) || [];
+    field.onChange(newTags);
+  };
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "items",
   });
 
-  const getUrlData = async (url: string): Promise<MetaData | undefined> => {
-    if (!isUrl(url)) return undefined;
-    const res = await fetch(`/api/og-preview?url=${encodeURIComponent(url)}`);
-    const data = await res.json();
-    return data;
-  };
-
   return (
     <div className="flex flex-col justify-between gap-14 md:flex-row">
       <div className="mx-auto w-full max-w-[320px]">
         <figure className="relative aspect-[265/350]">
-          <RoadmapCard
-            roadmap={{
-              ...previewData,
-              id: 0,
-              externalId: "sample_id",
-              createdAt: new Date().toISOString(),
-              updatedAt: null,
-              theme: previewData.theme || null,
-              themeVibrantPalette: previewData.themeVibrantPalette || null,
-              themeMutedPalette: previewData.themeMutedPalette || null,
-              title: previewData.title || "타이틀",
-              subTitle: previewData.subTitle || "서브타이틀",
-              description: previewData.description || null,
-              thumbnail: preview,
-              author: session?.user || null,
-              category:
-                categories.find((item) => item.id === previewData.categoryId) ??
-                null,
-            }}
-          />
+          <RoadmapCard roadmap={previewData} />
         </figure>
       </div>
       <div className="flex-1">
@@ -290,22 +317,7 @@ export default function RoadmapForm({
                             accept="image/*"
                             placeholder="설명 입력"
                             {...rest}
-                            onChange={async (e) => {
-                              const { file, displayUrl, palette } =
-                                await getImageData(e);
-
-                              form.setValue("theme", "vibrant");
-                              form.setValue(
-                                "themeVibrantPalette",
-                                palette.vibrant_palette.join("."),
-                              );
-                              form.setValue(
-                                "themeMutedPalette",
-                                palette.muted_palette.join("."),
-                              );
-                              setPreview(displayUrl);
-                              onChange(file);
-                            }}
+                            onChange={(e) => handleFileChange(e, onChange)}
                           />
                         </label>
                       </Button>
@@ -381,23 +393,7 @@ export default function RoadmapForm({
                   <FormLabel>태그</FormLabel>
                   <FormControl>
                     <Input
-                      onKeyDown={(e) => {
-                        if (e.key !== "Enter" || e.nativeEvent.isComposing)
-                          return;
-
-                        e.stopPropagation();
-                        e.preventDefault();
-                        const value = e.currentTarget.value.trim();
-
-                        if (value) {
-                          const newTags = new Set([
-                            ...(field.value || []),
-                            value,
-                          ]);
-                          e.currentTarget.value = "";
-                          field.onChange(Array.from(newTags));
-                        }
-                      }}
+                      onKeyDown={(e) => handleTagKeyDown(e, field)}
                       placeholder="태그를 작성후 Enter를 눌러 추가"
                     />
                   </FormControl>
@@ -423,12 +419,7 @@ export default function RoadmapForm({
                             </span>
                             <button
                               type="button"
-                              onClick={() => {
-                                const newTags = field.value?.filter(
-                                  (tag) => tag !== item,
-                                );
-                                field.onChange(newTags);
-                              }}
+                              onClick={() => handleTagRemove(item, field)}
                             >
                               <X className="h-3 w-3" strokeWidth={3} />
                               <span className="sr-only">삭제</span>
@@ -519,27 +510,7 @@ export default function RoadmapForm({
               <FormLabel>링크 추가</FormLabel>
               <FormControl>
                 <Input
-                  onKeyDown={async (e) => {
-                    if (e.key !== "Enter" || isMetaFetching) return;
-                    e.preventDefault();
-
-                    const url = e.currentTarget.value.trim();
-                    e.currentTarget.value = "";
-
-                    if (!url) return;
-
-                    setIsMetaFetching(true);
-
-                    const data = await getUrlData(url);
-
-                    append({
-                      url,
-                      title: data?.title || "",
-                      description: data?.description || "",
-                      thumbnail: data?.image || "",
-                    });
-                    setIsMetaFetching(false);
-                  }}
+                  onKeyDown={handleAddItem}
                   placeholder="링크를 붙여넣고 Enter를 눌러 추가"
                 />
               </FormControl>
@@ -547,10 +518,7 @@ export default function RoadmapForm({
 
             <Separator />
 
-            <Button
-              type="submit"
-              disabled={!form.formState.isValid || form.formState.isSubmitting}
-            >
+            <Button type="submit" disabled={isDisabledSubmit}>
               {isEditMode ? "수정" : "작성"}
             </Button>
           </form>

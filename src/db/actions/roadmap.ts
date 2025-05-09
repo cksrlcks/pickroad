@@ -1,6 +1,7 @@
 "use server";
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { revalidatePath, unstable_cache } from "next/cache";
 import { headers } from "next/headers";
 import { inArray, sql, and, eq } from "drizzle-orm";
@@ -101,24 +102,36 @@ export const getRoadmapWithSession = async (externalId: string) => {
   };
 };
 
-export const uploadToR2 = async (file: File) => {
-  const buffer = await file.arrayBuffer();
-  const key = `uploads/${Date.now()}`;
-  const bucket = process.env.R2_BUCEKT_NAME;
+export const getPresignedUrl = async () => {
+  const key = `uploads/${ulid()}`;
+  const bucket = process.env.R2_BUCKET_NAME;
 
-  const command = new PutObjectCommand({
-    Bucket: bucket,
-    Key: key,
-    Body: Buffer.from(buffer),
-    ContentType: file.type,
-  });
+  try {
+    const presignedUrl = await getSignedUrl(
+      r2,
+      new PutObjectCommand({ Bucket: bucket, Key: key }),
+      { expiresIn: 3600 },
+    );
 
-  await r2.send(command);
-
-  return `${process.env.R2_CDN_URL}/${key}`;
+    return {
+      success: true,
+      payload: {
+        presignedUrl,
+        fileUrl: `${process.env.R2_CDN_URL}/${key}`,
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "업로드를 할 수 없습니다.",
+    };
+  }
 };
 
-export async function createRoadmap(form: RoadmapForm) {
+export async function createRoadmap(
+  form: Omit<RoadmapForm, "thumbnail"> & { thumbnail: string | null },
+) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -140,19 +153,12 @@ export async function createRoadmap(form: RoadmapForm) {
   }
 
   try {
-    const thumbnailUrl = form.thumbnail
-      ? typeof form.thumbnail === "string"
-        ? form.thumbnail
-        : await uploadToR2(form.thumbnail)
-      : null;
-
     await db.transaction(async (tx) => {
       const [newRoadmap] = await tx
         .insert(roadmaps)
         .values({
           ...form,
           externalId: ulid(),
-          thumbnail: thumbnailUrl,
           authorId: session.session.userId,
         })
         .returning();
@@ -207,7 +213,9 @@ export async function createRoadmap(form: RoadmapForm) {
   }
 }
 
-export async function editRoadmap(form: RoadmapForm) {
+export async function editRoadmap(
+  form: Omit<RoadmapForm, "thumbnail"> & { thumbnail: string | null },
+) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -236,20 +244,8 @@ export async function editRoadmap(form: RoadmapForm) {
   }
 
   try {
-    const thumbnailUrl = form.thumbnail
-      ? typeof form.thumbnail === "string"
-        ? form.thumbnail
-        : await uploadToR2(form.thumbnail)
-      : null;
-
     await db.transaction(async (tx) => {
-      await tx
-        .update(roadmaps)
-        .set({
-          ...form,
-          thumbnail: thumbnailUrl,
-        })
-        .where(eq(roadmaps.id, form.id!));
+      await tx.update(roadmaps).set(form).where(eq(roadmaps.id, form.id!));
 
       // 기존 items를 지우고 다시 삽입
       await tx.delete(roadmapItems).where(eq(roadmapItems.roadmapId, form.id!));

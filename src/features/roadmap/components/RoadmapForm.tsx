@@ -32,6 +32,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DEFAULT_COLORS, FILE_LIMIT_SIZE, ROADMAP_THEMES } from "@/constants";
 import { authClient } from "@/lib/auth-client";
 import { getColorByString } from "@/lib/color";
+import { uploadImageByClient } from "@/lib/r2-client";
 import { isUrl } from "@/lib/utils";
 import {
   Roadmap,
@@ -86,12 +87,24 @@ export default function RoadmapForm({
   });
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const response = await action(data);
-    if (response.success) {
-      toast.success(response.message);
-      router.replace("/");
-    } else {
-      toast.error(response.message);
+    try {
+      if (data.thumbnail instanceof File) {
+        const uploadResponse = await uploadImageByClient(data.thumbnail);
+        data.thumbnail = uploadResponse;
+      }
+
+      const response = await action(data);
+
+      if (response.success) {
+        toast.success(response.message);
+        router.replace("/");
+      } else {
+        toast.error(response.message);
+      }
+    } catch (error) {
+      toast.error(
+        `${error instanceof Error ? error.message : "작성을 실패했습니다."}`,
+      );
     }
   });
 

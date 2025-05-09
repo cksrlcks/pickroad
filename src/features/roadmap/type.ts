@@ -81,3 +81,6 @@ export const roadmapInsertSchema = roadmapBaseInsertSchema
     items: z.array(roadmapItemsInsertSchema).optional(),
   });
 export type RoadmapForm = z.infer<typeof roadmapInsertSchema>;
+export type RoadmapFormWithUploadedUrl = Omit<RoadmapForm, "thumbnail"> & {
+  thumbnail: string | null;
+};

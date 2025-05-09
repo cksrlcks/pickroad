@@ -6,7 +6,10 @@ import { revalidatePath, unstable_cache } from "next/cache";
 import { headers } from "next/headers";
 import { inArray, sql, and, eq } from "drizzle-orm";
 import { ulid } from "ulid";
-import { RoadmapForm, roadmapInsertSchema } from "@/features/roadmap/type";
+import {
+  RoadmapFormWithUploadedUrl,
+  roadmapInsertSchema,
+} from "@/features/roadmap/type";
 import { auth } from "@/lib/auth";
 import { r2 } from "@/lib/r2-client";
 import { db } from "..";
@@ -129,9 +132,7 @@ export const getPresignedUrl = async () => {
   }
 };
 
-export async function createRoadmap(
-  form: Omit<RoadmapForm, "thumbnail"> & { thumbnail: string | null },
-) {
+export async function createRoadmap(form: RoadmapFormWithUploadedUrl) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -213,9 +214,7 @@ export async function createRoadmap(
   }
 }
 
-export async function editRoadmap(
-  form: Omit<RoadmapForm, "thumbnail"> & { thumbnail: string | null },
-) {
+export async function editRoadmap(form: RoadmapFormWithUploadedUrl) {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

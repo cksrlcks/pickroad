@@ -38,6 +38,7 @@ import {
   Roadmap,
   RoadmapCategory,
   RoadmapForm as RoadmapFormType,
+  RoadmapFormWithUploadedUrl,
   roadmapInsertSchema,
 } from "../type";
 import { RoadmapCard } from "./RoadmapCard";
@@ -50,7 +51,7 @@ type MetaData = {
 
 type RoadmapFormProps = {
   initialData?: Roadmap;
-  action: (data: RoadmapFormType) => Promise<{
+  action: (data: RoadmapFormWithUploadedUrl) => Promise<{
     success: boolean;
     message: string | null;
   }>;
@@ -93,7 +94,7 @@ export default function RoadmapForm({
         data.thumbnail = uploadResponse;
       }
 
-      const response = await action(data);
+      const response = await action(data as RoadmapFormWithUploadedUrl);
 
       if (response.success) {
         toast.success(response.message);

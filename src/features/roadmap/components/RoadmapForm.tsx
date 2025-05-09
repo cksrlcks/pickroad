@@ -5,7 +5,6 @@ import { ChangeEvent, KeyboardEvent, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { FolderUp, X } from "lucide-react";
-import { Vibrant } from "node-vibrant/browser";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +30,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { DEFAULT_COLORS, FILE_LIMIT_SIZE, ROADMAP_THEMES } from "@/constants";
 import { authClient } from "@/lib/auth-client";
-import { getColorByString } from "@/lib/color";
+import { getColorByString, getImagePalette } from "@/lib/color";
 import { uploadImageByClient } from "@/lib/r2-client";
 import { isValidUrl } from "@/lib/utils";
 import { useOgData } from "../hooks/useOgData";
@@ -129,37 +128,21 @@ export default function RoadmapForm({
     }
   });
 
-  const getImageData = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (
+    e: ChangeEvent<HTMLInputElement>,
+    onChange: (file: File | undefined) => void,
+  ) => {
     const file = e.target.files?.[0];
-    const displayUrl = URL.createObjectURL(e.target.files![0]);
-    const palette = await Vibrant.from(displayUrl).getPalette();
+    if (!file) return;
+    const displayUrl = URL.createObjectURL(file);
+    const palette = await getImagePalette(displayUrl);
 
-    const vibrant_palette = [
-      palette.Vibrant?.hex || "#000",
-      palette.Vibrant?.bodyTextColor || "#fff",
-      palette.DarkVibrant?.hex || "#000",
-      palette.DarkVibrant?.bodyTextColor || "#fff",
-      palette.LightVibrant?.hex || "#fff",
-      palette.LightVibrant?.bodyTextColor || "#000",
-    ];
+    form.setValue("theme", "vibrant");
+    form.setValue("themeVibrantPalette", palette.vibrant_palette.join("."));
+    form.setValue("themeMutedPalette", palette.muted_palette.join("."));
 
-    const muted_palette = [
-      palette.Muted?.hex || "#000",
-      palette.Muted?.bodyTextColor || "#fff",
-      palette.DarkMuted?.hex || "#000",
-      palette.DarkMuted?.bodyTextColor || "#fff",
-      palette.LightMuted?.hex || "#fff",
-      palette.LightMuted?.bodyTextColor || "#000",
-    ];
-
-    return {
-      file,
-      displayUrl,
-      palette: {
-        vibrant_palette,
-        muted_palette,
-      },
-    };
+    setPreview(displayUrl);
+    onChange(file);
   };
 
   const handleAddItem = async (e: KeyboardEvent<HTMLInputElement>) => {
@@ -303,22 +286,7 @@ export default function RoadmapForm({
                             accept="image/*"
                             placeholder="설명 입력"
                             {...rest}
-                            onChange={async (e) => {
-                              const { file, displayUrl, palette } =
-                                await getImageData(e);
-
-                              form.setValue("theme", "vibrant");
-                              form.setValue(
-                                "themeVibrantPalette",
-                                palette.vibrant_palette.join("."),
-                              );
-                              form.setValue(
-                                "themeMutedPalette",
-                                palette.muted_palette.join("."),
-                              );
-                              setPreview(displayUrl);
-                              onChange(file);
-                            }}
+                            onChange={(e) => handleFileChange(e, onChange)}
                           />
                         </label>
                       </Button>

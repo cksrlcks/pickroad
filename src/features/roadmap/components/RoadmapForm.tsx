@@ -166,6 +166,37 @@ export default function RoadmapForm({
     });
   };
 
+  const handleTagKeyDown = (
+    e: KeyboardEvent<HTMLInputElement>,
+    field: {
+      value: string[] | undefined;
+      onChange: (value: string[] | undefined) => void;
+    },
+  ) => {
+    if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    const value = e.currentTarget.value.trim();
+    if (value) {
+      const newTags = new Set([...(field.value || []), value]);
+      e.currentTarget.value = "";
+      field.onChange(Array.from(newTags));
+    }
+  };
+
+  const handleTagRemove = (
+    tag: string,
+    field: {
+      value: string[] | undefined;
+      onChange: (value: string[] | undefined) => void;
+    },
+  ) => {
+    const newTags = field.value?.filter((item) => item !== tag) || [];
+    field.onChange(newTags);
+  };
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "items",
@@ -362,23 +393,7 @@ export default function RoadmapForm({
                   <FormLabel>태그</FormLabel>
                   <FormControl>
                     <Input
-                      onKeyDown={(e) => {
-                        if (e.key !== "Enter" || e.nativeEvent.isComposing)
-                          return;
-
-                        e.stopPropagation();
-                        e.preventDefault();
-                        const value = e.currentTarget.value.trim();
-
-                        if (value) {
-                          const newTags = new Set([
-                            ...(field.value || []),
-                            value,
-                          ]);
-                          e.currentTarget.value = "";
-                          field.onChange(Array.from(newTags));
-                        }
-                      }}
+                      onKeyDown={(e) => handleTagKeyDown(e, field)}
                       placeholder="태그를 작성후 Enter를 눌러 추가"
                     />
                   </FormControl>
@@ -404,12 +419,7 @@ export default function RoadmapForm({
                             </span>
                             <button
                               type="button"
-                              onClick={() => {
-                                const newTags = field.value?.filter(
-                                  (tag) => tag !== item,
-                                );
-                                field.onChange(newTags);
-                              }}
+                              onClick={() => handleTagRemove(item, field)}
                             >
                               <X className="h-3 w-3" strokeWidth={3} />
                               <span className="sr-only">삭제</span>

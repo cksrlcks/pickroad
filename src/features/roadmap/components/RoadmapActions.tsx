@@ -1,5 +1,6 @@
 "use client";
 
+import { useOptimistic, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Heart, Pencil, Share, Star, Trash } from "lucide-react";
@@ -15,8 +16,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deleteRoadmap } from "@/db/actions/roadmap";
+import {
+  deleteRoadmap,
+  likeRoadmap,
+  unlikeRoadmap,
+} from "@/db/actions/roadmap";
 import { authClient } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 import { Roadmap } from "../type";
 
 type RoadmapActionsProps = {
@@ -28,6 +34,17 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
   const { data: session } = authClient.useSession();
   const isAuthor = session?.user.id === roadmap.author?.id;
 
+  const [isPending, startTransition] = useTransition();
+  const [likeState, setLikeState] = useOptimistic(
+    { isLiked: roadmap.isLiked, likeCount: roadmap.likeCount },
+    (prev, newState: boolean) => {
+      return {
+        isLiked: newState,
+        likeCount: newState ? prev.likeCount + 1 : prev.likeCount - 1,
+      };
+    },
+  );
+
   const handleDelete = async () => {
     const response = await deleteRoadmap(roadmap.id);
     if (response.success) {
@@ -38,16 +55,41 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
     }
   };
 
+  const handleToggleLike = async () => {
+    if (!session) {
+      toast.error("로그인 후 이용해주세요.");
+      return;
+    }
+
+    startTransition(async () => {
+      const nextLike = !likeState.isLiked;
+      setLikeState(nextLike);
+
+      const response = nextLike
+        ? await likeRoadmap(roadmap.id, roadmap.externalId)
+        : await unlikeRoadmap(roadmap.id, roadmap.externalId);
+
+      if (!response.success) {
+        setLikeState(!nextLike);
+        toast.error(response.message);
+      }
+    });
+  };
+
   return (
     <div className="flex items-center">
       <button
         type="button"
-        className="mr-auto -ml-2.5 h-8 rounded-full px-2.5 transition-all hover:bg-pink-100"
-        onClick={() => alert("준비중")}
+        className={cn(
+          "mr-auto -ml-2.5 h-8 rounded-full px-2.5 transition-all hover:bg-pink-100",
+          likeState.isLiked && "bg-pink-100/80 font-semibold",
+        )}
+        onClick={handleToggleLike}
+        disabled={isPending}
       >
         <div className="flex items-center gap-1.5 text-sm font-medium">
           <Heart strokeWidth={3} className="w-[14px] text-[#FF7C7C]" />
-          {roadmap.likeCount}
+          {likeState.likeCount}
         </div>
       </button>
       <button

@@ -62,7 +62,7 @@ export const getRoadmap = unstable_cache(async (externalId: string) => {
   if (!roadmap) return null;
 
   const [{ count: likeCount }] = await db
-    .select({ count: sql<number>`count(*)` })
+    .select({ count: sql<number>`cast(count(*) as integer)` })
     .from(likes)
     .where(
       and(eq(likes.targetType, "roadmap"), eq(likes.targetId, roadmap.id)),

@@ -383,3 +383,75 @@ export const getOgData = async (url: string) => {
     };
   }
 };
+
+export const likeRoadmap = async (id: number, externalId: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return {
+      success: false,
+      message: "로그인을 해주세요",
+    };
+  }
+
+  try {
+    await db.insert(likes).values({
+      userId: session.user.id,
+      targetType: "roadmap",
+      targetId: id,
+    });
+
+    revalidatePath(`/roadmap/${externalId}`);
+
+    return {
+      success: true,
+      message: "로드맵에 좋아요를 눌렀습니다.",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "에러가 발생했습니다.",
+    };
+  }
+};
+
+export const unlikeRoadmap = async (id: number, externalId: string) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    return {
+      success: false,
+      message: "로그인을 해주세요",
+    };
+  }
+
+  try {
+    await db
+      .delete(likes)
+      .where(
+        and(
+          eq(likes.targetType, "roadmap"),
+          eq(likes.targetId, id),
+          eq(likes.userId, session.user.id),
+        ),
+      );
+
+    revalidatePath(`/roadmap/${externalId}`);
+
+    return {
+      success: true,
+      message: "로드맵의 좋아요를 취소했습니다.",
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "에러가 발생했습니다.",
+    };
+  }
+};

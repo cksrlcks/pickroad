@@ -1,6 +1,6 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
+import { useEffect, useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -86,7 +86,31 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
     });
   };
 
-  // TODO : Share roadmap
+  // Share roadmap
+  useEffect(() => {
+    if (window.Kakao) {
+      if (!window.Kakao.isInitialized()) {
+        window.Kakao.init(process.env.NEXT_PUBLIC_KAKAO_API_KEY);
+      }
+    }
+  }, []);
+
+  const handleKakaoShareClick = () => {
+    if (!window.Kakao) {
+      toast.error("카카오톡 SDK가 초기화되지 않았습니다.");
+      return;
+    }
+
+    window.Kakao.Share.sendScrap({
+      requestUrl: window.location.href,
+      installTalk: true,
+    });
+  };
+
+  const handleCopyUrlClick = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast.success("URL이 복사되었습니다.");
+  };
 
   // Delete roadmap
   const handleDelete = async () => {
@@ -100,7 +124,7 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
   };
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center gap-[1px]">
       <RoadmapLikeButton
         likeCount={likeState.likeCount}
         isLiked={likeState.isLiked}
@@ -112,7 +136,10 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
         onToggleBookmark={handleToggleBookmark}
         isPending={isPendingBookmark}
       />
-      <RoadmapShareButton />
+      <RoadmapShareButton
+        onKakaoShareClick={handleKakaoShareClick}
+        onCopyUrlClick={handleCopyUrlClick}
+      />
       {isAuthor && (
         <>
           <RoadmapEditButton href={`/roadmap/edit/${roadmap.externalId}`} />

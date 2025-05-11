@@ -1,12 +1,45 @@
 import { notFound } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getRoadmapWithSession } from "@/db/actions/roadmap";
+import { getRoadmap, getRoadmapWithSession } from "@/db/actions/roadmap";
 import RoadmapActions from "@/features/roadmap/components/RoadmapActions";
 import { RoadmapCard } from "@/features/roadmap/components/RoadmapCard";
 import RoadmapInfo from "@/features/roadmap/components/RoadmapInfo";
 import RoadmapItems from "@/features/roadmap/components/RoadmapItems";
 import RoadmapReview from "@/features/roadmap/components/RoadmapReviews";
 import RoadmapTags from "@/features/roadmap/components/RoadmapTags";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ externalId: string }>;
+}) {
+  const { externalId } = await params;
+  const roadmap = await getRoadmap(externalId);
+  const title = `${roadmap ? roadmap.title + " | " : ""}Pick Road`;
+  const description = `${
+    roadmap ? roadmap.description : "나만의 로드맵 공유 플랫폼"
+  }`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://pick-road.com/roadmap/${externalId}`,
+      siteName: "Pick Road",
+      type: "website",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: "Pick Road - 나만의 로드맵 공유 플랫폼",
+        },
+      ],
+    },
+  };
+}
 
 export default async function RoadmapDetailPage({
   params,

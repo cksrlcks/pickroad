@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { getOgData } from "@/db/actions/roadmap";
+import { getOgData } from "@/actions/roadmap";
 import { isValidUrl } from "@/lib/utils";
 
 export function useOgData() {

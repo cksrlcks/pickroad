@@ -2,9 +2,9 @@
 
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { revalidatePath, unstable_cache } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { inArray, sql, and, eq } from "drizzle-orm";
+import { inArray, and, eq } from "drizzle-orm";
 import { ulid } from "ulid";
 import urlMetadata from "url-metadata";
 import {
@@ -15,110 +15,14 @@ import {
 import { auth } from "@/lib/auth";
 import { r2 } from "@/lib/r2-client";
 import { isValidUrl } from "@/lib/utils";
-import { db } from "..";
-import { likes, roadmapItems, roadmaps, roadmapTags, tags } from "../schema";
-import { bookmarks } from "../schema/bookmarks";
+import { ServerActionResult } from "@/types";
+import { db } from "../db";
+import { likes, roadmapItems, roadmaps, roadmapTags, tags } from "../db/schema";
+import { bookmarks } from "../db/schema/bookmarks";
 
-export const getRoadmaps = unstable_cache(
-  async (page: number = 1, limit: number = 3) => {
-    const [{ count: totalCount }] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(roadmaps);
-
-    const data = await db.query.roadmaps.findMany({
-      with: {
-        category: true,
-        author: true,
-        tags: {
-          with: {
-            tag: true,
-          },
-        },
-      },
-      orderBy: (fields, { desc }) => desc(fields.createdAt),
-      limit,
-      offset: (page - 1) * limit,
-    });
-
-    return {
-      totalCount: totalCount,
-      data,
-    };
-  },
-);
-
-export const getRoadmap = unstable_cache(async (externalId: string) => {
-  const roadmap = await db.query.roadmaps.findFirst({
-    where: eq(roadmaps.externalId, externalId),
-    with: {
-      category: true,
-      author: true,
-      items: true,
-      tags: {
-        with: { tag: true },
-      },
-    },
-  });
-
-  if (!roadmap) return null;
-
-  const [{ count: likeCount }] = await db
-    .select({ count: sql<number>`cast(count(*) as integer)` })
-    .from(likes)
-    .where(
-      and(eq(likes.targetType, "roadmap"), eq(likes.targetId, roadmap.id)),
-    );
-
-  return {
-    ...roadmap,
-    tags: roadmap.tags.map((t) => t.tag as { id: number; name: string }),
-    likeCount,
-  };
-});
-
-export const getRoadmapWithSession = async (externalId: string) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  const roadmap = await getRoadmap(externalId);
-
-  if (!roadmap) return null;
-
-  let isLiked = false;
-  let isBookmarked = false;
-
-  if (session) {
-    const row = await db
-      .select({
-        isLiked: sql<boolean>`EXISTS (
-      SELECT * FROM ${likes}
-      WHERE ${likes.targetType} = 'roadmap'
-        AND ${likes.targetId} = ${roadmap.id}
-        AND ${likes.userId} = ${session.user.id}
-    )`,
-        isBookmarked: sql<boolean>`EXISTS (
-      SELECT * FROM ${bookmarks}
-      WHERE ${likes.targetType} = 'roadmap'
-        AND ${likes.targetId} = ${roadmap.id}
-        AND ${likes.userId} = ${session.user.id}
-    )`,
-      })
-      .from(likes)
-      .then((res) => res[0]);
-
-    isLiked = row?.isLiked ?? false;
-    isBookmarked = row?.isBookmarked ?? false;
-  }
-
-  return {
-    ...roadmap,
-    isLiked,
-    isBookmarked,
-  };
-};
-
-export const getPresignedUrl = async () => {
+export const getPresignedUrl = async (): Promise<
+  ServerActionResult<{ presignedUrl: string; fileUrl: string }>
+> => {
   const key = `uploads/${ulid()}`;
   const bucket = process.env.R2_BUCKET_NAME;
 
@@ -131,6 +35,7 @@ export const getPresignedUrl = async () => {
 
     return {
       success: true,
+      message: "presignedUrl을 성공적으로 가져왔습니다.",
       payload: {
         presignedUrl,
         fileUrl: `${process.env.R2_CDN_URL}/${key}`,
@@ -145,7 +50,9 @@ export const getPresignedUrl = async () => {
   }
 };
 
-export async function createRoadmap(form: RoadmapFormWithUploadedUrl) {
+export const createRoadmap = async (
+  form: RoadmapFormWithUploadedUrl,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -225,9 +132,11 @@ export async function createRoadmap(form: RoadmapFormWithUploadedUrl) {
       message: "에러가 발생했습니다.",
     };
   }
-}
+};
 
-export async function editRoadmap(form: RoadmapFormWithUploadedUrl) {
+export const editRoadmap = async (
+  form: RoadmapFormWithUploadedUrl,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -313,9 +222,11 @@ export async function editRoadmap(form: RoadmapFormWithUploadedUrl) {
       message: "에러가 발생했습니다.",
     };
   }
-}
+};
 
-export async function deleteRoadmap(id: number) {
+export const deleteRoadmap = async (
+  id: number,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -357,13 +268,11 @@ export async function deleteRoadmap(id: number) {
       message: "에러가 발생했습니다.",
     };
   }
-}
+};
 
-export const getCategories = unstable_cache(async () => {
-  return await db.query.categories.findMany();
-});
-
-export const getOgData = async (url: string) => {
+export const getOgData = async (
+  url: string,
+): Promise<ServerActionResult<RoadmapItemMetaData>> => {
   if (!isValidUrl(url)) {
     return {
       success: false,
@@ -378,12 +287,12 @@ export const getOgData = async (url: string) => {
 
     return {
       success: true,
-      message: "메타데이터를 성고적으로 가져왔습니다.",
+      message: "메타데이터를 성공적으로 가져왔습니다.",
       payload: {
         title: data["og:title"] || data.title,
         image: data["og:image"],
-        description: data["og:desciption"] || data.description,
-      } as RoadmapItemMetaData,
+        description: data["og:description"] || data.description,
+      },
     };
   } catch (error) {
     console.error(error);
@@ -394,7 +303,10 @@ export const getOgData = async (url: string) => {
   }
 };
 
-export const likeRoadmap = async (id: number, externalId: string) => {
+export const likeRoadmap = async (
+  id: number,
+  externalId: string,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -428,7 +340,10 @@ export const likeRoadmap = async (id: number, externalId: string) => {
   }
 };
 
-export const unlikeRoadmap = async (id: number, externalId: string) => {
+export const unlikeRoadmap = async (
+  id: number,
+  externalId: string,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -466,7 +381,10 @@ export const unlikeRoadmap = async (id: number, externalId: string) => {
   }
 };
 
-export const bookmarkRoadmap = async (id: number, externalId: string) => {
+export const bookmarkRoadmap = async (
+  id: number,
+  externalId: string,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -500,7 +418,10 @@ export const bookmarkRoadmap = async (id: number, externalId: string) => {
   }
 };
 
-export const unbookmarkRoadmap = async (id: number, externalId: string) => {
+export const unbookmarkRoadmap = async (
+  id: number,
+  externalId: string,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

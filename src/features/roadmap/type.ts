@@ -24,8 +24,8 @@ export type Roadmap = Omit<RoadmapBase, "categoryId" | "authorId"> & {
   author: Author | null;
   tags: RoadmapTag[] | null;
   items: RoadmapItem[] | null;
-  isLiked: boolean | null;
-  isBookmarked: boolean | null;
+  isLiked?: boolean | null;
+  isBookmarked?: boolean | null;
   likeCount: number;
 };
 

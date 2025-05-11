@@ -15,11 +15,14 @@ import {
 import { auth } from "@/lib/auth";
 import { r2 } from "@/lib/r2-client";
 import { isValidUrl } from "@/lib/utils";
+import { ServerActionResult } from "@/types";
 import { db } from "../db";
 import { likes, roadmapItems, roadmaps, roadmapTags, tags } from "../db/schema";
 import { bookmarks } from "../db/schema/bookmarks";
 
-export const getPresignedUrl = async () => {
+export const getPresignedUrl = async (): Promise<
+  ServerActionResult<{ presignedUrl: string; fileUrl: string }>
+> => {
   const key = `uploads/${ulid()}`;
   const bucket = process.env.R2_BUCKET_NAME;
 
@@ -32,6 +35,7 @@ export const getPresignedUrl = async () => {
 
     return {
       success: true,
+      message: "presignedUrl을 성공적으로 가져왔습니다.",
       payload: {
         presignedUrl,
         fileUrl: `${process.env.R2_CDN_URL}/${key}`,
@@ -46,7 +50,9 @@ export const getPresignedUrl = async () => {
   }
 };
 
-export async function createRoadmap(form: RoadmapFormWithUploadedUrl) {
+export const createRoadmap = async (
+  form: RoadmapFormWithUploadedUrl,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -126,9 +132,11 @@ export async function createRoadmap(form: RoadmapFormWithUploadedUrl) {
       message: "에러가 발생했습니다.",
     };
   }
-}
+};
 
-export async function editRoadmap(form: RoadmapFormWithUploadedUrl) {
+export const editRoadmap = async (
+  form: RoadmapFormWithUploadedUrl,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -214,9 +222,11 @@ export async function editRoadmap(form: RoadmapFormWithUploadedUrl) {
       message: "에러가 발생했습니다.",
     };
   }
-}
+};
 
-export async function deleteRoadmap(id: number) {
+export const deleteRoadmap = async (
+  id: number,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -258,9 +268,11 @@ export async function deleteRoadmap(id: number) {
       message: "에러가 발생했습니다.",
     };
   }
-}
+};
 
-export const getOgData = async (url: string) => {
+export const getOgData = async (
+  url: string,
+): Promise<ServerActionResult<RoadmapItemMetaData>> => {
   if (!isValidUrl(url)) {
     return {
       success: false,
@@ -275,12 +287,12 @@ export const getOgData = async (url: string) => {
 
     return {
       success: true,
-      message: "메타데이터를 성고적으로 가져왔습니다.",
+      message: "메타데이터를 성공적으로 가져왔습니다.",
       payload: {
         title: data["og:title"] || data.title,
         image: data["og:image"],
-        description: data["og:desciption"] || data.description,
-      } as RoadmapItemMetaData,
+        description: data["og:description"] || data.description,
+      },
     };
   } catch (error) {
     console.error(error);
@@ -291,7 +303,10 @@ export const getOgData = async (url: string) => {
   }
 };
 
-export const likeRoadmap = async (id: number, externalId: string) => {
+export const likeRoadmap = async (
+  id: number,
+  externalId: string,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -325,7 +340,10 @@ export const likeRoadmap = async (id: number, externalId: string) => {
   }
 };
 
-export const unlikeRoadmap = async (id: number, externalId: string) => {
+export const unlikeRoadmap = async (
+  id: number,
+  externalId: string,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -363,7 +381,10 @@ export const unlikeRoadmap = async (id: number, externalId: string) => {
   }
 };
 
-export const bookmarkRoadmap = async (id: number, externalId: string) => {
+export const bookmarkRoadmap = async (
+  id: number,
+  externalId: string,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -397,7 +418,10 @@ export const bookmarkRoadmap = async (id: number, externalId: string) => {
   }
 };
 
-export const unbookmarkRoadmap = async (id: number, externalId: string) => {
+export const unbookmarkRoadmap = async (
+  id: number,
+  externalId: string,
+): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });

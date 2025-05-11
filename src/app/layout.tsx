@@ -4,6 +4,13 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Kakao: any;
+  }
+}
+
 export const metadata: Metadata = {
   title: "Pick Road - 나만의 로드맵 공유 플랫폼",
   description:
@@ -40,6 +47,12 @@ export default function RootLayout({
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
         />
+        <script
+          src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.5/kakao.min.js"
+          integrity="sha384-dok87au0gKqJdxs7msEdBPNnKSRT+/mhTVzq+qOhcL464zXwvcrpjeWvyj1kCdq6"
+          crossOrigin="anonymous"
+          defer
+        ></script>
       </head>
       <body className="antialiased">
         <ThemeProvider

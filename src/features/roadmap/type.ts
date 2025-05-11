@@ -25,12 +25,13 @@ export type Roadmap = Omit<RoadmapBase, "categoryId" | "authorId"> & {
   tags: RoadmapTag[] | null;
   items: RoadmapItem[] | null;
   isLiked: boolean | null;
+  isBookmarked: boolean | null;
   likeCount: number;
 };
 
 export type RoadmapCompact = Omit<
   Roadmap,
-  "items" | "tags" | "likeCount" | "isLiked"
+  "items" | "tags" | "likeCount" | "isLiked" | "isBookmarked"
 >;
 
 export const roadmapBaseInsertSchema = createInsertSchema(roadmaps, {

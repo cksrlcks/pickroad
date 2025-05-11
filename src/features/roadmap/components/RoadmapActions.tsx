@@ -4,15 +4,17 @@ import { useOptimistic, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
+  bookmarkRoadmap,
   deleteRoadmap,
   likeRoadmap,
+  unbookmarkRoadmap,
   unlikeRoadmap,
 } from "@/db/actions/roadmap";
 import { authClient } from "@/lib/auth-client";
 import { Roadmap } from "../type";
 import { RoadmapDeleteButton } from "./RoadmapDeleteButton";
 import { RoadmapEditButton } from "./RoadmapEditButton";
-import { RoadmapFavoriteButton } from "./RoadmapFavoriteButton";
+import { RoadmapBookmarkButton } from "./RoadmapFavoriteButton";
 import { RoadmapLikeButton } from "./RoadmapLikeButton";
 import { RoadmapShareButton } from "./RoadmapShareButton";
 
@@ -57,7 +59,32 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
     });
   };
 
-  // TODO : Favorite roadmap
+  // Bookmark roadmap
+  const [isPendingBookmark, startTransitionBookmark] = useTransition();
+  const [bookmarkState, setBookmarkState] = useOptimistic(
+    roadmap.isBookmarked || false,
+    (prev, newState: boolean) => newState,
+  );
+  const handleToggleBookmark = async () => {
+    if (!session) {
+      toast.error("로그인 후 이용해주세요.");
+      return;
+    }
+
+    startTransitionBookmark(async () => {
+      const nextBookmark = !bookmarkState;
+      setBookmarkState(nextBookmark);
+
+      const response = nextBookmark
+        ? await bookmarkRoadmap(roadmap.id, roadmap.externalId)
+        : await unbookmarkRoadmap(roadmap.id, roadmap.externalId);
+
+      if (!response.success) {
+        setBookmarkState(!nextBookmark);
+        toast.error(response.message);
+      }
+    });
+  };
 
   // TODO : Share roadmap
 
@@ -80,7 +107,11 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
         onToggleLike={handleToggleLike}
         isPending={isPendingLike}
       />
-      <RoadmapFavoriteButton />
+      <RoadmapBookmarkButton
+        isBookmarked={bookmarkState}
+        onToggleBookmark={handleToggleBookmark}
+        isPending={isPendingBookmark}
+      />
       <RoadmapShareButton />
       {isAuthor && (
         <>

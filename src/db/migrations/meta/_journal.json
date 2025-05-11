@@ -15,6 +15,13 @@
       "when": 1746718844558,
       "tag": "0001_slimy_loki",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1746928916088,
+      "tag": "0002_thankful_onslaught",
+      "breakpoints": true
     }
   ]
 }

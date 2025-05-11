@@ -18,8 +18,8 @@ export function RoadmapLikeButton({
     <button
       type="button"
       className={cn(
-        "mr-auto -ml-2.5 h-8 rounded-full px-2.5 transition-all hover:bg-pink-100",
-        isLiked && "bg-pink-100/80 font-semibold",
+        "mr-auto -ml-2.5 h-8 rounded-full px-2.5 transition-all hover:bg-pink-100 dark:hover:text-black",
+        isLiked && "bg-pink-100/80 font-semibold text-black",
       )}
       onClick={onToggleLike}
       disabled={isPending}

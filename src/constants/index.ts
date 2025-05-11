@@ -11,7 +11,6 @@ export const DEFAULT_COLORS = [
   "#4BC0C0", // 민트
   "#F9CB40", // 노랑
   "#A3A3A3", // 회색
-  "#3A3A3A", // 다크그레이
 ] as const satisfies HexColor[];
 
 export const ROADMAP_THEMES = ["vibrant", "muted"] as const;

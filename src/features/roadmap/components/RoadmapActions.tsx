@@ -9,7 +9,7 @@ import {
   likeRoadmap,
   unbookmarkRoadmap,
   unlikeRoadmap,
-} from "@/db/actions/roadmap";
+} from "@/actions/roadmap";
 import { authClient } from "@/lib/auth-client";
 import { Roadmap } from "../type";
 import { RoadmapDeleteButton } from "./RoadmapDeleteButton";

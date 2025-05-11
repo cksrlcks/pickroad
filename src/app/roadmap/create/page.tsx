@@ -1,4 +1,5 @@
-import { createRoadmap, getCategories } from "@/db/actions/roadmap";
+import { createRoadmap } from "@/actions/roadmap";
+import { getCategories } from "@/data/roadmap";
 import RoadmapForm from "@/features/roadmap/components/RoadmapForm";
 
 export default async function CreateRoadmapPage() {

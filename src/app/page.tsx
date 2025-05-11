@@ -7,7 +7,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { getRoadmaps } from "@/db/actions/roadmap";
+import { getRoadmaps } from "@/data/roadmap";
 import { RoadmapCard } from "@/features/roadmap/components/RoadmapCard";
 
 const LIMIT = 24;

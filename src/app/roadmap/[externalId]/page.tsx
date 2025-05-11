@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getRoadmap, getRoadmapWithSession } from "@/db/actions/roadmap";
+import { getRoadmap, getRoadmapWithSession } from "@/data/roadmap";
 import RoadmapActions from "@/features/roadmap/components/RoadmapActions";
 import { RoadmapCard } from "@/features/roadmap/components/RoadmapCard";
 import RoadmapInfo from "@/features/roadmap/components/RoadmapInfo";

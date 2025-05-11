@@ -1,5 +1,5 @@
 import { S3Client } from "@aws-sdk/client-s3";
-import { getPresignedUrl } from "@/db/actions/roadmap";
+import { getPresignedUrl } from "@/actions/roadmap";
 
 export const r2 = new S3Client({
   region: "auto",

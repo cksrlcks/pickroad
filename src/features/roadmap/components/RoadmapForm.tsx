@@ -33,7 +33,7 @@ import { authClient } from "@/lib/auth-client";
 import { getColorByString, getImagePalette } from "@/lib/color";
 import { uploadImageByClient } from "@/lib/r2-client";
 import { isValidUrl } from "@/lib/utils";
-import { useOgData } from "../hooks/useOgData";
+import { useFetchOgData } from "../hooks/useFetchOgData";
 import {
   Roadmap,
   RoadmapCategory,
@@ -63,7 +63,7 @@ export default function RoadmapForm({
 
   const [preview, setPreview] = useState(initialData?.thumbnail ?? "");
   const { data: session } = authClient.useSession();
-  const { fetchOgData, isFetching: isFetchingMetadata } = useOgData();
+  const { fetchOgData, isFetching: isFetchingMetadata } = useFetchOgData();
 
   const form = useForm<RoadmapFormType>({
     resolver: zodResolver(roadmapInsertSchema),

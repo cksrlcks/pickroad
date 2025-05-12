@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { getOgData } from "@/actions/roadmap";
 import { isValidUrl } from "@/lib/utils";
 
-export function useOgData() {
+export function useFetchOgData() {
   const [isFetching, setIsFetching] = useState(false);
 
   const fetchOgData = async (url: string) => {

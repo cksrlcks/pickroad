@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import PlaceholderImage from "@/assets/img/placeholder.svg";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Author from "@/components/Author";
 import { dateToAgo } from "@/lib/utils";
 import { RoadmapCompact } from "../type";
 
@@ -77,19 +77,7 @@ export function RoadmapCard({ roadmap }: RoadmapCardProps) {
         </div>
         <div className="flex items-center justify-between">
           <div className="flex w-1/2 min-w-0 items-center gap-1.5">
-            {roadmap.author && (
-              <>
-                <Avatar className="h-4 w-4">
-                  <AvatarImage src={roadmap.author.image || undefined} />
-                  <AvatarFallback className="text-foreground text-[10px] font-semibold">
-                    {roadmap.author.name.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="overflow-hidden text-xs text-ellipsis whitespace-nowrap">
-                  {roadmap.author.name}
-                </span>
-              </>
-            )}
+            {roadmap.author && <Author user={roadmap.author} />}
           </div>
           <div className="flex items-center gap-1.5 text-xs tracking-tight opacity-70">
             <i

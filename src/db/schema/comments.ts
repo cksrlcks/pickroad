@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   index,
   integer,
@@ -31,3 +32,10 @@ export const comments = pgTable(
     index("comments_target_idx").on(table.targetType, table.targetId),
   ],
 );
+
+export const commentRelations = relations(comments, ({ one }) => ({
+  author: one(user, {
+    fields: [comments.authorId],
+    references: [user.id],
+  }),
+}));

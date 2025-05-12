@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import Spinner from "@/components/Spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getRoadmap, getRoadmapWithSession } from "@/data/roadmap";
 import RoadmapActions from "@/features/roadmap/components/RoadmapActions";
@@ -76,7 +78,15 @@ export default async function RoadmapDetailPage({
             <RoadmapItems roadmap={roadmapDetail} />
           </TabsContent>
           <TabsContent value="review">
-            <RoadmapReview roadmap={roadmapDetail} />
+            <Suspense
+              fallback={
+                <div className="flex justify-center">
+                  <Spinner />
+                </div>
+              }
+            >
+              <RoadmapReview roadmap={roadmapDetail} />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </div>

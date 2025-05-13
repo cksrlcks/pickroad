@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useTheme } from "next-themes";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LaptopMinimal, Menu, Moon, Sun, X } from "lucide-react";
+import Logo from "@/assets/img/logo.svg";
 import { authClient } from "@/lib/auth-client";
 import Inner from "./Inner";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -43,15 +45,21 @@ export default function MobileNav() {
         </Button>
       </DrawerTrigger>
       <DrawerContent>
-        <DrawerHeader>
-          <Button variant="ghost" className="ml-auto h-8 w-8">
-            <X />
-            <span className="sr-only">닫기</span>
-          </Button>
-          <DrawerTitle className="sr-only">Mobile Navigation</DrawerTitle>
-        </DrawerHeader>
-
         <Inner className="relative">
+          <DrawerHeader className="flex flex-row items-center justify-between px-0">
+            <Link href="/" onClick={() => setIsOpen(false)}>
+              <Image src={Logo} alt="Pick Road" className="dark:invert" />
+            </Link>
+            <Button
+              variant="ghost"
+              className="ml-auto h-8 w-8"
+              onClick={() => setIsOpen(false)}
+            >
+              <X />
+              <span className="sr-only">닫기</span>
+            </Button>
+            <DrawerTitle className="sr-only">Mobile Navigation</DrawerTitle>
+          </DrawerHeader>
           <div className="bg-muted mb-4 rounded-md">
             {session ? (
               <div className="flex items-center gap-2 p-4">

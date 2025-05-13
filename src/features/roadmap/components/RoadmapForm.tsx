@@ -445,6 +445,7 @@ export default function RoadmapForm({
                         src={field.thumbnail}
                         alt="preview"
                         className="h-full w-full object-cover"
+                        referrerPolicy="no-referrer"
                       />
                     }
                   </figure>

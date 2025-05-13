@@ -35,7 +35,7 @@ export default async function Home({
 
   return (
     <>
-      <ul className="mb-10 grid grid-cols-2 gap-2 md:grid-cols-3 md:flex-row">
+      <ul className="mb-10 grid grid-cols-2 gap-2 group-has-[[data-pending]]:animate-pulse md:grid-cols-3 md:flex-row">
         {data.map((item) => (
           <li key={item.id} className="mx-auto w-full">
             <Link href={`/roadmap/${item.externalId}`}>

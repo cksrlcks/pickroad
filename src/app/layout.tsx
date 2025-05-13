@@ -55,7 +55,7 @@ export default function RootLayout({
           defer
         ></script>
       </head>
-      <body className="antialiased">
+      <body className="group antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

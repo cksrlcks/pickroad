@@ -282,7 +282,11 @@ export const getOgData = async (
 
   try {
     const data = await urlMetadata(url, {
-      cache: "force-cache",
+      cache: "no-cache",
+      requestHeaders: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+      },
     });
 
     return {

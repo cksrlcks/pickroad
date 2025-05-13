@@ -1,15 +1,18 @@
 "use client";
 
-import { KeyboardEvent, useState } from "react";
+import { KeyboardEvent, useState, useTransition } from "react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import CancelIcon from "@/assets/img/icon-x.svg";
+import { cn } from "@/lib/utils";
+import Spinner from "./Spinner";
 
 export default function Search() {
   const [keyword, setKeyword] = useState("");
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
@@ -25,7 +28,9 @@ export default function Search() {
       params.delete("keyword");
     }
 
-    router.replace(`${pathname}/?${params.toString()}`);
+    startTransition(() => {
+      router.replace(`${pathname}/?${params.toString()}`);
+    });
   };
 
   const handleReset = () => {
@@ -37,7 +42,12 @@ export default function Search() {
   };
 
   return (
-    <div className="bg-muted flex h-10 w-full items-center overflow-hidden rounded-md pr-3 text-sm">
+    <div
+      className={cn(
+        "bg-muted flex h-10 w-full items-center gap-3 overflow-hidden rounded-md pr-3 text-sm",
+        isPending && "opacity-80",
+      )}
+    >
       <input
         type="text"
         placeholder="로드맵 검색"
@@ -46,6 +56,7 @@ export default function Search() {
         onChange={(e) => setKeyword(e.target.value)}
         onKeyDown={handleTagKeyDown}
       />
+      {isPending && <Spinner className="h-4 w-4" />}
       {keyword && (
         <button onClick={handleReset}>
           <Image src={CancelIcon} alt="Cancel" />

@@ -282,7 +282,10 @@ export const getOgData = async (
 
   try {
     const data = await urlMetadata(url, {
-      cache: "force-cache",
+      cache: "no-cache",
+      requestHeaders: {
+        "user-agent": "Googlebot/2.1 (+http://www.google.com/bot.html)",
+      },
     });
 
     return {

@@ -57,7 +57,7 @@ export default async function RoadmapDetailPage({
 
   return (
     <div className="flex flex-col justify-between gap-14 md:flex-row">
-      <div className="dark:bg-muted/30 -mx-20 bg-slate-100 py-6 md:mx-0 md:w-full md:max-w-[320px] md:bg-transparent md:py-0 dark:md:bg-transparent">
+      <div className="dark:bg-muted/30 -mx-6 -mt-8 bg-slate-100 py-6 md:mx-0 md:mt-0 md:w-full md:max-w-[320px] md:bg-transparent md:py-0 dark:md:bg-transparent">
         <div className="mx-auto max-w-[300px] md:max-w-none">
           <RoadmapCard roadmap={roadmapDetail} />
         </div>

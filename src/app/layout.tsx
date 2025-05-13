@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Header from "@/components/Header";
+import Inner from "@/components/Inner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -61,13 +62,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="py-30">
-            <Header />
-            <div className="px-6 md:px-10">
-              <main className="mx-auto w-full max-w-4xl">{children}</main>
-              <Toaster />
-            </div>
-          </div>
+          <Header />
+          <Inner>
+            <main>{children}</main>
+          </Inner>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

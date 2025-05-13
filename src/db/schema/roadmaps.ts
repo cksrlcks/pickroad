@@ -70,6 +70,7 @@ export const roadmapTags = pgTable(
 export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
+  emoji: text("emoji"),
 });
 
 export const roadmapRelations = relations(roadmaps, ({ one, many }) => ({

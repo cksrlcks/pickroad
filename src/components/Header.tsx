@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import PlusIcon from "@/assets/img/icon-plus.svg";
@@ -25,7 +26,9 @@ export default async function Header() {
             <Image src={Logo} alt="Pick Road" className="dark:invert" />
           </Link>
           <div className="order-last w-full md:order-none md:w-auto md:flex-1">
-            <Search />
+            <Suspense>
+              <Search />
+            </Suspense>
           </div>
           <div className="hidden md:flex">
             <Account />
@@ -35,7 +38,9 @@ export default async function Header() {
           </div>
         </div>
         <div className="flex justify-between gap-2">
-          <Nav categories={displayCategories} />
+          <Suspense>
+            <Nav categories={displayCategories} />
+          </Suspense>
           <Button
             asChild
             variant="ghost"

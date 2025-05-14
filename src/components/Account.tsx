@@ -2,7 +2,6 @@
 
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Check, ChevronDown } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -20,14 +19,14 @@ import {
 
 export default function Account() {
   const { data: session } = authClient.useSession();
-  const router = useRouter();
   const { setTheme, theme } = useTheme();
 
   const handleLogout = async () => {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.push("/");
+          // force reload to clear prefetch cache
+          window.location.href = "/";
         },
       },
     });
@@ -38,7 +37,7 @@ export default function Account() {
       {session ? (
         <div className="flex items-center">
           <Button asChild variant="ghost" className="h-10 w-10">
-            <Link href="my">
+            <Link href="/my">
               <Avatar className="h-8 w-8">
                 <AvatarImage
                   src={session.user.image || undefined}

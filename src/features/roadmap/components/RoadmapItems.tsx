@@ -33,6 +33,7 @@ export default function RoadmapItems({ roadmap }: RoadmapItemsProps) {
                   src={item.thumbnail}
                   alt={item.description || "thumbnail"}
                   className="h-full w-full object-cover"
+                  referrerPolicy="no-referrer"
                 />
               </figure>
             )}

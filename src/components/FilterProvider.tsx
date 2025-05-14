@@ -73,7 +73,7 @@ export default function FilterProvider({ children }: PropsWithChildren) {
 
     startTransition(() => {
       setOptimisticFilters(updates || {});
-      router.push(`?${newSearchParams}`, { scroll: false });
+      router.push(`/?${newSearchParams}`, { scroll: false });
     });
   }
 

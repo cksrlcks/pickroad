@@ -16,6 +16,7 @@ declare global {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://pick-road.com"),
   title: "Pick Road - 나만의 로드맵 공유 플랫폼",
   description:
     "Pick Road는 블로그, 유튜브 등 다양한 링크를 모아 나만의 큐레이션 로드맵으로 정리하고 공유할 수 있는 웹 서비스입니다.",
@@ -60,21 +61,21 @@ export default function RootLayout({
       </head>
       <body className="group antialiased">
         <Suspense>
-        <FilterProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <Header />
-            <Inner className="pb-10">
-              <main>{children}</main>
-            </Inner>
-            <Footer />
-            <Toaster />
-          </ThemeProvider>
-        </FilterProvider>
+          <FilterProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Header />
+              <Inner className="pb-10">
+                <main>{children}</main>
+              </Inner>
+              <Footer />
+              <Toaster />
+            </ThemeProvider>
+          </FilterProvider>
         </Suspense>
       </body>
     </html>

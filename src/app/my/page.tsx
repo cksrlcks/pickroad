@@ -1,3 +1,3 @@
 export default function MyPage() {
-  return <div className="min-h-[300px]">MyPage</div>;
+  return <div>나의 정보 페이지</div>;
 }

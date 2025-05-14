@@ -25,14 +25,14 @@ export function RoadmapCard({ roadmap }: RoadmapCardProps) {
 
   return (
     <div
-      className="relative aspect-[265/380] w-full overflow-hidden rounded-[18px] p-[2px]"
+      className="relative aspect-[265/380] w-full overflow-hidden rounded-[14px] p-[2px] md:rounded-[18px]"
       style={{
         backgroundColor: bgColor,
         color: textColor,
         boxShadow: `0px 11px 13px ${bgColor}20`,
       }}
     >
-      <div className="relative aspect-square overflow-hidden rounded-t-[16px]">
+      <div className="relative aspect-square overflow-hidden rounded-t-[12px] md:rounded-t-[16px]">
         <Image
           src={roadmap.thumbnail || PlaceholderImage}
           alt={roadmap.title}
@@ -68,10 +68,10 @@ export function RoadmapCard({ roadmap }: RoadmapCardProps) {
           )}
         </div>
         <div className="mb-5">
-          <div className="mb-2 line-clamp-2 text-xl leading-tight font-semibold break-all text-shadow-md">
+          <div className="text-2lg mb-2 line-clamp-2 leading-tight font-semibold break-all text-shadow-md md:text-xl">
             {roadmap.title}
           </div>
-          <div className="line-clamp-2 text-sm break-all opacity-70">
+          <div className="line-clamp-2 text-xs break-all opacity-70 md:text-sm">
             {roadmap.subTitle}
           </div>
         </div>
@@ -79,7 +79,7 @@ export function RoadmapCard({ roadmap }: RoadmapCardProps) {
           <div className="flex w-1/2 min-w-0 items-center gap-1.5">
             {roadmap.author && <Author user={roadmap.author} />}
           </div>
-          <div className="flex items-center gap-1.5 text-xs tracking-tight opacity-70">
+          <div className="flex items-center gap-1.5 text-[11px] tracking-tight opacity-70 md:text-xs">
             <i
               className="inline-block h-1 w-1 rounded-full"
               style={{ background: badgeBgColor }}

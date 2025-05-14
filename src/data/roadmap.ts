@@ -15,10 +15,18 @@ export const getRoadmaps = unstable_cache(
   async (
     page: number = 1,
     limit: number = 3,
+    categoryId?: number,
+    keyword?: string,
   ): Promise<{ totalCount: number; data: RoadmapCompact[] }> => {
     const [{ count: totalCount }] = await db
       .select({ count: sql<number>`count(*)` })
-      .from(roadmaps);
+      .from(roadmaps)
+      .where(
+        and(
+          categoryId ? eq(roadmaps.categoryId, categoryId) : undefined,
+          keyword ? sql`${roadmaps.title} ILIKE ${`%${keyword}%`}` : undefined,
+        ),
+      );
 
     const data = await db.query.roadmaps.findMany({
       with: {
@@ -30,6 +38,10 @@ export const getRoadmaps = unstable_cache(
           },
         },
       },
+      where: and(
+        categoryId ? eq(roadmaps.categoryId, categoryId) : undefined,
+        keyword ? sql`${roadmaps.title} ILIKE ${`%${keyword}%`}` : undefined,
+      ),
       orderBy: (fields, { desc }) => desc(fields.createdAt),
       limit,
       offset: (page - 1) * limit,

@@ -1,45 +1,39 @@
 "use client";
 
-import { KeyboardEvent, useState, useTransition } from "react";
+import { KeyboardEvent, useEffect, useState, useTransition } from "react";
 import Image from "next/image";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import CancelIcon from "@/assets/img/icon-x.svg";
 import { cn } from "@/lib/utils";
+import { useFilters } from "./FilterProvider";
 import Spinner from "./Spinner";
 
 export default function Search() {
-  const [keyword, setKeyword] = useState("");
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const { filters, updateFilters } = useFilters();
+  const [value, setValue] = useState(filters.keyword ?? "");
 
   const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
 
     e.preventDefault();
 
-    const params = new URLSearchParams(searchParams);
+    const keyword = (e.target as HTMLInputElement).value;
     const trimmedKeyword = keyword.trim();
 
-    if (trimmedKeyword) {
-      params.set("keyword", trimmedKeyword);
-    } else {
-      params.delete("keyword");
-    }
-
     startTransition(() => {
-      router.replace(`${pathname}/?${params.toString()}`);
+      updateFilters({ keyword: trimmedKeyword });
     });
   };
 
   const handleReset = () => {
-    const params = new URLSearchParams(searchParams);
-    params.delete("keyword");
-    setKeyword("");
-
-    router.replace(`${pathname}/?${params.toString()}`);
+    startTransition(() => {
+      updateFilters({ keyword: undefined });
+    });
   };
+
+  useEffect(() => {
+    setValue(filters.keyword ?? "");
+  }, [filters.keyword]);
 
   return (
     <div
@@ -52,12 +46,12 @@ export default function Search() {
         type="text"
         placeholder="로드맵 검색"
         className="h-full flex-1 px-[1em] outline-none"
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleTagKeyDown}
       />
       {isPending && <Spinner className="h-4 w-4" />}
-      {keyword && (
+      {value && (
         <button onClick={handleReset}>
           <Image src={CancelIcon} alt="Cancel" />
         </button>

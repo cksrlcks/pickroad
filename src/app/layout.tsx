@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { Metadata } from "next";
+import FilterProvider from "@/components/FilterProvider";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Inner from "@/components/Inner";
@@ -14,6 +16,7 @@ declare global {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://pick-road.com"),
   title: "Pick Road - 나만의 로드맵 공유 플랫폼",
   description:
     "Pick Road는 블로그, 유튜브 등 다양한 링크를 모아 나만의 큐레이션 로드맵으로 정리하고 공유할 수 있는 웹 서비스입니다.",
@@ -57,19 +60,23 @@ export default function RootLayout({
         ></script>
       </head>
       <body className="group antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Header />
-          <Inner className="pb-10">
-            <main>{children}</main>
-          </Inner>
-          <Footer />
-          <Toaster />
-        </ThemeProvider>
+        <Suspense>
+          <FilterProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <Header />
+              <Inner className="pb-10">
+                <main>{children}</main>
+              </Inner>
+              <Footer />
+              <Toaster />
+            </ThemeProvider>
+          </FilterProvider>
+        </Suspense>
       </body>
     </html>
   );

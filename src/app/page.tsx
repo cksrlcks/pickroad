@@ -1,74 +1,32 @@
-import Link from "next/link";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import Pagination from "@/components/Pagination";
 import { getRoadmaps } from "@/data/roadmap";
-import { RoadmapCard } from "@/features/roadmap/components/RoadmapCard";
+import RoadmapList from "@/features/roadmap/components/RoadmapList";
 
-const LIMIT = 24;
+const LIMIT = 6;
 
 export default async function Home({
   searchParams,
 }: {
   searchParams: Promise<{
-    page: string | undefined;
-    category: string | undefined;
+    page?: string;
+    category?: string;
+    keyword?: string;
   }>;
 }) {
-  const { page } = await searchParams;
+  const { page, category, keyword } = await searchParams;
   const currentPage = page ? parseInt(page) : 1;
-  const { totalCount, data } = await getRoadmaps(currentPage, LIMIT);
-  const totalPage = Math.ceil(totalCount / LIMIT);
-
-  if (!data || data.length === 0) {
-    return (
-      <div className="px-2 py-6 text-center text-sm opacity-70">
-        작성된 로드맵이 없습니다.
-      </div>
-    );
-  }
+  const currentCategoryId = category ? parseInt(category) : undefined;
+  const { totalCount, data } = await getRoadmaps(
+    currentPage,
+    LIMIT,
+    currentCategoryId,
+    keyword,
+  );
 
   return (
     <>
-      <ul className="mb-10 grid grid-cols-2 gap-2 group-has-[[data-pending]]:animate-pulse md:grid-cols-3 md:flex-row">
-        {data.map((item) => (
-          <li key={item.id} className="mx-auto w-full">
-            <Link href={`/roadmap/${item.externalId}`}>
-              <RoadmapCard roadmap={item} />
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <Pagination>
-        <PaginationContent>
-          {currentPage > 1 && (
-            <PaginationItem>
-              <PaginationPrevious href={`?page=${currentPage - 1}`} />
-            </PaginationItem>
-          )}
-          {[...Array(totalPage)].map((_, index) => (
-            <PaginationLink
-              key={index}
-              isActive={index + 1 === currentPage}
-              href={`?page=${index + 1}`}
-            >
-              {index + 1}
-            </PaginationLink>
-          ))}
-          {currentPage < totalPage && (
-            <>
-              <PaginationItem>
-                <PaginationNext href={`?page=${currentPage + 1}`} />
-              </PaginationItem>
-            </>
-          )}
-        </PaginationContent>
-      </Pagination>
+      <RoadmapList data={data} className="mb-10" keyword={keyword} />
+      <Pagination totalCount={totalCount} limit={LIMIT} />
     </>
   );
 }

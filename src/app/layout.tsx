@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Inner from "@/components/Inner";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -63,9 +64,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Header />
-          <Inner>
+          <Inner className="pb-10">
             <main>{children}</main>
           </Inner>
+          <Footer />
           <Toaster />
         </ThemeProvider>
       </body>

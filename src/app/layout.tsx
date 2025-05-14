@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Metadata } from "next";
 import FilterProvider from "@/components/FilterProvider";
 import Footer from "@/components/Footer";
@@ -58,6 +59,7 @@ export default function RootLayout({
         ></script>
       </head>
       <body className="group antialiased">
+        <Suspense>
         <FilterProvider>
           <ThemeProvider
             attribute="class"
@@ -73,6 +75,7 @@ export default function RootLayout({
             <Toaster />
           </ThemeProvider>
         </FilterProvider>
+        </Suspense>
       </body>
     </html>
   );

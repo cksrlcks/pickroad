@@ -1,7 +1,6 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useTransition } from "react";
 import {
   Pagination as PaginationComponent,
   PaginationContent,
@@ -10,6 +9,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { useFilters } from "./FilterProvider";
 
 type PaginationedListProps = {
   totalCount: number;
@@ -20,51 +20,42 @@ export default function Pagination({
   totalCount,
   limit = 6,
 }: PaginationedListProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   const totalPage = Math.ceil(totalCount / limit);
   const [isPending, startTransition] = useTransition();
-  const [optimisticCurrentPage, setOptimisticCurrentPage] = useOptimistic(
-    parseInt(searchParams.get("page") || "1"),
-  );
+  const { filters, updateFilters } = useFilters(); // Use the nearest Filter context
 
+  const currentPage = filters.page || 1;
   const handlePaginationClick = (page: number) => {
-    const params = new URLSearchParams(searchParams);
-
     startTransition(() => {
-      setOptimisticCurrentPage(page);
-      params.set("page", page.toString());
-      router.push(`${pathname}?${params.toString()}`);
+      updateFilters({ page });
     });
   };
 
   return (
     <PaginationComponent data-pending={isPending ? "" : undefined}>
       <PaginationContent className="flex-wrap justify-center">
-        {optimisticCurrentPage > 1 && (
+        {currentPage > 1 && (
           <PaginationItem>
             <PaginationPrevious
-              onClick={() => handlePaginationClick(optimisticCurrentPage - 1)}
+              onClick={() => handlePaginationClick(currentPage - 1)}
             />
           </PaginationItem>
         )}
         {[...Array(totalPage)].map((_, index) => (
           <PaginationItem key={index}>
             <PaginationLink
-              isActive={index + 1 === optimisticCurrentPage}
+              isActive={index + 1 === currentPage}
               onClick={() => handlePaginationClick(index + 1)}
             >
               {index + 1}
             </PaginationLink>
           </PaginationItem>
         ))}
-        {optimisticCurrentPage < totalPage && (
+        {currentPage < totalPage && (
           <>
             <PaginationItem>
               <PaginationNext
-                onClick={() => handlePaginationClick(optimisticCurrentPage + 1)}
+                onClick={() => handlePaginationClick(currentPage + 1)}
               />
             </PaginationItem>
           </>

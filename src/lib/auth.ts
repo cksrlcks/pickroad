@@ -14,6 +14,11 @@ export const auth = betterAuth({
       prompt: "login",
     },
   },
+  user: {
+    deleteUser: {
+      enabled: true,
+    },
+  },
   plugins: [
     genericOAuth({
       config: [

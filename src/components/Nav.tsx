@@ -39,7 +39,7 @@ export default function Nav({ categories }: NavProps) {
       return 0;
     });
 
-    emblaApi?.scrollTo(initialIndex);
+    emblaApi?.scrollTo(Math.max(0, initialIndex - 1));
   }, [categories, emblaApi, filters.category]);
 
   return (

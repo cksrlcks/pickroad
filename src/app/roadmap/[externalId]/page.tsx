@@ -7,6 +7,7 @@ import RoadmapActions from "@/features/roadmap/components/RoadmapActions";
 import { RoadmapCard } from "@/features/roadmap/components/RoadmapCard";
 import RoadmapInfo from "@/features/roadmap/components/RoadmapInfo";
 import RoadmapItems from "@/features/roadmap/components/RoadmapItems";
+import RoadmapMobileWall from "@/features/roadmap/components/RoadmapMobileWall";
 import RoadmapReview from "@/features/roadmap/components/RoadmapReviews";
 import RoadmapTags from "@/features/roadmap/components/RoadmapTags";
 
@@ -56,14 +57,21 @@ export default async function RoadmapDetailPage({
   }
 
   return (
-    <div className="flex flex-col justify-between gap-14 md:flex-row">
-      <div className="dark:bg-muted/30 -mx-6 -mt-8 bg-slate-100 py-6 md:mx-0 md:mt-0 md:w-full md:max-w-[320px] md:bg-transparent md:py-0 dark:md:bg-transparent">
-        <div className="mx-auto max-w-[300px] md:sticky md:top-40 md:max-w-none">
+    <div className="flex flex-col justify-between gap-6 md:flex-row md:gap-16">
+      {/* pc - cover */}
+      <div className="hidden max-w-[320px] flex-1 md:block">
+        <div className="sticky top-40">
           <RoadmapCard roadmap={roadmapDetail} />
         </div>
       </div>
+
+      {/* mobile - cover */}
+      <div className="-mx-4 -mt-8 md:hidden">
+        <RoadmapMobileWall roadmap={roadmapDetail} />
+      </div>
+
       <div className="flex-1">
-        <div className="mb-10">
+        <div className="mb-4 md:mb-10">
           <RoadmapTags roadmap={roadmapDetail} />
           <RoadmapInfo roadmap={roadmapDetail} />
           <RoadmapActions roadmap={roadmapDetail} />

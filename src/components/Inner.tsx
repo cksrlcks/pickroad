@@ -6,7 +6,7 @@ export default function Inner({
   children,
 }: PropsWithChildren<{ className?: string }>) {
   return (
-    <div className={cn("mx-auto w-full max-w-4xl px-6", className)}>
+    <div className={cn("mx-auto w-full max-w-4xl px-4 md:px-6", className)}>
       {children}
     </div>
   );

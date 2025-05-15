@@ -45,7 +45,7 @@ export default function Search() {
       <input
         type="text"
         placeholder="로드맵 검색"
-        className="h-full flex-1 px-[1em] outline-none"
+        className="h-full flex-1 px-[1em] text-base outline-none md:text-[14px]"
         value={value}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={handleTagKeyDown}

@@ -23,16 +23,16 @@ export default function MypageNav() {
 
   return (
     <nav>
-      <ul>
+      <ul className="flex flex-row gap-1 md:flex-col">
         {MY_PAGE_MENU.map((menu) => {
           const isActive = menu.href === pathname;
           return (
-            <li key={menu.href} className="mb-2">
+            <li key={menu.href}>
               <Link
                 href={menu.href}
                 className={cn(
-                  "text-sm opacity-50",
-                  isActive && "font-semibold opacity-100",
+                  "hover:bg-muted flex rounded-md px-3 py-2 text-xs opacity-50 transition-[background] md:px-4 md:py-2.5 md:text-sm",
+                  isActive && "bg-muted/80 font-semibold opacity-100",
                 )}
               >
                 {menu.name}

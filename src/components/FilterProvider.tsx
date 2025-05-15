@@ -21,6 +21,10 @@ type FilterContextType = {
   updateFilters: (_value: Filters) => void;
 };
 
+type FilterProviderProps = PropsWithChildren<{
+  basePath?: string;
+}>;
+
 export const FilterContext = createContext<FilterContextType | undefined>(
   undefined,
 );
@@ -33,7 +37,10 @@ export function useFilters() {
   return context;
 }
 
-export default function FilterProvider({ children }: PropsWithChildren) {
+export default function FilterProvider({
+  basePath = "/",
+  children,
+}: FilterProviderProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -73,7 +80,7 @@ export default function FilterProvider({ children }: PropsWithChildren) {
 
     startTransition(() => {
       setOptimisticFilters(updates || {});
-      router.push(`/?${newSearchParams}`, { scroll: false });
+      router.push(`${basePath}?${newSearchParams}`, { scroll: false });
     });
   }
 

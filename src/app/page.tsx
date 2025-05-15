@@ -1,8 +1,7 @@
-import Pagination from "@/components/Pagination";
-import { getRoadmaps } from "@/data/roadmap";
-import RoadmapList from "@/features/roadmap/components/RoadmapList";
-
-const LIMIT = 6;
+import { Suspense } from "react";
+import GridList from "@/components/GridList";
+import RoadmapCardSkeleton from "@/features/roadmap/components/RoadmapCardSkeleton";
+import RoadmapPaginationedList from "@/features/roadmap/components/RoadmapPaginationedList";
 
 export default async function Home({
   searchParams,
@@ -14,19 +13,24 @@ export default async function Home({
   }>;
 }) {
   const { page, category, keyword } = await searchParams;
-  const currentPage = page ? parseInt(page) : 1;
-  const currentCategoryId = category ? parseInt(category) : undefined;
-  const { totalCount, data } = await getRoadmaps(
-    currentPage,
-    LIMIT,
-    currentCategoryId,
-    keyword,
-  );
 
   return (
     <>
-      <RoadmapList data={data} className="mb-10" keyword={keyword} />
-      <Pagination totalCount={totalCount} limit={LIMIT} />
+      <Suspense
+        fallback={
+          <GridList
+            skeleton
+            items={[...Array(6)]}
+            renderItem={() => <RoadmapCardSkeleton />}
+          />
+        }
+      >
+        <RoadmapPaginationedList
+          page={Number(page) || 1}
+          category={Number(category) || undefined}
+          keyword={keyword || undefined}
+        />
+      </Suspense>
     </>
   );
 }

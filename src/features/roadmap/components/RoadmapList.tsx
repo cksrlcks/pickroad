@@ -2,38 +2,26 @@
 
 import Link from "next/link";
 import { useFilters } from "@/components/FilterProvider";
+import GridList from "@/components/GridList";
 import { RoadmapCard } from "@/features/roadmap/components/RoadmapCard";
-import { cn } from "@/lib/utils";
 import { RoadmapCompact } from "../type";
 import RoadmapCardSkeleton from "./RoadmapCardSkeleton";
 
 type RoadmapListProps = {
-  className?: string;
   data: RoadmapCompact[];
   keyword?: string | null;
 };
 
-export default function RoadmapList({
-  className,
-  data,
-  keyword,
-}: RoadmapListProps) {
+export default function RoadmapList({ data, keyword }: RoadmapListProps) {
   const { isPending } = useFilters();
 
   if (isPending) {
     return (
-      <ul
-        className={cn(
-          "grid grid-cols-2 gap-x-2 gap-y-4 md:grid-cols-3 md:gap-4 md:gap-x-4 md:gap-y-8",
-          className,
-        )}
-      >
-        {[...Array(3)].map((item, index) => (
-          <li key={index}>
-            <RoadmapCardSkeleton />
-          </li>
-        ))}
-      </ul>
+      <GridList
+        skeleton
+        items={[...Array(6)]}
+        renderItem={() => <RoadmapCardSkeleton />}
+      />
     );
   }
 
@@ -53,19 +41,13 @@ export default function RoadmapList({
   }
 
   return (
-    <ul
-      className={cn(
-        "grid grid-cols-2 gap-x-2 gap-y-4 md:grid-cols-3 md:gap-4 md:gap-x-4 md:gap-y-8",
-        className,
+    <GridList
+      items={data}
+      renderItem={(item) => (
+        <Link href={`/roadmap/${item.externalId}`}>
+          <RoadmapCard roadmap={item} />
+        </Link>
       )}
-    >
-      {data.map((item) => (
-        <li key={item.id}>
-          <Link href={`/roadmap/${item.externalId}`}>
-            <RoadmapCard roadmap={item} />
-          </Link>
-        </li>
-      ))}
-    </ul>
+    />
   );
 }

@@ -24,7 +24,7 @@ export default function Pagination({
   const [isPending, startTransition] = useTransition();
   const { filters, updateFilters } = useFilters(); // Use the nearest Filter context
 
-  const currentPage = filters.page || 1;
+  const currentPage = filters?.page || 1;
   const handlePaginationClick = (page: number) => {
     startTransition(() => {
       updateFilters({ page });

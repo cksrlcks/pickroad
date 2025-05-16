@@ -3,14 +3,14 @@
 import Spinner from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
-import { targetType } from "@/types";
+import { TargetType } from "@/types";
 import { useComments } from "../hooks/useComments";
 import { Comment } from "../type";
 import { CommentItem } from "./CommentItem";
 
 type CommentListProps = {
   comments: { totalCount: number; data: Comment[] | null };
-  targetType: targetType;
+  targetType: TargetType;
   targetId: number;
 };
 

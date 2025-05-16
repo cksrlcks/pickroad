@@ -1,12 +1,12 @@
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { loadmoreComment } from "@/actions/comment";
-import { targetType } from "@/types";
+import { TargetType } from "@/types";
 import { Comment } from "../type";
 
 type useCommentsProps = {
   initialComments: { totalCount: number; data: Comment[] | null };
-  targetType: targetType;
+  targetType: TargetType;
   targetId: number;
 };
 

@@ -8,14 +8,7 @@ import {
   useTransition,
 } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { FilterType } from "@/types";
-
-type Filters = {
-  category?: number;
-  page?: number;
-  keyword?: string;
-  type?: FilterType;
-};
+import { Filters, FilterSearchParamsSchema } from "@/types";
 
 type FilterContextType = {
   filters: Filters | undefined;
@@ -48,15 +41,12 @@ export default function FilterProvider({
   const router = useRouter();
 
   const isValidPath = basePath === pathname;
+  const safeParsed = FilterSearchParamsSchema.safeParse(
+    Object.fromEntries(searchParams.entries()),
+  );
 
-  const filters: Filters | undefined = isValidPath
-    ? {
-        category: parseInt(searchParams.get("category") || "") || undefined,
-        page: parseInt(searchParams.get("page") || "") || undefined,
-        keyword: searchParams.get("keyword") || undefined,
-        type: (searchParams.get("type") as FilterType) || undefined,
-      }
-    : undefined;
+  const filters: Filters | undefined =
+    isValidPath && safeParsed.success ? safeParsed.data : undefined;
 
   const [isPending, startTransition] = useTransition();
   const [optimisticFilters, setOptimisticFilters] = useOptimistic(

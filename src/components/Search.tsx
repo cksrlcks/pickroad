@@ -30,6 +30,10 @@ export default function Search({ placeholder }: SearchProps) {
   };
 
   const handleReset = () => {
+    setValue("");
+
+    if (!filters?.keyword) return;
+
     startTransition(() => {
       updateFilters({ keyword: undefined });
     });

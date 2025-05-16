@@ -7,10 +7,14 @@ import { cn } from "@/lib/utils";
 import { useFilters } from "./FilterProvider";
 import Spinner from "./Spinner";
 
-export default function Search() {
+type SearchProps = {
+  placeholder?: string;
+};
+
+export default function Search({ placeholder }: SearchProps) {
   const [isPending, startTransition] = useTransition();
   const { filters, updateFilters } = useFilters();
-  const [value, setValue] = useState(filters.keyword ?? "");
+  const [value, setValue] = useState(filters?.keyword ?? "");
 
   const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
@@ -26,14 +30,18 @@ export default function Search() {
   };
 
   const handleReset = () => {
+    setValue("");
+
+    if (!filters?.keyword) return;
+
     startTransition(() => {
       updateFilters({ keyword: undefined });
     });
   };
 
   useEffect(() => {
-    setValue(filters.keyword ?? "");
-  }, [filters.keyword]);
+    setValue(filters?.keyword ?? "");
+  }, [filters?.keyword]);
 
   return (
     <div
@@ -44,7 +52,7 @@ export default function Search() {
     >
       <input
         type="text"
-        placeholder="로드맵 검색"
+        placeholder={placeholder || "검색"}
         className="h-full flex-1 px-[1em] text-base outline-none md:text-[14px]"
         value={value}
         onChange={(e) => setValue(e.target.value)}

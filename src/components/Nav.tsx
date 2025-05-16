@@ -33,14 +33,14 @@ export default function Nav({ categories }: NavProps) {
     if (!emblaApi) return;
 
     const initialIndex = categories.findIndex((item) => {
-      if (filters.category) {
-        return item.id === filters.category;
+      if (filters?.category) {
+        return item.id === filters?.category;
       }
       return 0;
     });
 
     emblaApi?.scrollTo(Math.max(0, initialIndex - 1));
-  }, [categories, emblaApi, filters.category]);
+  }, [categories, emblaApi, filters?.category]);
 
   return (
     <nav
@@ -50,8 +50,8 @@ export default function Nav({ categories }: NavProps) {
     >
       <ul className="flex pb-1 md:pb-3">
         {categories.map((item, index) => {
-          const isActive = filters.category
-            ? item.id === filters.category
+          const isActive = filters?.category
+            ? item.id === filters?.category
             : item.id === 9999;
 
           return (

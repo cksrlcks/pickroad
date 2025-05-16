@@ -1,7 +1,9 @@
 import { Suspense } from "react";
+import { notFound } from "next/navigation";
 import GridList from "@/components/GridList";
 import RoadmapCardSkeleton from "@/features/roadmap/components/RoadmapCardSkeleton";
 import RoadmapPaginationedList from "@/features/roadmap/components/RoadmapPaginationedList";
+import { FilterSearchParamsSchema } from "@/types";
 
 export default async function Home({
   searchParams,
@@ -12,7 +14,13 @@ export default async function Home({
     keyword?: string;
   }>;
 }) {
-  const { page, category, keyword } = await searchParams;
+  const safeParsedSearchParams = FilterSearchParamsSchema.safeParse(
+    await searchParams,
+  );
+
+  if (!safeParsedSearchParams.success) {
+    notFound();
+  }
 
   return (
     <>
@@ -26,9 +34,9 @@ export default async function Home({
         }
       >
         <RoadmapPaginationedList
-          page={Number(page) || 1}
-          category={Number(category) || undefined}
-          keyword={keyword || undefined}
+          page={safeParsedSearchParams.data?.page}
+          category={safeParsedSearchParams.data?.category}
+          keyword={safeParsedSearchParams.data?.keyword}
         />
       </Suspense>
     </>

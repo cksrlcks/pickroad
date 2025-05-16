@@ -27,7 +27,7 @@ export default async function Header() {
           </Link>
           <div className="order-last w-full md:order-none md:w-auto md:flex-1">
             <Suspense>
-              <Search />
+              <Search placeholder="로드맵 검색" />
             </Suspense>
           </div>
           <div className="hidden md:flex">

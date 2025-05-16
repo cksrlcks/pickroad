@@ -39,7 +39,6 @@ export function RoadmapCard({ roadmap }: RoadmapCardProps) {
             alt={roadmap.title}
             fill
             className="h-full w-full object-cover object-center opacity-0 transition-opacity"
-            unoptimized={true}
             quality={100}
             onLoad={(e) => (e.currentTarget.style.opacity = "100")}
           />

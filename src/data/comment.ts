@@ -4,12 +4,12 @@ import { DEFAULT_PER_PAGE } from "@/constants";
 import { db } from "@/db";
 import { comments } from "@/db/schema";
 import { Comment } from "@/features/comment/type";
-import { targetType } from "@/types";
+import { TargetType } from "@/types";
 
 export const getComments = unstable_cache(
   async (
     targetId: number,
-    targetType: targetType,
+    targetType: TargetType,
     page: number = 1,
     limit: number = DEFAULT_PER_PAGE,
   ): Promise<{ totalCount: number; data: Comment[] }> => {

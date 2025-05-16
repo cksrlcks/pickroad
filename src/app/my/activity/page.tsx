@@ -7,7 +7,7 @@ import { ActivityItemSkeleton } from "@/features/activity/components/ActivityIte
 import ActivityPaginationedList from "@/features/activity/components/ActivityPaginationedList";
 import { FilterSearchParamsSchema, FilterType } from "@/types";
 
-export default async function page({
+export default async function ActivitiesPage({
   searchParams,
 }: {
   searchParams: Promise<{
@@ -29,7 +29,7 @@ export default async function page({
       <Suspense>
         <div className="mb-6 space-y-4">
           <ActivityFilter />
-          <Search />
+          <Search placeholder="활동 검색" />
         </div>
       </Suspense>
       <Suspense

@@ -14,7 +14,7 @@ type SearchProps = {
 export default function Search({ placeholder }: SearchProps) {
   const [isPending, startTransition] = useTransition();
   const { filters, updateFilters } = useFilters();
-  const [value, setValue] = useState(filters?.keyword ?? "");
+  const [value, setValue] = useState(filters?.keyword || "");
 
   const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
@@ -40,7 +40,7 @@ export default function Search({ placeholder }: SearchProps) {
   };
 
   useEffect(() => {
-    setValue(filters?.keyword ?? "");
+    setValue(filters?.keyword || "");
   }, [filters?.keyword]);
 
   return (

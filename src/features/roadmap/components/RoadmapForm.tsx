@@ -61,7 +61,7 @@ export default function RoadmapForm({
   const router = useRouter();
   const isEditMode = initialData !== undefined;
 
-  const [preview, setPreview] = useState(initialData?.thumbnail ?? "");
+  const [preview, setPreview] = useState(initialData?.thumbnail || "");
   const { data: session } = authClient.useSession();
   const { fetchOgData, isFetching: isFetchingMetadata } = useFetchOgData();
 
@@ -103,7 +103,7 @@ export default function RoadmapForm({
     thumbnail: preview,
     author: session?.user || null,
     category:
-      categories.find((item) => item.id === formData.categoryId) ?? null,
+      categories.find((item) => item.id === formData.categoryId) || null,
   } as RoadmapCompact;
 
   const handleSubmit = form.handleSubmit(async (data) => {

@@ -1,6 +1,6 @@
 import Pagination from "@/components/Pagination";
 import { getMyBookmarks } from "@/data/bookmark";
-import ActivityList from "@/features/activity/components/ActivityList";
+import BookmarkList from "./BookmarkList";
 
 type BookmarkPaginationedListProps = {
   page?: number;
@@ -17,7 +17,7 @@ export default async function BookmarkPaginationedList({
 
   return (
     <div className="space-y-10">
-      <ActivityList data={data} keyword={keyword} />
+      <BookmarkList data={data} keyword={keyword} />
       <Pagination totalCount={totalCount} limit={LIMIT} />
     </div>
   );

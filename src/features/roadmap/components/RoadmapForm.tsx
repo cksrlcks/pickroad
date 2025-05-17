@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChangeEvent, KeyboardEvent, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { FolderUp, X } from "lucide-react";
 import { toast } from "sonner";
@@ -32,8 +32,6 @@ import { DEFAULT_COLORS, FILE_LIMIT_SIZE, ROADMAP_THEMES } from "@/constants";
 import { authClient } from "@/lib/auth-client";
 import { getColorByString, getImagePalette } from "@/lib/color";
 import { uploadImageByClient } from "@/lib/r2-client";
-import { isValidUrl } from "@/lib/utils";
-import { useFetchOgData } from "../hooks/useFetchOgData";
 import {
   Roadmap,
   RoadmapCategory,
@@ -43,6 +41,7 @@ import {
   roadmapInsertSchema,
 } from "../type";
 import { RoadmapCard } from "./RoadmapCard";
+import RoadmapFormLinks from "./RoadmapFormLinks";
 
 type RoadmapFormProps = {
   initialData?: Roadmap;
@@ -63,7 +62,6 @@ export default function RoadmapForm({
 
   const [preview, setPreview] = useState(initialData?.thumbnail || "");
   const { data: session } = authClient.useSession();
-  const { fetchOgData, isFetching: isFetchingMetadata } = useFetchOgData();
 
   const form = useForm<RoadmapFormType>({
     resolver: zodResolver(roadmapInsertSchema),
@@ -83,9 +81,7 @@ export default function RoadmapForm({
   });
 
   const isDisabledSubmit =
-    !form.formState.isValid ||
-    form.formState.isSubmitting ||
-    isFetchingMetadata;
+    !form.formState.isValid || form.formState.isSubmitting;
 
   const formData = form.watch();
   const previewData = {
@@ -145,27 +141,6 @@ export default function RoadmapForm({
     onChange(file);
   };
 
-  const handleAddItem = async (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key !== "Enter" || isFetchingMetadata) return;
-    e.preventDefault();
-
-    const url = e.currentTarget.value.trim();
-    if (!isValidUrl(url)) {
-      toast.error("정확한 url을 입력해주세요");
-      return;
-    }
-
-    e.currentTarget.value = "";
-    const data = await fetchOgData(url);
-
-    append({
-      url,
-      title: data?.title || "",
-      description: data?.description || "",
-      thumbnail: data?.image || "",
-    });
-  };
-
   const handleTagKeyDown = (
     e: KeyboardEvent<HTMLInputElement>,
     field: {
@@ -196,11 +171,6 @@ export default function RoadmapForm({
     const newTags = field.value?.filter((item) => item !== tag) || [];
     field.onChange(newTags);
   };
-
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "items",
-  });
 
   return (
     <div className="flex flex-col justify-between gap-14 md:flex-row">
@@ -435,87 +405,7 @@ export default function RoadmapForm({
 
             <Separator />
 
-            {fields.map((field, index) => (
-              <div key={field.id} className="space-y-4 rounded-xl border p-4">
-                {field.thumbnail && (
-                  <figure className="relative mb-4 aspect-video overflow-hidden rounded-sm">
-                    {
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={field.thumbnail}
-                        alt="preview"
-                        className="h-full w-full object-cover"
-                        referrerPolicy="no-referrer"
-                      />
-                    }
-                  </figure>
-                )}
-                <FormField
-                  control={form.control}
-                  name={`items.${index}.title`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>제목</FormLabel>
-                      <FormControl>
-                        <Input placeholder="항목 제목" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`items.${index}.description`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>설명</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="항목 설명 (선택)"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name={`items.${index}.url`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>URL</FormLabel>
-                      <FormControl>
-                        <Input placeholder="url" {...field} disabled />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => remove(index)}
-                >
-                  삭제
-                </Button>
-              </div>
-            ))}
-
-            <FormItem>
-              <FormLabel>링크 추가</FormLabel>
-              <FormControl>
-                <Input
-                  onKeyDown={handleAddItem}
-                  placeholder="링크를 붙여넣고 Enter를 눌러 추가"
-                />
-              </FormControl>
-            </FormItem>
+            <RoadmapFormLinks />
 
             <Separator />
 

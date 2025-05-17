@@ -132,6 +132,7 @@ export default function RoadmapFormLinks() {
                           {...listeners}
                         >
                           <GripVertical size={16} />
+                          <span className="sr-only">드래그 이동</span>
                         </Button>
                         <div className="flex items-center gap-0.5">
                           <Button
@@ -143,6 +144,7 @@ export default function RoadmapFormLinks() {
                             disabled={index === 0}
                           >
                             <ArrowUp size={14} />
+                            <span className="sr-only">위로 이동</span>
                           </Button>
                           <Button
                             type="button"
@@ -153,6 +155,7 @@ export default function RoadmapFormLinks() {
                             disabled={index === fields.length - 1}
                           >
                             <ArrowDown size={14} />
+                            <span className="sr-only">아래로 이동</span>
                           </Button>
                         </div>
                       </div>

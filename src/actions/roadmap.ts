@@ -301,7 +301,8 @@ export const getOgData = async (
     console.error(error);
     return {
       success: false,
-      message: "메타데이터를 가져오는 데 실패했습니다.",
+      message:
+        "메타데이터를 불러오는 데 실패했습니다. 링크가 차단되었거나 권한이 없을 수 있습니다.",
     };
   }
 };

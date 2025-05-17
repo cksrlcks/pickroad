@@ -118,8 +118,8 @@ export const getRoadmapWithSession = async (
       .from(likes)
       .then((res) => res[0]);
 
-    isLiked = row?.isLiked ?? false;
-    isBookmarked = row?.isBookmarked ?? false;
+    isLiked = row.isLiked || false;
+    isBookmarked = row.isBookmarked || false;
   }
 
   return {

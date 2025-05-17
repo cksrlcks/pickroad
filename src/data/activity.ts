@@ -176,7 +176,7 @@ export const getMyActivity = async (
 
   const authorId = session.user.id;
 
-  switch (type ?? "roadmap") {
+  switch (type || "roadmap") {
     case "roadmap":
       return await getMyRoadmaps(authorId, page, limit, keyword);
     case "comment":

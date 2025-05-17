@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import FilterProvider from "@/components/FilterProvider";
 import Search from "@/components/Search";
 import { ActivityItemSkeleton } from "@/features/activity/components/ActivityItemSkeleton";
-import ActivityPaginationedList from "@/features/activity/components/ActivityPaginationedList";
+import BookmarkPaginationedList from "@/features/bookmark/components/BookmarkPaginationedList";
 import { FilterSearchParamsSchema } from "@/types";
 
 export default async function BookmarksPage({
@@ -38,7 +38,7 @@ export default async function BookmarksPage({
           </ul>
         }
       >
-        <ActivityPaginationedList
+        <BookmarkPaginationedList
           page={safeParsedSearchParams.data?.page}
           keyword={safeParsedSearchParams.data?.keyword}
         />

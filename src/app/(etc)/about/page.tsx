@@ -97,7 +97,7 @@ export default function AboutPage() {
           PickRoad에 정리해보세요.
         </p>
         <Button type="button" asChild>
-          <Link href="/start">시작하기</Link>
+          <Link href="/">시작하기</Link>
         </Button>
       </section>
     </div>

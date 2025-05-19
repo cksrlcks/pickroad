@@ -10,6 +10,7 @@ import RoadmapItems from "@/features/roadmap/components/RoadmapItems";
 import RoadmapMobileWall from "@/features/roadmap/components/RoadmapMobileWall";
 import RoadmapReview from "@/features/roadmap/components/RoadmapReviews";
 import RoadmapTags from "@/features/roadmap/components/RoadmapTags";
+import { generateRoadmapJsonLd } from "@/lib/jsonld-roadmap";
 
 export async function generateMetadata({
   params,
@@ -55,48 +56,56 @@ export default async function RoadmapDetailPage({
     notFound();
   }
 
+  const jsonLd = generateRoadmapJsonLd(roadmapDetail);
+
   return (
-    <div className="flex flex-col justify-between gap-6 md:flex-row md:gap-16">
-      {/* pc - cover */}
-      <div className="hidden max-w-[320px] flex-1 md:block">
-        <div className="sticky top-40">
-          <RoadmapCard roadmap={roadmapDetail} />
-        </div>
-      </div>
-
-      {/* mobile - cover */}
-      <div className="-mx-4 -mt-8 md:hidden">
-        <RoadmapMobileWall roadmap={roadmapDetail} />
-      </div>
-
-      <div className="flex-1">
-        <div className="mb-4 md:mb-10">
-          <RoadmapTags roadmap={roadmapDetail} />
-          <RoadmapInfo roadmap={roadmapDetail} />
-          <RoadmapActions roadmap={roadmapDetail} />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="flex flex-col justify-between gap-6 md:flex-row md:gap-16">
+        {/* pc - cover */}
+        <div className="hidden max-w-[320px] flex-1 md:block">
+          <div className="sticky top-40">
+            <RoadmapCard roadmap={roadmapDetail} />
+          </div>
         </div>
 
-        <Tabs defaultValue="roadmap">
-          <TabsList className="w-full">
-            <TabsTrigger value="roadmap">로드맵</TabsTrigger>
-            <TabsTrigger value="review">리뷰</TabsTrigger>
-          </TabsList>
-          <TabsContent value="roadmap">
-            <RoadmapItems roadmap={roadmapDetail} />
-          </TabsContent>
-          <TabsContent value="review">
-            <Suspense
-              fallback={
-                <div className="flex justify-center">
-                  <Spinner />
-                </div>
-              }
-            >
-              <RoadmapReview roadmap={roadmapDetail} />
-            </Suspense>
-          </TabsContent>
-        </Tabs>
+        {/* mobile - cover */}
+        <div className="-mx-4 -mt-8 md:hidden">
+          <RoadmapMobileWall roadmap={roadmapDetail} />
+        </div>
+
+        <div className="flex-1">
+          <div className="mb-4 md:mb-10">
+            <RoadmapTags roadmap={roadmapDetail} />
+            <RoadmapInfo roadmap={roadmapDetail} />
+            <RoadmapActions roadmap={roadmapDetail} />
+          </div>
+
+          <Tabs defaultValue="roadmap">
+            <TabsList className="w-full">
+              <TabsTrigger value="roadmap">로드맵</TabsTrigger>
+              <TabsTrigger value="review">리뷰</TabsTrigger>
+            </TabsList>
+            <TabsContent value="roadmap">
+              <RoadmapItems roadmap={roadmapDetail} />
+            </TabsContent>
+            <TabsContent value="review">
+              <Suspense
+                fallback={
+                  <div className="flex justify-center">
+                    <Spinner />
+                  </div>
+                }
+              >
+                <RoadmapReview roadmap={roadmapDetail} />
+              </Suspense>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

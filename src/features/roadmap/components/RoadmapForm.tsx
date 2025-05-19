@@ -291,7 +291,6 @@ export default function RoadmapForm({
                           />
                         </label>
                       </Button>
-                      <input type="text" className="flex-1" />
                     </div>
                   </FormControl>
                   <FormDescription>

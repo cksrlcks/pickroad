@@ -34,6 +34,7 @@
     "drizzle-orm": "^0.43.1",
     "drizzle-zod": "^0.7.1",
     "embla-carousel-react": "^8.6.0",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^0.507.0",
     "motion": "^12.12.1",
     "next": "15.3.2",

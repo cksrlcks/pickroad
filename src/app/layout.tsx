@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
+import { Roboto_Serif } from "next/font/google";
 import FilterProvider from "@/components/FilterProvider";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
@@ -8,6 +9,11 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
+const robotoSerif = Roboto_Serif({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-roboto-serif",
+});
 declare global {
   interface Window {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,7 +50,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className="scrollbar-hide" suppressHydrationWarning>
+    <html
+      lang="ko"
+      className={`scrollbar-hide ${robotoSerif.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <link
           rel="stylesheet"

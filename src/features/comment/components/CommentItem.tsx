@@ -1,8 +1,8 @@
 "use client";
 
-import { editRoadmapComment } from "@/actions/comment";
+import { useState } from "react";
 import Author from "@/components/Author";
-import useComment from "../hooks/useComment";
+import useCommentMutation from "../hooks/useCommentMutation";
 import { Comment } from "../type";
 import { CommentContent } from "./CommentContent";
 import { CommentForm } from "./CommentForm";
@@ -12,8 +12,8 @@ type CommentItemProps = {
   isCommentAuthor?: boolean;
 };
 export function CommentItem({ comment, isCommentAuthor }: CommentItemProps) {
-  const { isEditMode, setIsEditMode, isPendingDelete, handleDelete } =
-    useComment();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const { remove } = useCommentMutation({ comment });
 
   return (
     <div className="space-y-3">
@@ -22,7 +22,6 @@ export function CommentItem({ comment, isCommentAuthor }: CommentItemProps) {
         {isEditMode ? (
           <CommentForm
             initialData={comment}
-            action={editRoadmapComment}
             targetType="roadmap"
             targetId={comment.targetId}
             onComplete={() => setIsEditMode(false)}
@@ -33,8 +32,8 @@ export function CommentItem({ comment, isCommentAuthor }: CommentItemProps) {
             comment={comment}
             isCommentAuthor={isCommentAuthor}
             onEdit={() => setIsEditMode(true)}
-            onDelete={handleDelete}
-            isPendingDelete={isPendingDelete}
+            onDelete={remove.handle}
+            isPendingDelete={remove.isPending}
           />
         )}
       </div>

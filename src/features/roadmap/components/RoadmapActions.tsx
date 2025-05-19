@@ -1,10 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import { useBookmarkRoadmap } from "../hooks/useBookmarkRoadmap";
-import { useDeleteRoadmap } from "../hooks/useDeleteRoadmap";
+import useRoadmapMutation from "../hooks/useRoadmapMutation";
 import { useShareRoadmap } from "../hooks/useShareRoadmap";
-import { useToggleLikeRoadmap } from "../hooks/useToogleLikeRoadmap";
 import { Roadmap } from "../type";
 import { RoadmapDeleteButton } from "./RoadmapDeleteButton";
 import { RoadmapEditButton } from "./RoadmapEditButton";
@@ -19,26 +18,30 @@ type RoadmapActionsProps = {
 export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
   const { data: session } = authClient.useSession();
   const isAuthor = session?.user.id === roadmap.author?.id;
+  const router = useRouter();
 
-  const { likeState, handleToggleLike, isPendingLike } =
-    useToggleLikeRoadmap(roadmap);
-  const { isPendingBookmark, bookmarkState, handleToggleBookmark } =
-    useBookmarkRoadmap(roadmap);
   const { handleKakaoShareClick, handleCopyUrlClick } = useShareRoadmap();
-  const { handleDelete } = useDeleteRoadmap(roadmap);
+  const { like, bookmark, remove } = useRoadmapMutation({
+    roadmap,
+    remove: {
+      onSuccess: () => {
+        router.replace("/");
+      },
+    },
+  });
 
   return (
     <div className="flex items-center gap-[1px]">
       <RoadmapLikeButton
-        likeCount={likeState.likeCount}
-        isLiked={likeState.isLiked}
-        onToggleLike={handleToggleLike}
-        isPending={isPendingLike}
+        likeCount={like.state.likeCount}
+        isLiked={like.state.isLiked}
+        onToggleLike={like.handle}
+        isPending={like.isPending}
       />
       <RoadmapBookmarkButton
-        isBookmarked={bookmarkState}
-        onToggleBookmark={handleToggleBookmark}
-        isPending={isPendingBookmark}
+        isBookmarked={bookmark.state}
+        onToggleBookmark={bookmark.handle}
+        isPending={bookmark.isPending}
       />
       <RoadmapShareButton
         onKakaoShareClick={handleKakaoShareClick}
@@ -47,7 +50,10 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
       {isAuthor && (
         <>
           <RoadmapEditButton href={`/roadmap/edit/${roadmap.externalId}`} />
-          <RoadmapDeleteButton onDelete={handleDelete} />
+          <RoadmapDeleteButton
+            onDelete={remove.handle}
+            isPending={remove.isPending}
+          />
         </>
       )}
     </div>

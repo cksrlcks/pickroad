@@ -1,11 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChangeEvent, KeyboardEvent, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { FolderUp, X } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -28,33 +26,48 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { DEFAULT_COLORS, FILE_LIMIT_SIZE, ROADMAP_THEMES } from "@/constants";
+import { FILE_LIMIT_SIZE, ROADMAP_THEMES } from "@/constants";
 import { authClient } from "@/lib/auth-client";
-import { getColorByString, getImagePalette } from "@/lib/color";
-import { uploadImageByClient } from "@/lib/r2-client";
+import useRoadmapMutation from "../hooks/useRoadmapMutation";
 import {
   Roadmap,
   RoadmapCategory,
   RoadmapCompact,
   RoadmapForm as RoadmapFormType,
-  RoadmapFormWithUploadedUrl,
   roadmapInsertSchema,
 } from "../type";
 import { RoadmapCard } from "./RoadmapCard";
+import RoadmapFileInput from "./RoadmapFileInput";
 import RoadmapFormLinks from "./RoadmapFormLinks";
+import RoadmapTagInput from "./RoadmapTagInput";
 
 type RoadmapFormProps = {
   initialData?: Roadmap;
-  action: (data: RoadmapFormWithUploadedUrl) => Promise<{
-    success: boolean;
-    message: string | null;
-  }>;
   categories: RoadmapCategory[];
+};
+
+const createPreviewData = (
+  formData: RoadmapFormType,
+  rest: Pick<RoadmapCompact, "thumbnail" | "author" | "category">,
+) => {
+  return {
+    ...formData,
+    id: 0,
+    externalId: "sample_id",
+    createdAt: new Date().toISOString(),
+    updatedAt: null,
+    theme: formData.theme || null,
+    themeVibrantPalette: formData.themeVibrantPalette || null,
+    themeMutedPalette: formData.themeMutedPalette || null,
+    title: formData.title || "타이틀",
+    subTitle: formData.subTitle || "서브타이틀",
+    description: formData.description || null,
+    ...rest,
+  } as RoadmapCompact;
 };
 
 export default function RoadmapForm({
   initialData,
-  action,
   categories,
 }: RoadmapFormProps) {
   const router = useRouter();
@@ -84,93 +97,31 @@ export default function RoadmapForm({
     !form.formState.isValid || form.formState.isSubmitting;
 
   const formData = form.watch();
-  const previewData = {
-    ...formData,
-    id: 0,
-    externalId: "sample_id",
-    createdAt: new Date().toISOString(),
-    updatedAt: null,
-    theme: formData.theme || null,
-    themeVibrantPalette: formData.themeVibrantPalette || null,
-    themeMutedPalette: formData.themeMutedPalette || null,
-    title: formData.title || "타이틀",
-    subTitle: formData.subTitle || "서브타이틀",
-    description: formData.description || null,
+  const previewData = createPreviewData(formData, {
     thumbnail: preview,
     author: session?.user || null,
     category:
       categories.find((item) => item.id === formData.categoryId) || null,
-  } as RoadmapCompact;
-
-  const handleSubmit = form.handleSubmit(async (data) => {
-    try {
-      if (data.thumbnail instanceof File) {
-        const uploadResponse = await uploadImageByClient(data.thumbnail);
-        data.thumbnail = uploadResponse;
-      }
-
-      const response = await action(data as RoadmapFormWithUploadedUrl);
-
-      if (response.success) {
-        toast.success(response.message);
-        router.replace("/");
-      } else {
-        toast.error(response.message);
-      }
-    } catch (error) {
-      toast.error(
-        `${error instanceof Error ? error.message : "작성을 실패했습니다."}`,
-      );
-    }
   });
 
-  const handleFileChange = async (
-    e: ChangeEvent<HTMLInputElement>,
-    onChange: (file: File | undefined) => void,
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const displayUrl = URL.createObjectURL(file);
-    const palette = await getImagePalette(displayUrl);
-
-    form.setValue("theme", "vibrant");
-    form.setValue("themeVibrantPalette", palette.vibrant_palette.join("."));
-    form.setValue("themeMutedPalette", palette.muted_palette.join("."));
-
-    setPreview(displayUrl);
-    onChange(file);
-  };
-
-  const handleTagKeyDown = (
-    e: KeyboardEvent<HTMLInputElement>,
-    field: {
-      value: string[] | undefined;
-      onChange: (value: string[] | undefined) => void;
+  const { create, edit } = useRoadmapMutation({
+    create: {
+      onSuccess: (externalId) => {
+        router.replace(`/roadmap/${externalId}`);
+      },
     },
-  ) => {
-    if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
-
-    e.stopPropagation();
-    e.preventDefault();
-
-    const value = e.currentTarget.value.trim();
-    if (value) {
-      const newTags = new Set([...(field.value || []), value]);
-      e.currentTarget.value = "";
-      field.onChange(Array.from(newTags));
-    }
-  };
-
-  const handleTagRemove = (
-    tag: string,
-    field: {
-      value: string[] | undefined;
-      onChange: (value: string[] | undefined) => void;
+    edit: {
+      onSuccess: (externalId) => {
+        router.replace(`/roadmap/${externalId}`);
+      },
     },
-  ) => {
-    const newTags = field.value?.filter((item) => item !== tag) || [];
-    field.onChange(newTags);
-  };
+  });
+
+  const action = isEditMode ? edit : create;
+
+  const handleSubmit = form.handleSubmit((data) => {
+    action(data);
+  });
 
   return (
     <div className="flex flex-col justify-between gap-14 md:flex-row">
@@ -271,27 +222,14 @@ export default function RoadmapForm({
             <FormField
               control={form.control}
               name="thumbnail"
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              render={({ field: { value, onChange, ...rest } }) => (
+              render={({ field: { onChange } }) => (
                 <FormItem>
                   <FormLabel>썸네일</FormLabel>
                   <FormControl>
-                    <div className="flex gap-2">
-                      <Button asChild variant="outline">
-                        <label className="relative flex aspect-square h-full cursor-pointer items-center justify-center">
-                          <FolderUp size={12} strokeWidth={2} />
-                          <span className="sr-only">업로드</span>
-                          <Input
-                            type="file"
-                            className="sr-only"
-                            accept="image/*"
-                            placeholder="설명 입력"
-                            {...rest}
-                            onChange={(e) => handleFileChange(e, onChange)}
-                          />
-                        </label>
-                      </Button>
-                    </div>
+                    <RoadmapFileInput
+                      onChange={onChange}
+                      setPreview={setPreview}
+                    />
                   </FormControl>
                   <FormDescription>
                     {FILE_LIMIT_SIZE}MB 이하로 업로드 가능합니다.
@@ -361,43 +299,12 @@ export default function RoadmapForm({
                 <FormItem>
                   <FormLabel>태그</FormLabel>
                   <FormControl>
-                    <Input
-                      onKeyDown={(e) => handleTagKeyDown(e, field)}
+                    <RoadmapTagInput
+                      tags={field.value}
+                      onChange={field.onChange}
                       placeholder="태그를 작성후 Enter를 눌러 추가"
                     />
                   </FormControl>
-                  {field.value && (
-                    <ul className="flex min-w-0 flex-wrap gap-1">
-                      {field.value.map((item) => {
-                        const colorCode = getColorByString(
-                          item,
-                          DEFAULT_COLORS,
-                        );
-
-                        return (
-                          <li
-                            key={item}
-                            className="flex min-w-0 items-center gap-1 rounded-sm px-2 py-1 text-[13px] font-semibold"
-                            style={{
-                              color: colorCode,
-                              backgroundColor: `${colorCode}30`,
-                            }}
-                          >
-                            <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                              #{item}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => handleTagRemove(item, field)}
-                            >
-                              <X className="h-3 w-3" strokeWidth={3} />
-                              <span className="sr-only">삭제</span>
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
                 </FormItem>
               )}
             />

@@ -1,4 +1,3 @@
-import { createRoadmapComment } from "@/actions/comment";
 import { getComments } from "@/data/comment";
 import { CommentForm } from "@/features/comment/components/CommentForm";
 import CommentList from "@/features/comment/components/CommentList";
@@ -13,11 +12,7 @@ export default async function RoadmapReview({ roadmap }: RoadmapReviewsProps) {
 
   return (
     <div className="space-y-8 py-3">
-      <CommentForm
-        action={createRoadmapComment}
-        targetType="roadmap"
-        targetId={roadmap.id}
-      />
+      <CommentForm targetType="roadmap" targetId={roadmap.id} />
       <h3 className="flex items-center gap-1.5 text-sm font-semibold">
         <span className="opacity-70">리뷰</span>
         <span className="text-foreground">{data.totalCount}</span>

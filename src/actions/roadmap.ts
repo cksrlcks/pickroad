@@ -52,7 +52,7 @@ export const getPresignedUrl = async (): Promise<
 
 export const createRoadmap = async (
   form: RoadmapFormWithUploadedUrl,
-): Promise<ServerActionResult> => {
+): Promise<ServerActionResult<{ externalId?: string }>> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -74,12 +74,14 @@ export const createRoadmap = async (
   }
 
   try {
+    const externalId = ulid();
+
     await db.transaction(async (tx) => {
       const [newRoadmap] = await tx
         .insert(roadmaps)
         .values({
           ...form,
-          externalId: ulid(),
+          externalId: externalId,
           authorId: session.session.userId,
         })
         .returning();
@@ -124,6 +126,9 @@ export const createRoadmap = async (
     return {
       success: true,
       message: "성공적으로 작성했습니다.",
+      payload: {
+        externalId: externalId,
+      },
     };
   } catch (error) {
     console.log(error);
@@ -136,7 +141,7 @@ export const createRoadmap = async (
 
 export const editRoadmap = async (
   form: RoadmapFormWithUploadedUrl,
-): Promise<ServerActionResult> => {
+): Promise<ServerActionResult<{ externalId?: string }>> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -214,6 +219,9 @@ export const editRoadmap = async (
     return {
       success: true,
       message: "성공적으로 수정되었습니다.",
+      payload: {
+        externalId: form.externalId,
+      },
     };
   } catch (error) {
     console.error(error);

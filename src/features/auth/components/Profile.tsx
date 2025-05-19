@@ -4,8 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { User } from "better-auth";
-import { toast } from "sonner";
-import { editUserProfileAction } from "@/actions/auth";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +30,7 @@ import {
   UserProfileEditForm,
   userProfileEditSchema,
 } from "@/features/auth/type";
-import { authClient } from "@/lib/auth-client";
+import useProfileMutation from "../hooks/useProfileMutation";
 
 type ProfileProps = {
   user: Partial<User>;
@@ -46,21 +44,22 @@ export function Profile({ user }: ProfileProps) {
       name: user.name,
     },
   });
-
-  const handleSubmit = form.handleSubmit(async (data) => {
-    const response = await editUserProfileAction(data);
-    if (response.success) {
-      toast.success(response.message);
-      router.refresh();
-    } else {
-      toast.error(response.message);
-    }
+  const { edit, remove: handleUserDelete } = useProfileMutation({
+    edit: {
+      onSuccess: () => {
+        router.refresh();
+      },
+    },
+    remove: {
+      onSuccess: () => {
+        window.location.href = "/";
+      },
+    },
   });
 
-  const handleUserDelete = async () => {
-    await authClient.deleteUser();
-    window.location.href = "/";
-  };
+  const handleSubmit = form.handleSubmit((data) => {
+    edit(data);
+  });
 
   return (
     <>

@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { Profile } from "@/features/my/components/Profile";
+import { Profile } from "@/features/auth/components/Profile";
 import { auth } from "@/lib/auth";
 
 export default async function MyPage() {

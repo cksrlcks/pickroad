@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 
 export default function AboutPage() {
   return (
-    <div className="py-20 break-keep">
+    <div className="py-10 break-keep md:py-20">
       <section className="w-[90%]">
         <h2 className="mb-8 text-2xl leading-tight font-semibold tracking-tight md:text-4xl">
           <span className="bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
@@ -97,7 +97,7 @@ export default function AboutPage() {
           PickRoad에 정리해보세요.
         </p>
         <Button type="button" asChild>
-          <Link href="/start">시작하기</Link>
+          <Link href="/">시작하기</Link>
         </Button>
       </section>
     </div>

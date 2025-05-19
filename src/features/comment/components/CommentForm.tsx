@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
-import { ServerActionResult } from "@/types";
+import useCommentMutation from "../hooks/useCommentMutation";
 import {
   Comment,
   CommentForm as CommentFormType,
@@ -23,7 +23,6 @@ import {
 
 type CommentFormProps = {
   initialData?: Comment;
-  action: (data: CommentFormType) => Promise<ServerActionResult>;
   targetType: string;
   targetId: number;
   onComplete?: () => void;
@@ -32,7 +31,6 @@ type CommentFormProps = {
 
 export function CommentForm({
   initialData,
-  action,
   targetId,
   targetType,
   onComplete,
@@ -53,22 +51,32 @@ export function CommentForm({
         },
   });
 
+  const { create, edit } = useCommentMutation({
+    create: {
+      onSuccess: () => {
+        form.reset();
+        router.refresh();
+        onComplete?.();
+      },
+    },
+    edit: {
+      onSuccess: () => {
+        form.reset();
+        router.refresh();
+        onComplete?.();
+      },
+    },
+  });
+
+  const action = isEditMode ? edit : create;
+
   const handleSubmit = form.handleSubmit(async (data) => {
     if (!session) {
-      toast.error("로그인 후 작성해주세요.");
+      toast.error("로그인 후 이용해주세요.");
       return;
     }
 
-    const response = await action(data);
-
-    if (response.success) {
-      toast.success(response.message);
-      form.reset();
-      router.refresh();
-      onComplete?.();
-    } else {
-      toast.error(response.message);
-    }
+    action(data);
   });
 
   const handleCancel = () => {

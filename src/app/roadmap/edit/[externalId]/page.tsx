@@ -1,6 +1,5 @@
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { editRoadmap } from "@/actions/roadmap";
 import { getRoadmapWithSession } from "@/data/roadmap";
 import { db } from "@/db";
 import RoadmapForm from "@/features/roadmap/components/RoadmapForm";
@@ -34,11 +33,5 @@ export default async function EditRoadmapPage({
 
   const categories = await db.query.categories.findMany();
 
-  return (
-    <RoadmapForm
-      initialData={roadmapDetail}
-      action={editRoadmap}
-      categories={categories}
-    />
-  );
+  return <RoadmapForm initialData={roadmapDetail} categories={categories} />;
 }

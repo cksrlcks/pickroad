@@ -126,6 +126,10 @@ body {
   font-family: var(--font-pretendard);
 }
 
+.roboto-serif {
+  font-family: var(--font-roboto-serif);
+}
+
 button {
   cursor: pointer;
 }

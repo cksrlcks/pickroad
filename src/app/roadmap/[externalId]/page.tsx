@@ -19,9 +19,7 @@ export async function generateMetadata({
   const { externalId } = await params;
   const roadmap = await getRoadmap(externalId);
   const title = `${roadmap ? roadmap.title + " | " : ""}Pick Road`;
-  const description = `${
-    roadmap ? roadmap.description : "나만의 로드맵 공유 플랫폼"
-  }`;
+  const description = `${roadmap?.subTitle ?? "나만의 로드맵 공유 플랫폼"}`;
 
   return {
     title,

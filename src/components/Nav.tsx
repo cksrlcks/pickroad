@@ -18,7 +18,10 @@ export default function Nav({ categories }: NavProps) {
     dragFree: true,
   });
 
-  const handleCategoryClick = (categoryId: number, index: number) => {
+  const handleCategoryClick = (
+    categoryId: RoadmapCategory["id"],
+    index: number,
+  ) => {
     startTransition(() => {
       updateFilters({
         category: categoryId === 9999 ? undefined : categoryId,

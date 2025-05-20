@@ -7,17 +7,21 @@ import {
   RoadmapCompact,
 } from "@/features/roadmap/type";
 import { auth } from "@/lib/auth";
+import { BaseParams } from "@/types";
 import { db } from "../db";
 import { likes, roadmaps } from "../db/schema";
 import { bookmarks } from "../db/schema/bookmarks";
 
+export type GetRoadmapsParams = Partial<BaseParams> & {
+  categoryId?: RoadmapCategory["id"];
+};
+
 export const getRoadmaps = unstable_cache(
   async (
-    page: number = 1,
-    limit: number = 3,
-    categoryId?: number,
-    keyword?: string,
+    params: GetRoadmapsParams,
   ): Promise<{ totalCount: number; data: RoadmapCompact[] }> => {
+    const { page = 1, limit = 10, keyword, categoryId } = params;
+
     const [{ count: totalCount }] = await db
       .select({ count: sql<number>`count(*)` })
       .from(roadmaps)
@@ -55,7 +59,7 @@ export const getRoadmaps = unstable_cache(
 );
 
 export const getRoadmap = unstable_cache(
-  async (externalId: string): Promise<Roadmap | null> => {
+  async (externalId: Roadmap["externalId"]): Promise<Roadmap | null> => {
     const roadmap = await db.query.roadmaps.findFirst({
       where: eq(roadmaps.externalId, externalId),
       with: {
@@ -86,7 +90,7 @@ export const getRoadmap = unstable_cache(
 );
 
 export const getRoadmapWithSession = async (
-  externalId: string,
+  externalId: Roadmap["externalId"],
 ): Promise<Roadmap | null> => {
   const session = await auth.api.getSession({
     headers: await headers(),

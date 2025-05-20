@@ -3,12 +3,13 @@ import { notFound, redirect } from "next/navigation";
 import { getRoadmapWithSession } from "@/data/roadmap";
 import { db } from "@/db";
 import RoadmapForm from "@/features/roadmap/components/RoadmapForm";
+import { Roadmap } from "@/features/roadmap/type";
 import { auth } from "@/lib/auth";
 
 export default async function EditRoadmapPage({
   params,
 }: {
-  params: Promise<{ externalId: string }>;
+  params: Promise<{ externalId: Roadmap["externalId"] }>;
 }) {
   const session = await auth.api.getSession({
     headers: await headers(),

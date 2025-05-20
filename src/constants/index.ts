@@ -14,5 +14,6 @@ export const DEFAULT_COLORS = [
 ] as const satisfies HexColor[];
 
 export const ROADMAP_THEMES = ["vibrant", "muted"] as const;
+export type RoadmapTheme = (typeof ROADMAP_THEMES)[number];
 
 export const DEFAULT_PER_PAGE = 4;

@@ -5,11 +5,10 @@ import { db } from "@/db";
 import { bookmarks, roadmaps } from "@/db/schema";
 import { Bookmark } from "@/features/bookmark/type";
 import { auth } from "@/lib/auth";
+import { ActivityParams } from "./activity";
 
 export const getMyBookmarks = async (
-  page: number = 1,
-  limit: number = 3,
-  keyword?: string,
+  params: ActivityParams,
 ): Promise<{ totalCount: number; data: Bookmark[] }> => {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -19,6 +18,7 @@ export const getMyBookmarks = async (
     redirect("/login");
   }
 
+  const { page = 1, limit = 10, keyword } = params;
   const authorId = session.user.id;
 
   const conditions = [

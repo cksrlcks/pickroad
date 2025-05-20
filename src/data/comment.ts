@@ -1,18 +1,20 @@
 import { unstable_cache } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
-import { DEFAULT_PER_PAGE } from "@/constants";
 import { db } from "@/db";
 import { comments } from "@/db/schema";
 import { Comment } from "@/features/comment/type";
-import { TargetType } from "@/types";
+import { BaseParams, TargetType } from "@/types";
+
+type GetCommentsParams = Partial<BaseParams> & {
+  targetId: Comment["targetId"];
+  targetType: TargetType;
+};
 
 export const getComments = unstable_cache(
   async (
-    targetId: number,
-    targetType: TargetType,
-    page: number = 1,
-    limit: number = DEFAULT_PER_PAGE,
+    params: GetCommentsParams,
   ): Promise<{ totalCount: number; data: Comment[] }> => {
+    const { page = 1, limit = 10, targetId, targetType } = params;
     const [{ count: totalCount }] = await db
       .select({ count: sql<number>`count(*)` })
       .from(comments)

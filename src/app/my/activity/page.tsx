@@ -2,19 +2,16 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import FilterProvider from "@/components/FilterProvider";
 import Search from "@/components/Search";
+import { ActivityParams } from "@/data/activity";
 import { ActivityFilter } from "@/features/activity/components/ActivityFilter";
 import { ActivityItemSkeleton } from "@/features/activity/components/ActivityItemSkeleton";
 import ActivityPaginationedList from "@/features/activity/components/ActivityPaginationedList";
-import { FilterSearchParamsSchema, FilterType } from "@/types";
+import { FilterSearchParamsSchema } from "@/types";
 
 export default async function ActivitiesPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    page?: string;
-    type?: FilterType;
-    keyword?: string;
-  }>;
+  searchParams: Promise<ActivityParams>;
 }) {
   const safeParsedSearchParams = FilterSearchParamsSchema.safeParse(
     await searchParams,

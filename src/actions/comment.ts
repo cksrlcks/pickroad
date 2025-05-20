@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { and, eq } from "drizzle-orm";
-import { DEFAULT_PER_PAGE } from "@/constants";
 import { db } from "@/db";
 import { comments, roadmaps } from "@/db/schema";
 import {
@@ -12,7 +11,7 @@ import {
   commentInsertSchema,
 } from "@/features/comment/type";
 import { auth } from "@/lib/auth";
-import { ServerActionResult } from "@/types";
+import { BaseParams, ServerActionResult } from "@/types";
 
 export const createRoadmapComment = async (
   data: CommentForm,
@@ -154,7 +153,7 @@ export const editRoadmapComment = async (
 };
 
 export const deleteRoadmapComment = async (
-  commentId: number,
+  commentId: Comment["id"],
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -214,12 +213,16 @@ export const deleteRoadmapComment = async (
   }
 };
 
+type LoadmoreCommentParams = Partial<BaseParams> & {
+  targetId: Comment["targetId"];
+  targetType: Comment["targetType"];
+};
+
 export const loadmoreComment = async (
-  targetId: number,
-  targetType: string,
-  page: number,
-  limit: number = DEFAULT_PER_PAGE,
+  params: LoadmoreCommentParams,
 ): Promise<ServerActionResult<{ comments: Comment[] }>> => {
+  const { targetId, targetType, page = 1, limit = 10 } = params;
+
   try {
     const data = await db.query.comments.findMany({
       with: {

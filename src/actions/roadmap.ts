@@ -8,6 +8,7 @@ import { inArray, and, eq } from "drizzle-orm";
 import { ulid } from "ulid";
 import urlMetadata from "url-metadata";
 import {
+  Roadmap,
   RoadmapFormWithUploadedUrl,
   roadmapInsertSchema,
   RoadmapItemMetaData,
@@ -233,7 +234,7 @@ export const editRoadmap = async (
 };
 
 export const deleteRoadmap = async (
-  id: number,
+  id: Roadmap["id"],
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -316,8 +317,8 @@ export const getOgData = async (
 };
 
 export const likeRoadmap = async (
-  id: number,
-  externalId: string,
+  id: Roadmap["id"],
+  externalId: Roadmap["externalId"],
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -353,8 +354,8 @@ export const likeRoadmap = async (
 };
 
 export const unlikeRoadmap = async (
-  id: number,
-  externalId: string,
+  id: Roadmap["id"],
+  externalId: Roadmap["externalId"],
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -394,8 +395,8 @@ export const unlikeRoadmap = async (
 };
 
 export const bookmarkRoadmap = async (
-  id: number,
-  externalId: string,
+  id: Roadmap["id"],
+  externalId: Roadmap["externalId"],
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -431,8 +432,8 @@ export const bookmarkRoadmap = async (
 };
 
 export const unbookmarkRoadmap = async (
-  id: number,
-  externalId: string,
+  id: Roadmap["id"],
+  externalId: Roadmap["externalId"],
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),

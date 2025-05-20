@@ -1,15 +1,23 @@
 import { Comment } from "../comment/type";
 import { Like, RoadmapCompact } from "../roadmap/type";
 
-export type ActivityType = "roadmap" | "comment" | "like";
+export const ACTIVITY_TYPES = {
+  ROADMAP: "roadmap",
+  COMMENT: "comment",
+  LIKE: "like",
+} as const;
 
-export type ActivityRoadmap = RoadmapCompact & { type: "roadmap" };
+export type ActivityType = (typeof ACTIVITY_TYPES)[keyof typeof ACTIVITY_TYPES];
+
+export type ActivityRoadmap = RoadmapCompact & {
+  type: typeof ACTIVITY_TYPES.ROADMAP;
+};
 export type ActivityComment = Comment & {
-  type: "comment";
+  type: typeof ACTIVITY_TYPES.COMMENT;
   roadmap: Partial<RoadmapCompact> | null;
 };
 export type ActivityLike = Like & {
-  type: "like";
+  type: typeof ACTIVITY_TYPES.LIKE;
   roadmap: Partial<RoadmapCompact> | null;
 };
 

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import FilterProvider from "@/components/FilterProvider";
 import Search from "@/components/Search";
+import { ActivityParams } from "@/data/activity";
 import { ActivityItemSkeleton } from "@/features/activity/components/ActivityItemSkeleton";
 import BookmarkPaginationedList from "@/features/bookmark/components/BookmarkPaginationedList";
 import { FilterSearchParamsSchema } from "@/types";
@@ -9,10 +10,7 @@ import { FilterSearchParamsSchema } from "@/types";
 export default async function BookmarksPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    page?: string;
-    keyword?: string;
-  }>;
+  searchParams: Promise<Partial<ActivityParams>>;
 }) {
   const safeParsedSearchParams = FilterSearchParamsSchema.safeParse(
     await searchParams,

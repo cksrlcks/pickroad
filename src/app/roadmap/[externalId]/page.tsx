@@ -10,12 +10,13 @@ import RoadmapItems from "@/features/roadmap/components/RoadmapItems";
 import RoadmapMobileWall from "@/features/roadmap/components/RoadmapMobileWall";
 import RoadmapReview from "@/features/roadmap/components/RoadmapReviews";
 import RoadmapTags from "@/features/roadmap/components/RoadmapTags";
+import { Roadmap } from "@/features/roadmap/type";
 import { generateRoadmapJsonLd } from "@/lib/jsonld-roadmap";
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ externalId: string }>;
+  params: Promise<{ externalId: Roadmap["externalId"] }>;
 }) {
   const defaultTitle = "나만의 로드맵 공유 플랫폼 | Pick Road";
   const { externalId } = await params;
@@ -47,7 +48,7 @@ export async function generateMetadata({
 export default async function RoadmapDetailPage({
   params,
 }: {
-  params: Promise<{ externalId: string }>;
+  params: Promise<{ externalId: Roadmap["externalId"] }>;
 }) {
   const { externalId } = await params;
   const roadmapDetail = await getRoadmapWithSession(externalId);

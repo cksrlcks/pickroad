@@ -1,13 +1,12 @@
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { loadmoreComment } from "@/actions/comment";
-import { TargetType } from "@/types";
 import { Comment } from "../type";
 
 type useCommentsProps = {
   initialComments: { totalCount: number; data: Comment[] | null };
-  targetType: TargetType;
-  targetId: number;
+  targetType: Comment["targetType"];
+  targetId: Comment["targetId"];
 };
 
 export function useComments({
@@ -33,11 +32,11 @@ export function useComments({
 
   const handleLoadmore = async () => {
     setTransition(async () => {
-      const response = await loadmoreComment(
+      const response = await loadmoreComment({
         targetId,
         targetType,
-        comments.page + 1,
-      );
+        page: comments.page + 1,
+      });
       if (!response.success) {
         toast.error(response.message);
         return;

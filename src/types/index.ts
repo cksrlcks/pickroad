@@ -22,3 +22,9 @@ export const FilterSearchParamsSchema = z.object({
   keyword: z.string().optional(),
   type: FilterTypeSchema.optional(),
 });
+
+export type BaseParams = {
+  page: number;
+  limit: number;
+  keyword: string;
+};

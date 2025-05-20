@@ -1,21 +1,32 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { User } from "better-auth";
 import { and, desc, eq, ilike, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { comments, likes, roadmaps, user } from "@/db/schema";
 import {
+  ACTIVITY_TYPES,
   ActivityComment,
   ActivityLike,
   ActivityRoadmap,
+  ActivityType,
 } from "@/features/activity/type";
 import { auth } from "@/lib/auth";
+import { BaseParams } from "@/types";
+
+export type ActivityParams = Partial<BaseParams> & {
+  type?: ActivityType;
+};
+
+export type ActivityParamsWithSession = ActivityParams & {
+  authorId: User["id"];
+};
 
 export const getMyRoadmaps = async (
-  authorId: string,
-  page: number,
-  limit: number,
-  keyword?: string,
+  params: ActivityParamsWithSession,
 ): Promise<{ totalCount: number; data: ActivityRoadmap[] }> => {
+  const { page = 1, limit = 10, keyword, authorId } = params;
+
   const conditions = [
     eq(roadmaps.authorId, authorId),
     keyword ? ilike(roadmaps.title, `%${keyword}%`) : undefined,
@@ -44,19 +55,18 @@ export const getMyRoadmaps = async (
 
   return {
     totalCount: totalCount,
-    data: data.map((item) => ({ ...item, type: "roadmap" })),
+    data: data.map((item) => ({ ...item, type: ACTIVITY_TYPES.ROADMAP })),
   };
 };
 
 export const getMyComments = async (
-  authorId: string,
-  page: number,
-  limit: number,
-  keyword?: string,
+  params: ActivityParamsWithSession,
 ): Promise<{
   totalCount: number;
   data: ActivityComment[];
 }> => {
+  const { page = 1, limit = 10, keyword, authorId } = params;
+
   const conditions = [
     eq(comments.authorId, authorId),
     keyword ? ilike(comments.content, `%${keyword}%`) : undefined,
@@ -100,19 +110,18 @@ export const getMyComments = async (
 
   return {
     totalCount,
-    data: data.map((item) => ({ ...item, type: "comment" })),
+    data: data.map((item) => ({ ...item, type: ACTIVITY_TYPES.COMMENT })),
   };
 };
 
 export const getMyLikes = async (
-  authorId: string,
-  page: number,
-  limit: number,
-  keyword?: string,
+  params: ActivityParamsWithSession,
 ): Promise<{
   totalCount: number;
   data: ActivityLike[];
 }> => {
+  const { page = 1, limit = 10, keyword, authorId } = params;
+
   const conditions = [
     eq(likes.userId, authorId),
     eq(likes.targetType, "roadmap"),
@@ -149,16 +158,11 @@ export const getMyLikes = async (
 
   return {
     totalCount,
-    data: data.map((item) => ({ ...item, type: "like" })),
+    data: data.map((item) => ({ ...item, type: ACTIVITY_TYPES.LIKE })),
   };
 };
 
-export const getMyActivity = async (
-  page: number = 1,
-  limit: number = 3,
-  keyword?: string,
-  type?: "roadmap" | "comment" | "like",
-) => {
+export const getMyActivity = async (params: ActivityParams) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -169,13 +173,13 @@ export const getMyActivity = async (
 
   const authorId = session.user.id;
 
-  switch (type || "roadmap") {
-    case "roadmap":
-      return await getMyRoadmaps(authorId, page, limit, keyword);
-    case "comment":
-      return await getMyComments(authorId, page, limit, keyword);
-    case "like":
-      return await getMyLikes(authorId, page, limit, keyword);
+  switch (params.type || ACTIVITY_TYPES.ROADMAP) {
+    case ACTIVITY_TYPES.ROADMAP:
+      return await getMyRoadmaps({ ...params, authorId });
+    case ACTIVITY_TYPES.COMMENT:
+      return await getMyComments({ ...params, authorId });
+    case ACTIVITY_TYPES.LIKE:
+      return await getMyLikes({ ...params, authorId });
     default:
       throw new Error("Invalid activity type.");
   }

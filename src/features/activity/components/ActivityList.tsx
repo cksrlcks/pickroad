@@ -1,7 +1,7 @@
 "use client";
 
 import { useFilters } from "@/components/FilterProvider";
-import { Activity } from "../type";
+import { Activity, ACTIVITY_TYPES } from "../type";
 import { ActivityCommentItem } from "./ActivityCommentItem";
 import { ActivityItemSkeleton } from "./ActivityItemSkeleton";
 import { ActivityLikeItem } from "./ActivityLikeItem";
@@ -42,19 +42,19 @@ export default function ActivityList({ data, keyword }: ActivityListProps) {
 
   const renderItem = (item: Activity) => {
     switch (item.type) {
-      case "roadmap":
+      case ACTIVITY_TYPES.ROADMAP:
         return (
           <li key={item.id}>
             <ActivityRoadmapItem item={item} />
           </li>
         );
-      case "comment":
+      case ACTIVITY_TYPES.COMMENT:
         return (
           <li key={item.id}>
             <ActivityCommentItem item={item} />
           </li>
         );
-      case "like":
+      case ACTIVITY_TYPES.LIKE:
         return (
           <li key={`${item.userId}-${item.roadmap?.externalId}`}>
             <ActivityLikeItem item={item} />

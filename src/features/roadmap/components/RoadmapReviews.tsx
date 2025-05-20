@@ -8,7 +8,11 @@ type RoadmapReviewsProps = {
 };
 
 export default async function RoadmapReview({ roadmap }: RoadmapReviewsProps) {
-  const data = await getComments(roadmap.id, "roadmap", 1);
+  const data = await getComments({
+    targetId: roadmap.id,
+    targetType: "roadmap",
+    page: 1,
+  });
 
   return (
     <div className="space-y-8 py-3">

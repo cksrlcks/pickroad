@@ -3,6 +3,7 @@
 import Image from "next/image";
 import PlaceholderImage from "@/assets/img/placeholder.svg";
 import Author from "@/components/Author";
+import { getCurrentPalette } from "@/lib/color";
 import { dateToAgo } from "@/lib/utils";
 import { RoadmapCompact } from "../type";
 
@@ -11,17 +12,8 @@ type RoadmapCardProps = {
 };
 
 export function RoadmapCard({ roadmap }: RoadmapCardProps) {
-  const paletteString =
-    roadmap.theme === "vibrant"
-      ? roadmap.themeVibrantPalette
-      : roadmap.themeMutedPalette;
-  const [, , darkColor, darkTextColor, lightColor, lightTextColor] =
-    paletteString?.split(".") || [];
-
-  const bgColor = darkColor || "#000";
-  const textColor = darkTextColor || "#fff";
-  const badgeBgColor = lightColor || "#fff";
-  const badgeTextColor = lightTextColor || "#000";
+  const { bgColor, textColor, badgeBgColor, badgeTextColor } =
+    getCurrentPalette(roadmap);
 
   return (
     <div

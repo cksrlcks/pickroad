@@ -57,8 +57,8 @@ export function Profile({ user }: ProfileProps) {
     },
   });
 
-  const handleSubmit = form.handleSubmit((data) => {
-    edit(data);
+  const handleSubmit = form.handleSubmit(async (data) => {
+    await edit(data);
   });
 
   return (

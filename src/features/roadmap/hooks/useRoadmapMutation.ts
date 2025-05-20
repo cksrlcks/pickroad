@@ -54,31 +54,39 @@ export default function useRoadmapMutation(
   );
 
   const create = async (data: RoadmapForm) => {
-    try {
-      if (data.thumbnail instanceof File) {
+    if (data.thumbnail instanceof File) {
+      try {
         const uploadResponse = await uploadImageByClient(data.thumbnail);
         data.thumbnail = uploadResponse;
+      } catch (error) {
+        toast.error(
+          `${error instanceof Error ? error.message : "이미지 업로드 실패"}`,
+        );
+        return;
       }
+    }
 
-      const response = await createRoadmap(data as RoadmapFormWithUploadedUrl);
+    const response = await createRoadmap(data as RoadmapFormWithUploadedUrl);
 
-      if (response.success) {
-        toast.success(response.message);
-        options.create?.onSuccess?.(response.payload?.externalId);
-      } else {
-        toast.error(response.message);
-      }
-    } catch (error) {
-      toast.error(
-        `${error instanceof Error ? error.message : "작성을 실패했습니다."}`,
-      );
+    if (response.success) {
+      toast.success(response.message);
+      options.create?.onSuccess?.(response.payload?.externalId);
+    } else {
+      toast.error(response.message);
     }
   };
 
   const edit = async (data: RoadmapForm) => {
     if (data.thumbnail instanceof File) {
-      const uploadResponse = await uploadImageByClient(data.thumbnail);
-      data.thumbnail = uploadResponse;
+      try {
+        const uploadResponse = await uploadImageByClient(data.thumbnail);
+        data.thumbnail = uploadResponse;
+      } catch (error) {
+        toast.error(
+          `${error instanceof Error ? error.message : "이미지 업로드 실패"}`,
+        );
+        return;
+      }
     }
 
     const response = await editRoadmap(data as RoadmapFormWithUploadedUrl);

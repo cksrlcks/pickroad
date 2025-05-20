@@ -119,8 +119,8 @@ export default function RoadmapForm({
 
   const action = isEditMode ? edit : create;
 
-  const handleSubmit = form.handleSubmit((data) => {
-    action(data);
+  const handleSubmit = form.handleSubmit(async (data) => {
+    await action(data);
   });
 
   return (

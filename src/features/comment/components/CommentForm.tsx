@@ -76,7 +76,7 @@ export function CommentForm({
       return;
     }
 
-    action(data);
+    await action(data);
   });
 
   const handleCancel = () => {

@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { headers } from "next/headers";
-import { sql, and, eq } from "drizzle-orm";
+import { sql, and, eq, or, ilike } from "drizzle-orm";
 import {
   Roadmap,
   RoadmapCategory,
@@ -9,7 +9,7 @@ import {
 import { auth } from "@/lib/auth";
 import { BaseParams } from "@/types";
 import { db } from "../db";
-import { likes, roadmaps } from "../db/schema";
+import { likes, roadmaps, roadmapTags, tags } from "../db/schema";
 import { bookmarks } from "../db/schema/bookmarks";
 
 export type GetRoadmapsParams = Partial<BaseParams> & {
@@ -22,15 +22,30 @@ export const getRoadmaps = unstable_cache(
   ): Promise<{ totalCount: number; data: RoadmapCompact[] }> => {
     const { page = 1, limit = 10, keyword, categoryId } = params;
 
+    const roadmapIdsByTag = keyword
+      ? db
+          .select({ roadmapId: roadmapTags.roadmapId })
+          .from(roadmapTags)
+          .innerJoin(tags, eq(roadmapTags.tagId, tags.id))
+          .where(ilike(tags.name, `%${keyword}%`))
+      : undefined;
+
+    const whereCondition = and(
+      categoryId ? eq(roadmaps.categoryId, categoryId) : undefined,
+      or(
+        keyword ? sql`${roadmaps.title} ILIKE ${`%${keyword}%`}` : undefined,
+        roadmapIdsByTag
+          ? sql`${roadmaps.id} IN (${roadmapIdsByTag})`
+          : undefined,
+      ),
+    );
+
     const [{ count: totalCount }] = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({ count: sql<number>`count(distinct ${roadmaps.id})` })
       .from(roadmaps)
-      .where(
-        and(
-          categoryId ? eq(roadmaps.categoryId, categoryId) : undefined,
-          keyword ? sql`${roadmaps.title} ILIKE ${`%${keyword}%`}` : undefined,
-        ),
-      );
+      .leftJoin(roadmapTags, eq(roadmaps.id, roadmapTags.roadmapId))
+      .leftJoin(tags, eq(roadmapTags.tagId, tags.id))
+      .where(whereCondition);
 
     const data = await db.query.roadmaps.findMany({
       with: {
@@ -42,10 +57,7 @@ export const getRoadmaps = unstable_cache(
           },
         },
       },
-      where: and(
-        categoryId ? eq(roadmaps.categoryId, categoryId) : undefined,
-        keyword ? sql`${roadmaps.title} ILIKE ${`%${keyword}%`}` : undefined,
-      ),
+      where: whereCondition,
       orderBy: (fields, { desc }) => desc(fields.createdAt),
       limit,
       offset: (page - 1) * limit,

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { DEFAULT_COLORS } from "@/constants";
 import { getColorByString } from "@/lib/color";
 import { Roadmap } from "../type";
@@ -27,7 +28,7 @@ export default function RoadmapTags({ roadmap }: RoadmapTagsProps) {
               backgroundColor: `${colorCode}${BACKGROUND_ALPHA}`,
             }}
           >
-            #{item.name}
+            <Link href={`/?keyword=${item.name}`}>#{item.name}</Link>
           </li>
         );
       })}

@@ -4,10 +4,9 @@ import Spinner from "@/components/Spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getRoadmap, getRoadmapWithSession } from "@/data/roadmap";
 import RoadmapActions from "@/features/roadmap/components/RoadmapActions";
-import { RoadmapCard } from "@/features/roadmap/components/RoadmapCard";
+import RoadmapDisplay from "@/features/roadmap/components/RoadmapDisplay";
 import RoadmapInfo from "@/features/roadmap/components/RoadmapInfo";
 import RoadmapItems from "@/features/roadmap/components/RoadmapItems";
-import RoadmapMobileWall from "@/features/roadmap/components/RoadmapMobileWall";
 import RoadmapReview from "@/features/roadmap/components/RoadmapReviews";
 import RoadmapTags from "@/features/roadmap/components/RoadmapTags";
 import { Roadmap } from "@/features/roadmap/type";
@@ -65,17 +64,11 @@ export default async function RoadmapDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="flex flex-col justify-between gap-6 md:flex-row md:gap-16">
-        {/* pc - cover */}
-        <div className="hidden max-w-[320px] flex-1 md:block">
-          <div className="sticky top-40">
-            <RoadmapCard roadmap={roadmapDetail} />
+      <div className="flex flex-col justify-between gap-6 md:flex-row md:gap-10 lg:gap-16">
+        <div className="-mx-4 -mt-4 flex-1 md:m-0 md:max-w-[320px]">
+          <div className="md:sticky md:top-40">
+            <RoadmapDisplay roadmap={roadmapDetail} />
           </div>
-        </div>
-
-        {/* mobile - cover */}
-        <div className="-mx-4 -mt-8 md:hidden">
-          <RoadmapMobileWall roadmap={roadmapDetail} />
         </div>
 
         <div className="flex-1">

@@ -1,3 +1,4 @@
+import "server-only";
 import { unstable_cache } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";

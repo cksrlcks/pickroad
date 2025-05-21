@@ -4,5 +4,12 @@
     "prettier-plugin-tailwindcss"
   ],
   "tailwindFunctions": ["clsx", "cva"],
-  "importOrder": ["^react", "^next", "^[a-zA-Z0-9]", "^@/(.*)$", "^[./]"]
+  "importOrder": [
+    "^server-only",
+    "^react",
+    "^next",
+    "^[a-zA-Z0-9]",
+    "^@/(.*)$",
+    "^[./]"
+  ]
 }

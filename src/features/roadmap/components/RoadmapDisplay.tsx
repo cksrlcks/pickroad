@@ -25,7 +25,7 @@ export default function RoadmapDisplay({ roadmap }: RoadmapDisplayProps) {
           />
         )}
       </div>
-      <div className="relative z-1 bg-black/40 p-12 backdrop-blur-xl md:bg-transparent md:p-0 md:blur-none">
+      <div className="relative z-1 bg-white/5 p-12 backdrop-blur-xl md:bg-transparent md:p-0 md:blur-none">
         <div className="mx-auto w-[60vw] md:w-full">
           <RoadmapCard roadmap={roadmap} />
         </div>

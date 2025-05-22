@@ -40,12 +40,20 @@ export const roadmapBaseInsertSchema = createInsertSchema(roadmaps, {
     z
       .string({ required_error: "필수 입력입니다." })
       .trim()
-      .min(2, { message: "2글자 이상 입력해주세요" }),
+      .min(2, { message: "2글자 이상 입력해주세요" })
+      .max(100, { message: "100글자 이하로 입력해주세요" }),
   subTitle: () =>
     z
       .string({ required_error: "필수 입력입니다." })
       .trim()
-      .min(2, { message: "2글자 이상 입력해주세요" }),
+      .min(2, { message: "2글자 이상 입력해주세요" })
+      .max(1000, { message: "1000글자 이하로 입력해주세요" }),
+  description: () =>
+    z
+      .string()
+      .trim()
+      .max(5000, { message: "5000글자 이하로 입력해주세요" })
+      .nullable(),
   thumbnail: (schema) =>
     z
       .union([
@@ -73,9 +81,26 @@ export const roadmapBaseInsertSchema = createInsertSchema(roadmaps, {
 });
 export const roadmapCategoriesInsertSchema = createInsertSchema(categories);
 export const roadmapTagsInsertSchema = createInsertSchema(tags, {
-  name: (schema) => schema.trim().min(2, { message: "두글자 이상 적어주세요" }),
+  name: (schema) =>
+    schema
+      .trim()
+      .min(2, { message: "두글자 이상 적어주세요" })
+      .max(20, { message: "20글자 이하로 적어주세요" }),
 });
-export const roadmapItemsInsertSchema = createInsertSchema(roadmapItems);
+export const roadmapItemsInsertSchema = createInsertSchema(roadmapItems, {
+  title: () =>
+    z
+      .string({ required_error: "필수 입력입니다." })
+      .trim()
+      .min(2, { message: "2글자 이상 입력해주세요" })
+      .max(100, { message: "100글자 이하로 입력해주세요" }),
+  description: () =>
+    z
+      .string()
+      .trim()
+      .max(1000, { message: "1000글자 이하로 입력해주세요" })
+      .nullable(),
+});
 
 export const roadmapInsertSchema = roadmapBaseInsertSchema
   .omit({
@@ -83,7 +108,7 @@ export const roadmapInsertSchema = roadmapBaseInsertSchema
     updatedAt: true,
   })
   .extend({
-    tags: z.array(roadmapCategoriesInsertSchema.shape.name).optional(),
+    tags: z.array(roadmapTagsInsertSchema.shape.name).optional(),
     items: z.array(roadmapItemsInsertSchema).optional(),
   });
 export type RoadmapForm = z.infer<typeof roadmapInsertSchema>;

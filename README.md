@@ -9,6 +9,8 @@ PickRoad는 블로그, 유튜브 등 다양한 링크를 모아 큐레이션하�
 </h4>
 
 ---
+![Group 50](https://github.com/user-attachments/assets/12bcfcb8-a111-4ca7-8444-c9b31cf90641)
+
 
 ## Background
 
@@ -120,3 +122,14 @@ BetterAuth를 통해 세션 기반 인증 시스템을 구현했습니다. 특�
 
 - [URL 파라미터로 인해 서버 컴포넌트가 다시 요청되면서 발생하는 UI 프리징 현상 해결](https://heavybear-portfolio.vercel.app/post/nextjs-filter)
 - [unstable_cache에서 headers 같은 dynamic API를 사용할 수 없을 때, 정적 캐싱과 동적 처리 분리 적용건](https://heavybear-portfolio.vercel.app/post/nextjs-unstable-cache)
+
+
+---
+## Screenshot
+![Group 50](https://github.com/user-attachments/assets/ea15ac3f-ab8a-4850-b374-0c2772dcecee)
+![Group 49](https://github.com/user-attachments/assets/fdbb4bde-4314-4921-acf5-8b2d62d60d18)
+![Group 51](https://github.com/user-attachments/assets/e7c64b9a-3416-4934-8ecf-4d81d196fd5a)
+![Group 52](https://github.com/user-attachments/assets/dffafb7b-be88-4a33-8455-9123643da35e)
+![Group 53](https://github.com/user-attachments/assets/db1f3f7f-fc1b-4b58-bebc-71c50e8260a4)
+
+

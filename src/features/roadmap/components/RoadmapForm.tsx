@@ -308,6 +308,7 @@ export default function RoadmapForm({
                       placeholder="태그를 작성후 Enter를 눌러 추가"
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

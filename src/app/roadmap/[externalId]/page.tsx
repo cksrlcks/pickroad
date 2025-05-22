@@ -71,7 +71,7 @@ export default async function RoadmapDetailPage({
           </div>
         </div>
 
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <div className="mb-4 md:mb-10">
             <RoadmapTags roadmap={roadmapDetail} />
             <RoadmapInfo roadmap={roadmapDetail} />

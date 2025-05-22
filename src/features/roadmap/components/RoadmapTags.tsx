@@ -15,20 +15,25 @@ export default function RoadmapTags({ roadmap }: RoadmapTagsProps) {
   }
 
   return (
-    <ul className="mb-6 flex gap-1">
+    <ul className="mb-6 flex min-w-0 flex-wrap gap-1">
       {roadmap.tags?.map((item) => {
         const colorCode = getColorByString(item.name, DEFAULT_COLORS);
 
         return (
           <li
             key={item.id}
-            className="rounded-sm px-2 py-1 text-[13px] font-semibold"
+            className="flex min-w-0 items-center gap-1 rounded-sm px-2 py-1 text-[13px] font-semibold"
             style={{
               color: colorCode,
               backgroundColor: `${colorCode}${BACKGROUND_ALPHA}`,
             }}
           >
-            <Link href={`/?keyword=${item.name}`}>#{item.name}</Link>
+            <Link
+              href={`/?keyword=${item.name}`}
+              className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap"
+            >
+              #{item.name}
+            </Link>
           </li>
         );
       })}

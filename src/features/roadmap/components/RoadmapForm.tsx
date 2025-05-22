@@ -27,6 +27,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { FILE_LIMIT_SIZE, ROADMAP_THEMES } from "@/constants";
+import useConfirmNavigation from "@/hooks/useConfirmNavigation";
 import { authClient } from "@/lib/auth-client";
 import useRoadmapMutation from "../hooks/useRoadmapMutation";
 import {
@@ -92,6 +93,8 @@ export default function RoadmapForm({
         }
       : {},
   });
+
+  useConfirmNavigation(form.formState.isDirty);
 
   const isDisabledSubmit =
     !form.formState.isValid || form.formState.isSubmitting;

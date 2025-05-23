@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { genericOAuth } from "better-auth/plugins";
+import { admin } from "better-auth/plugins";
 import { db } from "@/db";
 
 export const auth = betterAuth({
@@ -20,6 +21,7 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    admin(),
     genericOAuth({
       config: [
         {

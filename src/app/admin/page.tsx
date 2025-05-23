@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { getCategories } from "@/data/roadmap";
+import { getCategories } from "@/data/category";
 import CategoryForm from "@/features/admin/components/CategoryForm";
 import { auth } from "@/lib/auth";
 

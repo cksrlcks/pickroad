@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PlusIcon from "@/assets/img/icon-plus.svg";
 import Logo from "@/assets/img/logo.svg";
-import { getCategories } from "@/data/roadmap";
+import { getCategories } from "@/data/category";
 import Account from "./Account";
 import Inner from "./Inner";
 import MobileNav from "./MobileNav";

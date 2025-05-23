@@ -71,6 +71,7 @@ export const categories = pgTable("categories", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   emoji: text("emoji"),
+  order: integer("order").notNull().default(0),
 });
 
 export const roadmapRelations = relations(roadmaps, ({ one, many }) => ({

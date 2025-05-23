@@ -14,7 +14,7 @@ import { Button } from "./ui/button";
 export default async function Header() {
   const categories = await getCategories();
   const displayCategories = [
-    { id: 9999, name: "전체", emoji: null },
+    { id: 9999, name: "전체", emoji: null, order: 0 },
     ...categories,
   ];
 

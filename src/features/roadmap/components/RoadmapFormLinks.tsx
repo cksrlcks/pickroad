@@ -34,7 +34,7 @@ export default function RoadmapFormLinks() {
   const form = useFormContext<RoadmapForm>();
   const [isPending, startTransition] = useTransition();
 
-  const { fields, append, remove, swap, move } = useFieldArray({
+  const { fields, append, remove, move } = useFieldArray({
     control: form.control,
     name: "items",
   });
@@ -47,7 +47,7 @@ export default function RoadmapFormLinks() {
     const startLinkIndex = fields.findIndex((item) => item.id === e.active.id);
     const dropLinkIndex = fields.findIndex((item) => item.id === e.over?.id);
 
-    swap(startLinkIndex, dropLinkIndex);
+    move(startLinkIndex, dropLinkIndex);
   };
 
   const handleAddItem = async (e: KeyboardEvent<HTMLInputElement>) => {

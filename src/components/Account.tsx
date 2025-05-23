@@ -32,6 +32,8 @@ export default function Account() {
     });
   };
 
+  const isAdmim = session?.user.role === "admin";
+
   return (
     <>
       {session ? (
@@ -83,7 +85,16 @@ export default function Account() {
                   마이페이지
                 </Link>
               </DropdownMenuItem>
-
+              {isAdmim && (
+                <DropdownMenuItem asChild>
+                  <Link
+                    className="flex h-full w-full cursor-pointer items-center gap-2 font-medium"
+                    href="/admin"
+                  >
+                    관리자페이지
+                  </Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 onClick={handleLogout}
                 className="cursor-pointer"

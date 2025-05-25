@@ -72,13 +72,13 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
   return (
     <div className="flex items-center gap-[1px]">
       <RoadmapLikeButton
-        likeCount={likeState.likeCount}
-        isLiked={likeState.isLiked}
+        likeCount={likeState?.likeCount || 0}
+        isLiked={likeState?.isLiked || false}
         onToggleLike={handleLike}
         isPending={isLikePending}
       />
       <RoadmapBookmarkButton
-        isBookmarked={bookmarkState}
+        isBookmarked={bookmarkState || false}
         onToggleBookmark={handleBookmark}
         isPending={isBookmarkPending}
       />

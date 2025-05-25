@@ -4,10 +4,12 @@ import {
   deleteRoadmapComment,
   editRoadmapComment,
 } from "@/actions/comment";
-import { MutationOption } from "@/types";
+import { MutationOption, MutationResult } from "@/types";
 import { Comment, CommentForm } from "../type";
 
-export const useCreateComment = (options?: MutationOption) => {
+export const useCreateComment = (
+  options?: MutationOption,
+): MutationResult<void, CommentForm> => {
   const [isPending, startTransition] = useTransition();
 
   const mutate = async (data: CommentForm) => {
@@ -28,7 +30,9 @@ export const useCreateComment = (options?: MutationOption) => {
   };
 };
 
-export const useEditComment = (options?: MutationOption) => {
+export const useEditComment = (
+  options?: MutationOption,
+): MutationResult<void, CommentForm> => {
   const [isPending, startTransition] = useTransition();
 
   const mutate = async (data: CommentForm) => {
@@ -52,7 +56,7 @@ export const useEditComment = (options?: MutationOption) => {
 export const useDeleteComment = (
   comment: Comment,
   options?: MutationOption,
-) => {
+): MutationResult => {
   const [isPending, startTransition] = useTransition();
 
   const mutate = async () => {

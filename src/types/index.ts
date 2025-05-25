@@ -15,6 +15,12 @@ export type ServerActionFailure = {
   message: string;
 };
 
+export type MutationResult<TPayload = unknown, TInput = void> = {
+  isPending: boolean;
+  mutate: (input: TInput) => void | Promise<void>;
+  state?: TPayload;
+};
+
 export type MutationOption<T = unknown> = {
   onSuccess?: (response: ServerActionSuccess<T>) => void;
   onError?: (response: ServerActionFailure) => void;

@@ -18,7 +18,7 @@ type CommentContentProps = {
   comment: Comment;
   isCommentAuthor?: boolean;
   onEdit: () => void;
-  onDelete: (id: number) => void;
+  onDelete: () => void;
   isPendingDelete: boolean;
 };
 
@@ -68,9 +68,7 @@ export function CommentContent({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>취소</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => onDelete(comment.id)}>
-                    삭제
-                  </AlertDialogAction>
+                  <AlertDialogAction onClick={onDelete}>삭제</AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

@@ -1,9 +1,11 @@
 import { useTransition } from "react";
 import { editUserProfileAction } from "@/actions/auth";
-import { MutationOption } from "@/types";
+import { MutationOption, MutationResult } from "@/types";
 import { UserProfileEditForm } from "../type";
 
-export const useProfileEdit = (options: MutationOption) => {
+export const useProfileEdit = (
+  options: MutationOption,
+): MutationResult<void, UserProfileEditForm> => {
   const [isPending, startTransition] = useTransition();
 
   const mutate = async (data: UserProfileEditForm) => {

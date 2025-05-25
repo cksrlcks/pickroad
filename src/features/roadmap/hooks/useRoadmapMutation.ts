@@ -10,12 +10,14 @@ import {
   unlikeRoadmap,
 } from "@/actions/roadmap";
 import { uploadImageByClient } from "@/lib/r2-client";
-import { MutationOption } from "@/types";
+import { MutationOption, MutationResult } from "@/types";
 import { Roadmap, RoadmapForm, RoadmapFormWithUploadedUrl } from "../type";
 
+type CreateRoadmapPayload = { externalId?: string };
+
 export const useCreateRoadmap = (
-  options?: MutationOption<{ externalId?: string }>,
-) => {
+  options?: MutationOption<CreateRoadmapPayload>,
+): MutationResult<CreateRoadmapPayload, RoadmapForm> => {
   const [isPending, startTransition] = useTransition();
 
   const mutate = async (data: RoadmapForm) => {
@@ -48,9 +50,11 @@ export const useCreateRoadmap = (
   };
 };
 
+type EditRoadmapPayload = { externalId?: string };
+
 export const useEditRoadmap = (
-  options?: MutationOption<{ externalId?: string }>,
-) => {
+  options?: MutationOption<EditRoadmapPayload>,
+): MutationResult<EditRoadmapPayload, RoadmapForm> => {
   const [isPending, startTransition] = useTransition();
 
   const mutate = async (data: RoadmapForm) => {
@@ -86,7 +90,7 @@ export const useEditRoadmap = (
 export const useDeleteRoadmap = (
   roadmap: Roadmap,
   options?: MutationOption,
-) => {
+): MutationResult => {
   const [isPending, startTransition] = useTransition();
 
   const mutate = async () => {
@@ -107,7 +111,12 @@ export const useDeleteRoadmap = (
   };
 };
 
-export const useLikeRoadmap = (roadmap: Roadmap, options?: MutationOption) => {
+type LikeRoadmapPayload = { isLiked: boolean; likeCount: number };
+
+export const useLikeRoadmap = (
+  roadmap: Roadmap,
+  options?: MutationOption,
+): MutationResult<LikeRoadmapPayload> => {
   const [isPending, startTransition] = useTransition();
   const [state, setState] = useOptimistic(
     {
@@ -147,10 +156,12 @@ export const useLikeRoadmap = (roadmap: Roadmap, options?: MutationOption) => {
   };
 };
 
+type BookmarkRoadmapPayload = boolean;
+
 export const useBookmarkRoadmap = (
   roadmap: Roadmap,
   options?: MutationOption,
-) => {
+): MutationResult<BookmarkRoadmapPayload> => {
   const [isPending, startTransition] = useTransition();
   const [state, setState] = useOptimistic(
     roadmap?.isBookmarked || false,

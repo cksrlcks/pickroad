@@ -9,7 +9,6 @@ import {
   unbookmarkRoadmap,
   unlikeRoadmap,
 } from "@/actions/roadmap";
-import { authClient } from "@/lib/auth-client";
 import { uploadImageByClient } from "@/lib/r2-client";
 import { MutationOption } from "@/types";
 import { Roadmap, RoadmapForm, RoadmapFormWithUploadedUrl } from "../type";
@@ -109,7 +108,6 @@ export const useDeleteRoadmap = (
 };
 
 export const useLikeRoadmap = (roadmap: Roadmap, options?: MutationOption) => {
-  const { data: session } = authClient.useSession();
   const [isPending, startTransition] = useTransition();
   const [state, setState] = useOptimistic(
     {
@@ -125,13 +123,6 @@ export const useLikeRoadmap = (roadmap: Roadmap, options?: MutationOption) => {
   );
 
   const mutate = async () => {
-    if (!session) {
-      return {
-        success: false,
-        message: "로그인 후 이용해주세요.",
-      };
-    }
-
     startTransition(async () => {
       if (!roadmap) return;
 
@@ -160,7 +151,6 @@ export const useBookmarkRoadmap = (
   roadmap: Roadmap,
   options?: MutationOption,
 ) => {
-  const { data: session } = authClient.useSession();
   const [isPending, startTransition] = useTransition();
   const [state, setState] = useOptimistic(
     roadmap?.isBookmarked || false,
@@ -168,13 +158,6 @@ export const useBookmarkRoadmap = (
   );
 
   const mutate = async () => {
-    if (!session) {
-      return {
-        success: false,
-        message: "로그인 후 이용해주세요.",
-      };
-    }
-
     startTransition(async () => {
       if (!roadmap) return;
 

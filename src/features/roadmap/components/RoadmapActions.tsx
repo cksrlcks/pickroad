@@ -51,17 +51,35 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
     },
   );
 
+  const handleLike = () => {
+    if (!session) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+
+    return like();
+  };
+
+  const handleBookmark = () => {
+    if (!session) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+
+    return bookmark();
+  };
+
   return (
     <div className="flex items-center gap-[1px]">
       <RoadmapLikeButton
         likeCount={likeState.likeCount}
         isLiked={likeState.isLiked}
-        onToggleLike={like}
+        onToggleLike={handleLike}
         isPending={isLikePending}
       />
       <RoadmapBookmarkButton
         isBookmarked={bookmarkState}
-        onToggleBookmark={bookmark}
+        onToggleBookmark={handleBookmark}
         isPending={isBookmarkPending}
       />
       <RoadmapShareButton

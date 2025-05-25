@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Author from "@/components/Author";
-import useCommentMutation from "../hooks/useCommentMutation";
+import { useDeleteComment } from "../hooks/useCommentMutation";
 import { Comment } from "../type";
 import { CommentContent } from "./CommentContent";
 import { CommentForm } from "./CommentForm";
@@ -13,7 +13,8 @@ type CommentItemProps = {
 };
 export function CommentItem({ comment, isCommentAuthor }: CommentItemProps) {
   const [isEditMode, setIsEditMode] = useState(false);
-  const { remove } = useCommentMutation({ comment });
+  const { mutate: remove, isPending: isPendingRemove } =
+    useDeleteComment(comment);
 
   return (
     <div className="space-y-3">
@@ -32,8 +33,8 @@ export function CommentItem({ comment, isCommentAuthor }: CommentItemProps) {
             comment={comment}
             isCommentAuthor={isCommentAuthor}
             onEdit={() => setIsEditMode(true)}
-            onDelete={remove.handle}
-            isPendingDelete={remove.isPending}
+            onDelete={remove}
+            isPendingDelete={isPendingRemove}
           />
         )}
       </div>

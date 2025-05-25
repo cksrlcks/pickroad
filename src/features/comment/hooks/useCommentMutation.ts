@@ -1,73 +1,74 @@
 import { useTransition } from "react";
-import { toast } from "sonner";
 import {
   createRoadmapComment,
   deleteRoadmapComment,
   editRoadmapComment,
 } from "@/actions/comment";
+import { MutationOption } from "@/types";
 import { Comment, CommentForm } from "../type";
 
-type CommentMutationOptions = {
-  comment?: Comment;
-  create?: {
-    onSuccess?: () => void;
-  };
-  edit?: {
-    onSuccess?: () => void;
-  };
-  remove?: {
-    onSuccess?: () => void;
-  };
-};
+export const useCreateComment = (options?: MutationOption) => {
+  const [isPending, startTransition] = useTransition();
 
-export default function useCommentMutation(
-  options: CommentMutationOptions = {},
-) {
-  const [isPendingDelete, startTransitionDelete] = useTransition();
-
-  const create = async (data: CommentForm) => {
-    const response = await createRoadmapComment(data);
-
-    if (response.success) {
-      toast.success(response.message);
-      options.create?.onSuccess?.();
-    } else {
-      toast.error(response.message);
-    }
-  };
-
-  const edit = async (data: CommentForm) => {
-    const response = await editRoadmapComment(data);
-
-    if (response.success) {
-      toast.success(response.message);
-      options.edit?.onSuccess?.();
-    } else {
-      toast.error(response.message);
-    }
-  };
-
-  const remove = () => {
-    startTransitionDelete(async () => {
-      if (!options.comment) return;
-
-      const response = await deleteRoadmapComment(options.comment.id);
+  const mutate = async (data: CommentForm) => {
+    startTransition(async () => {
+      const response = await createRoadmapComment(data);
 
       if (response.success) {
-        toast.success(response.message);
-        options.remove?.onSuccess?.();
+        options?.onSuccess?.(response);
       } else {
-        toast.error(response.message);
+        options?.onError?.(response);
       }
     });
   };
 
   return {
-    create,
-    edit,
-    remove: {
-      handle: remove,
-      isPending: isPendingDelete,
-    },
+    isPending,
+    mutate,
   };
-}
+};
+
+export const useEditComment = (options?: MutationOption) => {
+  const [isPending, startTransition] = useTransition();
+
+  const mutate = async (data: CommentForm) => {
+    startTransition(async () => {
+      const response = await editRoadmapComment(data);
+
+      if (response.success) {
+        options?.onSuccess?.(response);
+      } else {
+        options?.onError?.(response);
+      }
+    });
+  };
+
+  return {
+    isPending,
+    mutate,
+  };
+};
+
+export const useDeleteComment = (
+  comment: Comment,
+  options?: MutationOption,
+) => {
+  const [isPending, startTransition] = useTransition();
+
+  const mutate = async () => {
+    startTransition(async () => {
+      const response = await deleteRoadmapComment(comment.id);
+
+      if (response.success) {
+        options?.onSuccess?.(response);
+      } else {
+        options?.onError?.(response);
+      }
+    });
+  };
+
+  return {
+    isPending,
+    mutate,
+  };
+};

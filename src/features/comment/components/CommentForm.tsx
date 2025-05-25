@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
-import useCommentMutation from "../hooks/useCommentMutation";
+import { MutationOption } from "@/types";
+import { useCreateComment, useEditComment } from "../hooks/useCommentMutation";
 import {
   Comment,
   CommentForm as CommentFormType,
@@ -51,22 +52,19 @@ export function CommentForm({
         },
   });
 
-  const { create, edit } = useCommentMutation({
-    create: {
-      onSuccess: () => {
-        form.reset();
-        router.refresh();
-        onComplete?.();
-      },
+  const mutateOptions: MutationOption = {
+    onSuccess: () => {
+      form.reset();
+      router.refresh();
+      onComplete?.();
     },
-    edit: {
-      onSuccess: () => {
-        form.reset();
-        router.refresh();
-        onComplete?.();
-      },
+    onError: (error) => {
+      toast.error(error.message);
     },
-  });
+  };
+
+  const { mutate: create } = useCreateComment(mutateOptions);
+  const { mutate: edit } = useEditComment(mutateOptions);
 
   const action = isEditMode ? edit : create;
 

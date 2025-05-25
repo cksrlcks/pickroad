@@ -1,8 +1,24 @@
 import { z } from "zod";
 
-export type ServerActionResult<T = undefined> =
-  | { success: true; message: string; payload?: T }
-  | { success: false; message: string };
+export type ServerActionResult<T = unknown> =
+  | ServerActionSuccess<T>
+  | ServerActionFailure;
+
+export type ServerActionSuccess<T> = {
+  success: true;
+  message: string;
+  payload?: T;
+};
+
+export type ServerActionFailure = {
+  success: false;
+  message: string;
+};
+
+export type MutationOption<T = unknown> = {
+  onSuccess?: (response: ServerActionSuccess<T>) => void;
+  onError?: (response: ServerActionFailure) => void;
+};
 
 export type TargetType = "roadmap" | "comment";
 

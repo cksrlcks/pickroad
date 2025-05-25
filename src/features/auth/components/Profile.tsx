@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { User } from "better-auth";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +31,8 @@ import {
   UserProfileEditForm,
   userProfileEditSchema,
 } from "@/features/auth/type";
-import useProfileMutation from "../hooks/useProfileMutation";
+import { authClient } from "@/lib/auth-client";
+import { useProfileEdit } from "../hooks/useProfileMutation";
 
 type ProfileProps = {
   user: Partial<User>;
@@ -44,21 +46,28 @@ export function Profile({ user }: ProfileProps) {
       name: user.name,
     },
   });
-  const { edit, remove: handleUserDelete } = useProfileMutation({
-    edit: {
-      onSuccess: () => {
-        router.refresh();
-      },
+
+  const { mutate: editProfile } = useProfileEdit({
+    onSuccess: (response) => {
+      router.refresh();
+      toast.success(response.message);
     },
-    remove: {
-      onSuccess: () => {
-        window.location.href = "/";
-      },
+    onError: (response) => {
+      toast.error(response.message);
     },
   });
 
+  const handleUserDelete = async () => {
+    try {
+      await authClient.deleteUser();
+      window.location.href = "/";
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "회원탈퇴 실패");
+    }
+  };
+
   const handleSubmit = form.handleSubmit(async (data) => {
-    await edit(data);
+    await editProfile(data);
   });
 
   return (

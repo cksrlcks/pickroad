@@ -1,34 +1,22 @@
-import { toast } from "sonner";
+import { useTransition } from "react";
 import { editUserProfileAction } from "@/actions/auth";
-import { authClient } from "@/lib/auth-client";
+import { MutationOption } from "@/types";
 import { UserProfileEditForm } from "../type";
 
-type ProfileMutationOptions = {
-  edit?: {
-    onSuccess?: () => void;
+export const useProfileEdit = (options: MutationOption) => {
+  const [isPending, startTransition] = useTransition();
+
+  const mutate = async (data: UserProfileEditForm) => {
+    startTransition(async () => {
+      const response = await editUserProfileAction(data);
+
+      if (response.success) {
+        options.onSuccess?.(response);
+      } else {
+        options.onError?.(response);
+      }
+    });
   };
-  remove?: {
-    onSuccess?: () => void;
-  };
+
+  return { isPending, mutate };
 };
-
-export default function useProfileMutation(
-  options: ProfileMutationOptions = {},
-) {
-  const edit = async (data: UserProfileEditForm) => {
-    const response = await editUserProfileAction(data);
-
-    if (response.success) {
-      toast.success(response.message);
-      options.edit?.onSuccess?.();
-    } else {
-      toast.error(response.message);
-    }
-  };
-
-  const remove = async () => {
-    await authClient.deleteUser();
-  };
-
-  return { edit, remove };
-}

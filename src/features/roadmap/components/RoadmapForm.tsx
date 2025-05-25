@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -29,7 +30,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FILE_LIMIT_SIZE, ROADMAP_THEMES } from "@/constants";
 import useConfirmNavigation from "@/hooks/useConfirmNavigation";
 import { authClient } from "@/lib/auth-client";
-import useRoadmapMutation from "../hooks/useRoadmapMutation";
+import { useCreateRoadmap, useEditRoadmap } from "../hooks/useRoadmapMutation";
 import {
   Roadmap,
   RoadmapCategory,
@@ -107,16 +108,27 @@ export default function RoadmapForm({
       categories.find((item) => item.id === formData.categoryId) || null,
   });
 
-  const { create, edit } = useRoadmapMutation({
-    create: {
-      onSuccess: (externalId) => {
-        router.replace(`/roadmap/${externalId}`);
-      },
+  const { mutate: create } = useCreateRoadmap({
+    onSuccess: (result) => {
+      toast.success(result.message);
+      if (result.payload?.externalId) {
+        router.replace(`/roadmap/${result.payload.externalId}`);
+      }
     },
-    edit: {
-      onSuccess: (externalId) => {
-        router.replace(`/roadmap/${externalId}`);
-      },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const { mutate: edit } = useEditRoadmap({
+    onSuccess: (result) => {
+      toast.success(result.message);
+      if (result.payload?.externalId) {
+        router.replace(`/roadmap/${result.payload.externalId}`);
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 

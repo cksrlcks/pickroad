@@ -1,8 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
-import useRoadmapMutation from "../hooks/useRoadmapMutation";
+import {
+  useBookmarkRoadmap,
+  useDeleteRoadmap,
+  useLikeRoadmap,
+} from "../hooks/useRoadmapMutation";
 import { useShareRoadmap } from "../hooks/useShareRoadmap";
 import { Roadmap } from "../type";
 import { RoadmapDeleteButton } from "./RoadmapDeleteButton";
@@ -21,27 +26,61 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
   const router = useRouter();
 
   const { handleKakaoShareClick, handleCopyUrlClick } = useShareRoadmap();
-  const { like, bookmark, remove } = useRoadmapMutation({
+
+  const {
+    mutate: like,
+    state: likeState,
+    isPending: isLikePending,
+  } = useLikeRoadmap(roadmap);
+
+  const {
+    mutate: bookmark,
+    state: bookmarkState,
+    isPending: isBookmarkPending,
+  } = useBookmarkRoadmap(roadmap);
+
+  const { mutate: remove, isPending: isRemovePending } = useDeleteRoadmap(
     roadmap,
-    remove: {
+    {
       onSuccess: () => {
         router.replace("/");
       },
+      onError: (error) => {
+        toast.error(error.message);
+      },
     },
-  });
+  );
+
+  const handleLike = () => {
+    if (!session) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+
+    return like();
+  };
+
+  const handleBookmark = () => {
+    if (!session) {
+      toast.error("로그인이 필요합니다.");
+      return;
+    }
+
+    return bookmark();
+  };
 
   return (
     <div className="flex items-center gap-[1px]">
       <RoadmapLikeButton
-        likeCount={like.state.likeCount}
-        isLiked={like.state.isLiked}
-        onToggleLike={like.handle}
-        isPending={like.isPending}
+        likeCount={likeState?.likeCount || 0}
+        isLiked={likeState?.isLiked || false}
+        onToggleLike={handleLike}
+        isPending={isLikePending}
       />
       <RoadmapBookmarkButton
-        isBookmarked={bookmark.state}
-        onToggleBookmark={bookmark.handle}
-        isPending={bookmark.isPending}
+        isBookmarked={bookmarkState || false}
+        onToggleBookmark={handleBookmark}
+        isPending={isBookmarkPending}
       />
       <RoadmapShareButton
         onKakaoShareClick={handleKakaoShareClick}
@@ -50,10 +89,7 @@ export default function RoadmapActions({ roadmap }: RoadmapActionsProps) {
       {isAuthor && (
         <>
           <RoadmapEditButton href={`/roadmap/edit/${roadmap.externalId}`} />
-          <RoadmapDeleteButton
-            onDelete={remove.handle}
-            isPending={remove.isPending}
-          />
+          <RoadmapDeleteButton onDelete={remove} isPending={isRemovePending} />
         </>
       )}
     </div>

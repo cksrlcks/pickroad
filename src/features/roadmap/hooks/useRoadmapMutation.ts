@@ -9,35 +9,119 @@ import {
   unbookmarkRoadmap,
   unlikeRoadmap,
 } from "@/actions/roadmap";
-import { authClient } from "@/lib/auth-client";
 import { uploadImageByClient } from "@/lib/r2-client";
+import { MutationOption, MutationResult } from "@/types";
 import { Roadmap, RoadmapForm, RoadmapFormWithUploadedUrl } from "../type";
 
-type RoadmapMutationOptions = {
-  roadmap?: Roadmap;
-  create?: {
-    onSuccess?: (externalId?: string) => void;
+type CreateRoadmapPayload = { externalId?: string };
+
+export const useCreateRoadmap = (
+  options?: MutationOption<CreateRoadmapPayload>,
+): MutationResult<CreateRoadmapPayload, RoadmapForm> => {
+  const [isPending, startTransition] = useTransition();
+
+  const mutate = async (data: RoadmapForm) => {
+    startTransition(async () => {
+      if (data.thumbnail instanceof File) {
+        try {
+          const uploadResponse = await uploadImageByClient(data.thumbnail);
+          data.thumbnail = uploadResponse;
+        } catch (error) {
+          toast.error(
+            `${error instanceof Error ? error.message : "이미지 업로드 실패"}`,
+          );
+          return;
+        }
+      }
+
+      const response = await createRoadmap(data as RoadmapFormWithUploadedUrl);
+
+      if (response.success) {
+        options?.onSuccess?.(response);
+      } else {
+        options?.onError?.(response);
+      }
+    });
   };
-  edit?: {
-    onSuccess?: (externalId?: string) => void;
-  };
-  remove?: {
-    onSuccess?: () => void;
+
+  return {
+    isPending,
+    mutate,
   };
 };
 
-export default function useRoadmapMutation(
-  options: RoadmapMutationOptions = {},
-) {
-  const { data: session } = authClient.useSession();
+type EditRoadmapPayload = { externalId?: string };
 
-  const [isPendingDelete, startTransitionDelete] = useTransition();
+export const useEditRoadmap = (
+  options?: MutationOption<EditRoadmapPayload>,
+): MutationResult<EditRoadmapPayload, RoadmapForm> => {
+  const [isPending, startTransition] = useTransition();
 
-  const [isPendingLike, startTransitionLike] = useTransition();
-  const [likeState, setLikeState] = useOptimistic(
+  const mutate = async (data: RoadmapForm) => {
+    startTransition(async () => {
+      if (data.thumbnail instanceof File) {
+        try {
+          const uploadResponse = await uploadImageByClient(data.thumbnail);
+          data.thumbnail = uploadResponse;
+        } catch (error) {
+          toast.error(
+            `${error instanceof Error ? error.message : "이미지 업로드 실패"}`,
+          );
+          return;
+        }
+      }
+
+      const response = await editRoadmap(data as RoadmapFormWithUploadedUrl);
+
+      if (response.success) {
+        options?.onSuccess?.(response);
+      } else {
+        options?.onError?.(response);
+      }
+    });
+  };
+
+  return {
+    isPending,
+    mutate,
+  };
+};
+
+export const useDeleteRoadmap = (
+  roadmap: Roadmap,
+  options?: MutationOption,
+): MutationResult => {
+  const [isPending, startTransition] = useTransition();
+
+  const mutate = async () => {
+    startTransition(async () => {
+      const response = await deleteRoadmap(roadmap.id);
+
+      if (response.success) {
+        options?.onSuccess?.(response);
+      } else {
+        options?.onError?.(response);
+      }
+    });
+  };
+
+  return {
+    isPending,
+    mutate,
+  };
+};
+
+type LikeRoadmapPayload = { isLiked: boolean; likeCount: number };
+
+export const useLikeRoadmap = (
+  roadmap: Roadmap,
+  options?: MutationOption,
+): MutationResult<LikeRoadmapPayload> => {
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useOptimistic(
     {
-      isLiked: options.roadmap?.isLiked || false,
-      likeCount: options.roadmap?.likeCount || 0,
+      isLiked: roadmap?.isLiked || false,
+      likeCount: roadmap?.likeCount || 0,
     },
     (prev, newState: boolean) => {
       return {
@@ -47,141 +131,64 @@ export default function useRoadmapMutation(
     },
   );
 
-  const [isPendingBookmark, startTransitionBookmark] = useTransition();
-  const [bookmarkState, setBookmarkState] = useOptimistic(
-    options.roadmap?.isBookmarked || false,
-    (prev, newState: boolean) => newState,
-  );
+  const mutate = async () => {
+    startTransition(async () => {
+      if (!roadmap) return;
 
-  const create = async (data: RoadmapForm) => {
-    if (data.thumbnail instanceof File) {
-      try {
-        const uploadResponse = await uploadImageByClient(data.thumbnail);
-        data.thumbnail = uploadResponse;
-      } catch (error) {
-        toast.error(
-          `${error instanceof Error ? error.message : "이미지 업로드 실패"}`,
-        );
-        return;
-      }
-    }
-
-    const response = await createRoadmap(data as RoadmapFormWithUploadedUrl);
-
-    if (response.success) {
-      toast.success(response.message);
-      options.create?.onSuccess?.(response.payload?.externalId);
-    } else {
-      toast.error(response.message);
-    }
-  };
-
-  const edit = async (data: RoadmapForm) => {
-    if (data.thumbnail instanceof File) {
-      try {
-        const uploadResponse = await uploadImageByClient(data.thumbnail);
-        data.thumbnail = uploadResponse;
-      } catch (error) {
-        toast.error(
-          `${error instanceof Error ? error.message : "이미지 업로드 실패"}`,
-        );
-        return;
-      }
-    }
-
-    const response = await editRoadmap(data as RoadmapFormWithUploadedUrl);
-
-    if (response.success) {
-      toast.success(response.message);
-      options.edit?.onSuccess?.(response.payload?.externalId);
-    } else {
-      toast.error(response.message);
-    }
-  };
-
-  const remove = () => {
-    startTransitionDelete(async () => {
-      if (!options.roadmap) return;
-
-      const response = await deleteRoadmap(options.roadmap.id);
-
-      if (response.success) {
-        toast.success(response.message);
-        options.remove?.onSuccess?.();
-      } else {
-        toast.error(response.message);
-      }
-    });
-  };
-
-  const handleToggleLike = async () => {
-    if (!session) {
-      toast.error("로그인 후 이용해주세요.");
-      return;
-    }
-
-    startTransitionLike(async () => {
-      if (!options.roadmap) return;
-
-      const nextLike = !likeState.isLiked;
-      setLikeState(nextLike);
+      const nextLike = !state.isLiked;
+      setState(nextLike);
 
       const response = nextLike
-        ? await likeRoadmap(options?.roadmap.id, options?.roadmap.externalId)
-        : await unlikeRoadmap(options?.roadmap.id, options?.roadmap.externalId);
+        ? await likeRoadmap(roadmap.id, roadmap.externalId)
+        : await unlikeRoadmap(roadmap.id, roadmap.externalId);
 
       if (!response.success) {
-        setLikeState(!nextLike);
-        toast.error(response.message);
-      }
-    });
-  };
-
-  const handleToggleBookmark = async () => {
-    if (!session) {
-      toast.error("로그인 후 이용해주세요.");
-      return;
-    }
-
-    startTransitionBookmark(async () => {
-      if (!options.roadmap) return;
-
-      const nextBookmark = !bookmarkState;
-      setBookmarkState(nextBookmark);
-
-      const response = nextBookmark
-        ? await bookmarkRoadmap(
-            options?.roadmap.id,
-            options?.roadmap.externalId,
-          )
-        : await unbookmarkRoadmap(
-            options?.roadmap.id,
-            options?.roadmap.externalId,
-          );
-
-      if (!response.success) {
-        setBookmarkState(!nextBookmark);
-        toast.error(response.message);
+        setState(!nextLike);
+        options?.onError?.(response);
       }
     });
   };
 
   return {
-    create,
-    edit,
-    remove: {
-      handle: remove,
-      isPending: isPendingDelete,
-    },
-    like: {
-      handle: handleToggleLike,
-      isPending: isPendingLike,
-      state: likeState,
-    },
-    bookmark: {
-      handle: handleToggleBookmark,
-      isPending: isPendingBookmark,
-      state: bookmarkState,
-    },
+    isPending,
+    mutate,
+    state,
   };
-}
+};
+
+type BookmarkRoadmapPayload = boolean;
+
+export const useBookmarkRoadmap = (
+  roadmap: Roadmap,
+  options?: MutationOption,
+): MutationResult<BookmarkRoadmapPayload> => {
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useOptimistic(
+    roadmap?.isBookmarked || false,
+    (prev, newState: boolean) => newState,
+  );
+
+  const mutate = async () => {
+    startTransition(async () => {
+      if (!roadmap) return;
+
+      const nextBookmark = !state;
+      setState(nextBookmark);
+
+      const response = nextBookmark
+        ? await bookmarkRoadmap(roadmap.id, roadmap.externalId)
+        : await unbookmarkRoadmap(roadmap.id, roadmap.externalId);
+
+      if (!response.success) {
+        setState(!nextBookmark);
+        options?.onError?.(response);
+      }
+    });
+  };
+
+  return {
+    isPending,
+    mutate,
+    state,
+  };
+};

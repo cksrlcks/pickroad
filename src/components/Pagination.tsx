@@ -7,58 +7,84 @@ import {
   PaginationItem,
   PaginationLink,
   PaginationNext,
+  PaginationNextGroup,
   PaginationPrevious,
+  PaginationPreviousGroup,
 } from "@/components/ui/pagination";
+import usePagination from "@/hooks/usePagination";
 import { useFilters } from "./FilterProvider";
 
 type PaginationedListProps = {
   totalCount: number;
   limit?: number;
+  visibleCount?: number;
 };
 
 export default function Pagination({
   totalCount,
   limit = 6,
+  visibleCount = 5,
 }: PaginationedListProps) {
-  const totalPage = Math.ceil(totalCount / limit);
   const [isPending, startTransition] = useTransition();
-  const { filters, updateFilters } = useFilters(); // Use the nearest Filter context
-
+  const { filters, updateFilters } = useFilters();
   const currentPage = filters?.page || 1;
+
   const handlePaginationClick = (page: number) => {
     startTransition(() => {
       updateFilters({ page });
     });
   };
 
+  const {
+    pageNumbers,
+    isPrevDisabled,
+    isNextDisabled,
+    isPrevGroupDisabled,
+    isNextGroupDisabled,
+    handleNextClick,
+    handlePrevClick,
+    handleNextGroupClick,
+    handlePrevGroupClick,
+  } = usePagination({
+    currentPage,
+    totalCount,
+    limit,
+    visibleCount,
+    onChangePage: handlePaginationClick,
+  });
+
   return (
     <PaginationComponent data-pending={isPending ? "" : undefined}>
       <PaginationContent className="flex-wrap justify-center">
-        {currentPage > 1 && (
+        {!isPrevGroupDisabled && (
           <PaginationItem>
-            <PaginationPrevious
-              onClick={() => handlePaginationClick(currentPage - 1)}
-            />
+            <PaginationPreviousGroup onClick={handlePrevGroupClick} />
           </PaginationItem>
         )}
-        {[...Array(totalPage)].map((_, index) => (
-          <PaginationItem key={index}>
+        {!isPrevDisabled && (
+          <PaginationItem>
+            <PaginationPrevious onClick={handlePrevClick} />
+          </PaginationItem>
+        )}
+        {pageNumbers.map((pageNumber) => (
+          <PaginationItem key={pageNumber}>
             <PaginationLink
-              isActive={index + 1 === currentPage}
-              onClick={() => handlePaginationClick(index + 1)}
+              isActive={pageNumber === currentPage}
+              onClick={() => handlePaginationClick(pageNumber)}
             >
-              {index + 1}
+              {pageNumber}
             </PaginationLink>
           </PaginationItem>
         ))}
-        {currentPage < totalPage && (
-          <>
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => handlePaginationClick(currentPage + 1)}
-              />
-            </PaginationItem>
-          </>
+        {!isNextDisabled && (
+          <PaginationItem>
+            <PaginationNext onClick={handleNextClick} />
+          </PaginationItem>
+        )}
+        {!isNextGroupDisabled && (
+          <PaginationItem>
+            <PaginationNextGroup onClick={handleNextGroupClick} />
+          </PaginationItem>
         )}
       </PaginationContent>
     </PaginationComponent>

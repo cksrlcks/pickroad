@@ -84,7 +84,7 @@ export default function AboutPage() {
       <Separator className="my-20" />
       <section className="mb-20">
         <div className="mb-8">
-          <Image src={Logo} alt="PickRoad" />
+          <Image src={Logo} alt="PickRoad" className="dark:invert" />
         </div>
         <h3 className="mb-8 text-xl leading-tight font-semibold tracking-tight md:text-2xl">
           링크로 만들 수 있는 가장 간단한 로드맵

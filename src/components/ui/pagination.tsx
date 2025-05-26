@@ -2,6 +2,8 @@ import * as React from "react";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
+  ChevronsLeft,
+  ChevronsRight,
   MoreHorizontalIcon,
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -65,6 +67,23 @@ function PaginationLink({
   );
 }
 
+function PaginationPreviousGroup({
+  className,
+  ...props
+}: React.ComponentProps<typeof PaginationLink>) {
+  return (
+    <PaginationLink
+      aria-label="Go to previous grou"
+      size="default"
+      className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
+      {...props}
+    >
+      <ChevronsLeft />
+      <span className="sr-only">Previous group</span>
+    </PaginationLink>
+  );
+}
+
 function PaginationPrevious({
   className,
   ...props
@@ -77,7 +96,24 @@ function PaginationPrevious({
       {...props}
     >
       <ChevronLeftIcon />
-      <span className="hidden sm:block">Previous</span>
+      <span className="sr-only">Previous page</span>
+    </PaginationLink>
+  );
+}
+
+function PaginationNextGroup({
+  className,
+  ...props
+}: React.ComponentProps<typeof PaginationLink>) {
+  return (
+    <PaginationLink
+      aria-label="Go to next group"
+      size="default"
+      className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
+      {...props}
+    >
+      <ChevronsRight />
+      <span className="sr-only">Next group</span>
     </PaginationLink>
   );
 }
@@ -93,8 +129,8 @@ function PaginationNext({
       className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
       {...props}
     >
-      <span className="hidden sm:block">Next</span>
       <ChevronRightIcon />
+      <span className="sr-only">Next page</span>
     </PaginationLink>
   );
 }
@@ -124,4 +160,6 @@ export {
   PaginationPrevious,
   PaginationNext,
   PaginationEllipsis,
+  PaginationPreviousGroup,
+  PaginationNextGroup,
 };

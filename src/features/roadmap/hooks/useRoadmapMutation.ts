@@ -9,7 +9,6 @@ import {
   unbookmarkRoadmap,
   unlikeRoadmap,
 } from "@/actions/roadmap";
-import { uploadImageByClient } from "@/lib/r2-client";
 import { MutationOption, MutationResult } from "@/types";
 import { Roadmap, RoadmapForm, RoadmapFormWithUploadedUrl } from "../type";
 
@@ -24,6 +23,7 @@ export const useCreateRoadmap = (
     startTransition(async () => {
       if (data.thumbnail instanceof File) {
         try {
+          const { uploadImageByClient } = await import("@/lib/r2-client");
           const uploadResponse = await uploadImageByClient(data.thumbnail);
           data.thumbnail = uploadResponse;
         } catch (error) {
@@ -61,6 +61,7 @@ export const useEditRoadmap = (
     startTransition(async () => {
       if (data.thumbnail instanceof File) {
         try {
+          const { uploadImageByClient } = await import("@/lib/r2-client");
           const uploadResponse = await uploadImageByClient(data.thumbnail);
           data.thumbnail = uploadResponse;
         } catch (error) {

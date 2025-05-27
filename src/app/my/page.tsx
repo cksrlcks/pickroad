@@ -1,6 +1,6 @@
-import { Suspense } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
 import { Profile } from "@/features/auth/components/Profile";
 import { auth } from "@/lib/auth";
 
@@ -16,14 +16,15 @@ export default async function MyPage() {
   const user = session.user;
 
   return (
-    <Suspense
-      fallback={
-        <div className="p-4 text-center text-sm opacity-50">
-          회원정보를 가져오는중입니다.
-        </div>
-      }
-    >
+    <>
+      <header>
+        <h2 className="mb-1 font-semibold">회원정보 수정</h2>
+        <p className="text-muted-foreground text-xs md:text-sm">
+          가입된 정보를 수정 하실 수 있어요
+        </p>
+      </header>
+      <Separator className="bg-muted my-6" />
       <Profile user={user} />
-    </Suspense>
+    </>
   );
 }

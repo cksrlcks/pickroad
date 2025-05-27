@@ -7,7 +7,7 @@ import RoadmapActions from "@/features/roadmap/components/RoadmapActions";
 import RoadmapDisplay from "@/features/roadmap/components/RoadmapDisplay";
 import RoadmapInfo from "@/features/roadmap/components/RoadmapInfo";
 import RoadmapItems from "@/features/roadmap/components/RoadmapItems";
-import RoadmapReview from "@/features/roadmap/components/RoadmapReviews";
+import RoadmapReviews from "@/features/roadmap/components/RoadmapReviews";
 import RoadmapTags from "@/features/roadmap/components/RoadmapTags";
 import { Roadmap } from "@/features/roadmap/type";
 import { generateRoadmapJsonLd } from "@/lib/jsonld-roadmap";
@@ -94,7 +94,7 @@ export default async function RoadmapDetailPage({
                   </div>
                 }
               >
-                <RoadmapReview roadmap={roadmapDetail} />
+                <RoadmapReviews roadmap={roadmapDetail} />
               </Suspense>
             </TabsContent>
           </Tabs>

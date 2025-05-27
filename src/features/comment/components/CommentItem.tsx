@@ -5,7 +5,7 @@ import Author from "@/components/Author";
 import { useDeleteComment } from "../hooks/useCommentMutation";
 import { Comment } from "../type";
 import { CommentContent } from "./CommentContent";
-import { CommentForm } from "./CommentForm";
+import CommentForm from "./CommentForm";
 
 type CommentItemProps = {
   comment: Comment;

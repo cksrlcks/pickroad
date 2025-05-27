@@ -50,3 +50,8 @@ export type BaseParams = {
   limit: number;
   keyword: string;
 };
+
+export type NavItem = {
+  label: string;
+  href: string;
+};

@@ -29,12 +29,12 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { FILE_LIMIT_SIZE, ROADMAP_THEMES } from "@/constants";
+import { RoadmapCategory } from "@/features/category/type";
 import useConfirmNavigation from "@/hooks/useConfirmNavigation";
 import { authClient } from "@/lib/auth-client";
 import { useCreateRoadmap, useEditRoadmap } from "../hooks/useRoadmapMutation";
 import {
   Roadmap,
-  RoadmapCategory,
   RoadmapCompact,
   RoadmapForm as RoadmapFormType,
   roadmapInsertSchema,

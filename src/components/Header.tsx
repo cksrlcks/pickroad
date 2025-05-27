@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PlusIcon from "@/assets/img/icon-plus.svg";
 import Logo from "@/assets/img/logo.svg";
-import { getCategories } from "@/data/roadmap";
+import { getCategories } from "@/data/category";
 import Account from "./Account";
 import Inner from "./Inner";
 import MobileNav from "./MobileNav";
@@ -14,7 +14,7 @@ import { Button } from "./ui/button";
 export default async function Header() {
   const categories = await getCategories();
   const displayCategories = [
-    { id: 9999, name: "전체", emoji: null },
+    { id: 9999, name: "전체", emoji: null, order: 0 },
     ...categories,
   ];
 

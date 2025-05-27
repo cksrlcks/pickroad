@@ -1,13 +1,12 @@
 import { getComments } from "@/data/comment";
-import { CommentForm } from "@/features/comment/components/CommentForm";
-import CommentList from "@/features/comment/components/CommentList";
+import Comment from "@/features/comment/components/Comment";
 import { Roadmap } from "../type";
 
 type RoadmapReviewsProps = {
   roadmap: Roadmap;
 };
 
-export default async function RoadmapReview({ roadmap }: RoadmapReviewsProps) {
+export default async function RoadmapReviews({ roadmap }: RoadmapReviewsProps) {
   const data = await getComments({
     targetId: roadmap.id,
     targetType: "roadmap",
@@ -15,13 +14,13 @@ export default async function RoadmapReview({ roadmap }: RoadmapReviewsProps) {
   });
 
   return (
-    <div className="space-y-8 py-3">
-      <CommentForm targetType="roadmap" targetId={roadmap.id} />
-      <h3 className="flex items-center gap-1.5 text-sm font-semibold">
-        <span className="opacity-70">리뷰</span>
-        <span className="text-foreground">{data.totalCount}</span>
-      </h3>
-      <CommentList comments={data} targetType="roadmap" targetId={roadmap.id} />
-    </div>
+    <Comment
+      targetId={roadmap.id}
+      targetType="roadmap"
+      initialData={{
+        totalCount: data.totalCount,
+        data: data.data,
+      }}
+    />
   );
 }

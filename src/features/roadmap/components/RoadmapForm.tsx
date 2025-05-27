@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -40,8 +41,11 @@ import {
 } from "../type";
 import { RoadmapCard } from "./RoadmapCard";
 import RoadmapFileInput from "./RoadmapFileInput";
-import RoadmapFormLinks from "./RoadmapFormLinks";
 import RoadmapTagInput from "./RoadmapTagInput";
+
+const RoadmapFormLinks = dynamic(() => import("./RoadmapFormLinks"), {
+  ssr: false,
+});
 
 type RoadmapFormProps = {
   initialData?: Roadmap;

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import FilterProvider from "@/components/FilterProvider";
 import Search from "@/components/Search";
 import { ActivityParams } from "@/data/activity";
-import { ActivityItemSkeleton } from "@/features/activity/components/ActivityItemSkeleton";
+import BookmarkListSkeleton from "@/features/bookmark/components/BookmarkListSkeleton";
 import BookmarkPaginationedList from "@/features/bookmark/components/BookmarkPaginationedList";
 import { FilterSearchParamsSchema } from "@/types";
 
@@ -27,15 +27,7 @@ export default async function BookmarksPage({
           <Search placeholder="즐겨찾기 검색" />
         </div>
       </Suspense>
-      <Suspense
-        fallback={
-          <ul>
-            {[...Array(6)].map((_, index) => (
-              <ActivityItemSkeleton key={index} />
-            ))}
-          </ul>
-        }
-      >
+      <Suspense fallback={<BookmarkListSkeleton />}>
         <BookmarkPaginationedList
           page={safeParsedSearchParams.data?.page}
           keyword={safeParsedSearchParams.data?.keyword}

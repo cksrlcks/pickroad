@@ -26,7 +26,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import {
   UserProfileEditForm,
   userProfileEditSchema,
@@ -71,59 +70,50 @@ export function Profile({ user }: ProfileProps) {
   });
 
   return (
-    <>
-      <header>
-        <h2 className="mb-1 font-semibold">회원정보 수정</h2>
-        <p className="text-muted-foreground text-xs md:text-sm">
-          가입된 정보를 수정 하실 수 있어요
-        </p>
-      </header>
-      <Separator className="bg-muted my-6" />
-      <Form {...form}>
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>이름</FormLabel>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <Form {...form}>
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>이름</FormLabel>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <div className="flex justify-end gap-1">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button type="button" variant="outline">
-                  회원탈퇴
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>정말 탈퇴하시겠습니까?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    회원탈퇴를 하면 다시 복구가 불가능합니다.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>취소</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleUserDelete}>
-                    탈퇴
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+        <div className="flex justify-end gap-1">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" variant="outline">
+                회원탈퇴
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>정말 탈퇴하시겠습니까?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  회원탈퇴를 하면 다시 복구가 불가능합니다.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>취소</AlertDialogCancel>
+                <AlertDialogAction onClick={handleUserDelete}>
+                  탈퇴
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
-            <Button type="submit" disabled={form.formState.isSubmitting}>
-              수정
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            수정
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

@@ -1,4 +1,3 @@
-import { Vibrant } from "node-vibrant/browser";
 import { RoadmapCompact } from "@/features/roadmap/type";
 
 export function getColorByString(value: string, colorArray: readonly string[]) {
@@ -8,6 +7,7 @@ export function getColorByString(value: string, colorArray: readonly string[]) {
 }
 
 export async function getImagePalette(imageUrl: string) {
+  const { Vibrant } = await import("node-vibrant/browser");
   const palette = await Vibrant.from(imageUrl).getPalette();
 
   const vibrant_palette = [

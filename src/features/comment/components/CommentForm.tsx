@@ -30,7 +30,7 @@ type CommentFormProps = {
   onCancel?: () => void;
 };
 
-export function CommentForm({
+export default function CommentForm({
   initialData,
   targetId,
   targetType,
@@ -86,36 +86,34 @@ export function CommentForm({
     !form.formState.isValid || form.formState.isSubmitting;
 
   return (
-    <div>
-      <Form {...form}>
-        <form className="space-y-2" onSubmit={handleSubmit}>
-          <FormField
-            control={form.control}
-            name="content"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Textarea
-                    placeholder="리뷰를 작성해주세요"
-                    className="bg-background"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex items-center justify-end gap-1">
-            <div className="mr-auto text-xs opacity-40"></div>
-            <Button type="button" variant="outline" onClick={handleCancel}>
-              취소
-            </Button>
-            <Button type="submit" disabled={isDisabledSubmit}>
-              작성
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+    <Form {...form}>
+      <form className="space-y-2" onSubmit={handleSubmit}>
+        <FormField
+          control={form.control}
+          name="content"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Textarea
+                  placeholder="리뷰를 작성해주세요"
+                  className="bg-background"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex items-center justify-end gap-1">
+          <div className="mr-auto text-xs opacity-40"></div>
+          <Button type="button" variant="outline" onClick={handleCancel}>
+            취소
+          </Button>
+          <Button type="submit" disabled={isDisabledSubmit}>
+            작성
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }

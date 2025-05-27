@@ -1,8 +1,6 @@
-"use client";
-
-import Image from "next/image";
 import PlaceholderImage from "@/assets/img/placeholder.svg";
 import Author from "@/components/Author";
+import RevealImage from "@/components/RevealImage";
 import { getCurrentPalette } from "@/lib/color";
 import { dateToAgo } from "@/lib/utils";
 import { RoadmapCompact } from "../type";
@@ -26,13 +24,12 @@ export function RoadmapCard({ roadmap }: RoadmapCardProps) {
     >
       <div className="relative">
         <div className="absolute top-0 left-0 aspect-square w-full overflow-hidden rounded-t-[10px] md:rounded-t-[16px]">
-          <Image
+          <RevealImage
             src={roadmap.thumbnail || PlaceholderImage}
             alt={roadmap.title}
             fill
-            className="h-full w-full object-cover object-center opacity-0 transition-opacity"
+            className="h-full w-full object-cover object-center"
             quality={100}
-            onLoad={(e) => (e.currentTarget.style.opacity = "100")}
           />
           <div
             className="absolute bottom-0 left-0 z-1 h-[60%] w-full"

@@ -1,16 +1,15 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { FILE_LIMIT_SIZE } from "@/constants";
-import { categories, likes, roadmapItems, roadmaps, tags } from "@/db/schema";
+import { likes, roadmapItems, roadmaps, tags } from "@/db/schema";
 import { Author } from "../auth/type";
+import { RoadmapCategory } from "../category/type";
 
 export const roadmapSchema = createSelectSchema(roadmaps);
-export const categorySchema = createSelectSchema(categories);
 export const tagSchema = createSelectSchema(tags);
 export const roadmapItemSchema = createSelectSchema(roadmapItems);
 
 export type RoadmapBase = z.infer<typeof roadmapSchema>;
-export type RoadmapCategory = z.infer<typeof categorySchema>;
 export type RoadmapTag = z.infer<typeof tagSchema>;
 export type RoadmapItem = z.infer<typeof roadmapItemSchema>;
 export type RoadmapItemMetaData = {
@@ -79,7 +78,7 @@ export const roadmapBaseInsertSchema = createInsertSchema(roadmaps, {
       ])
       .optional(),
 });
-export const roadmapCategoriesInsertSchema = createInsertSchema(categories);
+
 export const roadmapTagsInsertSchema = createInsertSchema(tags, {
   name: (schema) =>
     schema

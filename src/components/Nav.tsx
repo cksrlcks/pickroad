@@ -2,7 +2,7 @@
 
 import { useEffect, useTransition } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { RoadmapCategory } from "@/features/roadmap/type";
+import { RoadmapCategory } from "@/features/category/type";
 import { cn } from "@/lib/utils";
 import { useFilters } from "./FilterProvider";
 import { Button } from "./ui/button";

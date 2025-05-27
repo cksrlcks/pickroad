@@ -2,11 +2,8 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 import { headers } from "next/headers";
 import { sql, and, eq, or, ilike } from "drizzle-orm";
-import {
-  Roadmap,
-  RoadmapCategory,
-  RoadmapCompact,
-} from "@/features/roadmap/type";
+import { RoadmapCategory } from "@/features/category/type";
+import { Roadmap, RoadmapCompact } from "@/features/roadmap/type";
 import { auth } from "@/lib/auth";
 import { BaseParams } from "@/types";
 import { db } from "../db";

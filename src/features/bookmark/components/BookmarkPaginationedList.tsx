@@ -1,7 +1,9 @@
 import Pagination from "@/components/Pagination";
+import PendingBoundary from "@/components/PendingBoundary";
 import { ActivityParams } from "@/data/activity";
 import { getMyBookmarks } from "@/data/bookmark";
 import BookmarkList from "./BookmarkList";
+import BookmarkListSkeleton from "./BookmarkListSkeleton";
 
 type BookmarkPaginationedListProps = ActivityParams;
 
@@ -21,7 +23,9 @@ export default async function BookmarkPaginationedList({
 
   return (
     <div className="space-y-10">
-      <BookmarkList data={data} keyword={keyword} />
+      <PendingBoundary fallback={<BookmarkListSkeleton />}>
+        <BookmarkList data={data} keyword={keyword} />
+      </PendingBoundary>
       <Pagination totalCount={totalCount} limit={LIMIT} />
     </div>
   );

@@ -1,8 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import GridList from "@/components/GridList";
 import { GetRoadmapsParams } from "@/data/roadmap";
-import RoadmapCardSkeleton from "@/features/roadmap/components/RoadmapCardSkeleton";
+import RoadmapListSkeleton from "@/features/roadmap/components/RoadmapListSkeleton";
 import RoadmapPaginationedList from "@/features/roadmap/components/RoadmapPaginationedList";
 import { FilterSearchParamsSchema } from "@/types";
 
@@ -20,22 +19,12 @@ export default async function Home({
   }
 
   return (
-    <>
-      <Suspense
-        fallback={
-          <GridList
-            skeleton
-            items={[...Array(6)]}
-            renderItem={() => <RoadmapCardSkeleton />}
-          />
-        }
-      >
-        <RoadmapPaginationedList
-          page={safeParsedSearchParams.data?.page}
-          categoryId={safeParsedSearchParams.data?.category}
-          keyword={safeParsedSearchParams.data?.keyword}
-        />
-      </Suspense>
-    </>
+    <Suspense fallback={<RoadmapListSkeleton />}>
+      <RoadmapPaginationedList
+        page={safeParsedSearchParams.data?.page}
+        categoryId={safeParsedSearchParams.data?.category}
+        keyword={safeParsedSearchParams.data?.keyword}
+      />
+    </Suspense>
   );
 }

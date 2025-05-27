@@ -1,6 +1,8 @@
 import Pagination from "@/components/Pagination";
+import PendingBoundary from "@/components/PendingBoundary";
 import { getRoadmaps, GetRoadmapsParams } from "@/data/roadmap";
 import RoadmapList from "@/features/roadmap/components/RoadmapList";
+import RoadmapListSkeleton from "./RoadmapListSkeleton";
 
 type RoadmapPaginationedListProps = GetRoadmapsParams;
 
@@ -20,7 +22,9 @@ export default async function RoadmapPaginationedList({
 
   return (
     <div className="space-y-10">
-      <RoadmapList data={data} keyword={keyword} />
+      <PendingBoundary fallback={<RoadmapListSkeleton />}>
+        <RoadmapList data={data} keyword={keyword} />
+      </PendingBoundary>
       <Pagination totalCount={totalCount} limit={LIMIT} />
     </div>
   );

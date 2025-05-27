@@ -4,7 +4,7 @@ import FilterProvider from "@/components/FilterProvider";
 import Search from "@/components/Search";
 import { ActivityParams } from "@/data/activity";
 import { ActivityFilter } from "@/features/activity/components/ActivityFilter";
-import { ActivityItemSkeleton } from "@/features/activity/components/ActivityItemSkeleton";
+import ActivityListSkeleton from "@/features/activity/components/ActivityListSkeleton";
 import ActivityPaginationedList from "@/features/activity/components/ActivityPaginationedList";
 import { FilterSearchParamsSchema } from "@/types";
 
@@ -29,15 +29,7 @@ export default async function ActivitiesPage({
           <Search placeholder="활동 검색" />
         </div>
       </Suspense>
-      <Suspense
-        fallback={
-          <ul>
-            {[...Array(6)].map((_, index) => (
-              <ActivityItemSkeleton key={index} />
-            ))}
-          </ul>
-        }
-      >
+      <Suspense fallback={<ActivityListSkeleton />}>
         <ActivityPaginationedList
           page={safeParsedSearchParams.data?.page}
           type={safeParsedSearchParams.data?.type}

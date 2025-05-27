@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyboardEvent, useEffect, useState, useTransition } from "react";
+import { KeyboardEvent, useRef, useTransition } from "react";
 import Image from "next/image";
 import CancelIcon from "@/assets/img/icon-x.svg";
 import { cn } from "@/lib/utils";
@@ -14,7 +14,7 @@ type SearchProps = {
 export default function Search({ placeholder }: SearchProps) {
   const [isPending, startTransition] = useTransition();
   const { filters, updateFilters } = useFilters();
-  const [value, setValue] = useState(filters?.keyword || "");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
@@ -30,18 +30,16 @@ export default function Search({ placeholder }: SearchProps) {
   };
 
   const handleReset = () => {
-    setValue("");
-
     if (!filters?.keyword) return;
+
+    if (inputRef.current) {
+      inputRef.current.value = "";
+    }
 
     startTransition(() => {
       updateFilters({ keyword: undefined });
     });
   };
-
-  useEffect(() => {
-    setValue(filters?.keyword || "");
-  }, [filters?.keyword]);
 
   return (
     <div
@@ -51,15 +49,15 @@ export default function Search({ placeholder }: SearchProps) {
       )}
     >
       <input
+        ref={inputRef}
         type="text"
         placeholder={placeholder || "검색"}
         className="h-full flex-1 px-[1em] text-base outline-none md:text-[14px]"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
+        defaultValue={filters?.keyword}
         onKeyDown={handleTagKeyDown}
       />
       {isPending && <Spinner className="h-4 w-4" />}
-      {value && (
+      {filters?.keyword && (
         <button onClick={handleReset}>
           <Image src={CancelIcon} alt="Cancel" />
         </button>

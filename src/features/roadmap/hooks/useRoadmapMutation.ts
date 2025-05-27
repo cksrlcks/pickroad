@@ -1,5 +1,4 @@
 import { useOptimistic, useTransition } from "react";
-import { toast } from "sonner";
 import {
   bookmarkRoadmap,
   createRoadmap,
@@ -27,9 +26,13 @@ export const useCreateRoadmap = (
           const uploadResponse = await uploadImageByClient(data.thumbnail);
           data.thumbnail = uploadResponse;
         } catch (error) {
-          toast.error(
-            `${error instanceof Error ? error.message : "이미지 업로드 실패"}`,
-          );
+          console.error("이미지 업로드 실패:", error);
+
+          options?.onError?.({
+            success: false,
+            message: "이미지 업로드 실패",
+          });
+
           return;
         }
       }
@@ -65,9 +68,13 @@ export const useEditRoadmap = (
           const uploadResponse = await uploadImageByClient(data.thumbnail);
           data.thumbnail = uploadResponse;
         } catch (error) {
-          toast.error(
-            `${error instanceof Error ? error.message : "이미지 업로드 실패"}`,
-          );
+          console.error("이미지 업로드 실패:", error);
+
+          options?.onError?.({
+            success: false,
+            message: "이미지 업로드 실패",
+          });
+
           return;
         }
       }
@@ -143,7 +150,9 @@ export const useLikeRoadmap = (
         ? await likeRoadmap(roadmap.id, roadmap.externalId)
         : await unlikeRoadmap(roadmap.id, roadmap.externalId);
 
-      if (!response.success) {
+      if (response.success) {
+        options?.onSuccess?.(response);
+      } else {
         setState(!nextLike);
         options?.onError?.(response);
       }
@@ -180,7 +189,9 @@ export const useBookmarkRoadmap = (
         ? await bookmarkRoadmap(roadmap.id, roadmap.externalId)
         : await unbookmarkRoadmap(roadmap.id, roadmap.externalId);
 
-      if (!response.success) {
+      if (response.success) {
+        options?.onSuccess?.(response);
+      } else {
         setState(!nextBookmark);
         options?.onError?.(response);
       }

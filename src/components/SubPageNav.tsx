@@ -3,39 +3,29 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { NavItem } from "@/types";
 
-const MY_PAGE_MENU = [
-  {
-    name: "나의 정보",
-    href: "/my",
-  },
-  {
-    name: "나의 활동",
-    href: "/my/activity",
-  },
-  {
-    name: "즐겨찾기",
-    href: "/my/bookmark",
-  },
-];
-export default function MypageNav() {
+type SubPageNavProps = {
+  menu: NavItem[];
+};
+export default function SubPageNav({ menu }: SubPageNavProps) {
   const pathname = usePathname();
 
   return (
     <nav>
       <ul className="flex flex-row gap-1 md:flex-col">
-        {MY_PAGE_MENU.map((menu) => {
-          const isActive = menu.href === pathname;
+        {menu.map((item) => {
+          const isActive = item.href === pathname;
           return (
-            <li key={menu.href}>
+            <li key={item.href}>
               <Link
-                href={menu.href}
+                href={item.href}
                 className={cn(
                   "hover:bg-muted flex rounded-md px-3 py-2 text-xs opacity-50 transition-[background] md:px-4 md:py-2.5 md:text-sm",
                   isActive && "bg-muted/80 font-semibold opacity-100",
                 )}
               >
-                {menu.name}
+                {item.label}
               </Link>
             </li>
           );

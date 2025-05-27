@@ -1,20 +1,15 @@
 import { PropsWithChildren } from "react";
 import SubPageNav from "@/components/SubPageNav";
 import { Separator } from "@/components/ui/separator";
-import { NavItem } from "@/types";
 
-const MENU: NavItem[] = [
+const MENU = [
   {
-    label: "나의 정보",
-    href: "/my",
+    label: "카테고리",
+    href: "/admin",
   },
   {
-    label: "나의 활동",
-    href: "/my/activity",
-  },
-  {
-    label: "즐겨찾기",
-    href: "/my/bookmark",
+    label: "카테고리 순서",
+    href: "/admin/order",
   },
 ];
 
@@ -22,9 +17,9 @@ export default function MypageLayout({ children }: PropsWithChildren) {
   return (
     <div className="min-h-[400px]">
       <header className="pt-4 md:pt-0">
-        <h2 className="mb-1 text-lg font-semibold md:text-xl">마이페이지</h2>
+        <h2 className="mb-1 text-lg font-semibold md:text-xl">관리자 페이지</h2>
         <p className="text-muted-foreground text-xs md:text-sm">
-          회원정보 수정 및 나의 활동을 확인할 수 있어요
+          카테고리 추가 및 수정을 할 수 있어요
         </p>
       </header>
       <Separator className="bg-muted my-4 md:my-8" />

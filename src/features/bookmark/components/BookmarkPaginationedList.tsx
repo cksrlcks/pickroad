@@ -1,24 +1,36 @@
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import Pagination from "@/components/Pagination";
 import PendingBoundary from "@/components/PendingBoundary";
-import { ActivityParams } from "@/data/activity";
-import { getMyBookmarks } from "@/data/bookmark";
+import { auth } from "@/lib/auth";
+import { getMyBookmarks } from "../server/service";
+import { BookmarkParams } from "../type";
 import BookmarkList from "./BookmarkList";
 import BookmarkListSkeleton from "./BookmarkListSkeleton";
 
-type BookmarkPaginationedListProps = ActivityParams;
+type BookmarkPaginationedListProps = Partial<BookmarkParams>;
 
 const LIMIT = 6;
 
 export default async function BookmarkPaginationedList({
   page = 1,
   keyword,
-  type = "roadmap",
 }: BookmarkPaginationedListProps) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  const authorId = session.user.id;
+
   const { totalCount, data } = await getMyBookmarks({
     page,
     keyword,
-    type,
     limit: LIMIT,
+    authorId,
   });
 
   return (

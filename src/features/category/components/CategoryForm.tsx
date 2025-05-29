@@ -64,6 +64,9 @@ export default function CategoryForm({
     await action(data);
   });
 
+  const isDisabledSubmit =
+    form.formState.isSubmitting || !form.formState.isValid;
+
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -103,7 +106,7 @@ export default function CategoryForm({
         />
         <div className="flex justify-end gap-1">
           {isEditMode && <CategoryDeleteButton category={initialData} />}
-          <Button type="submit" disabled={form.formState.isSubmitting}>
+          <Button type="submit" disabled={isDisabledSubmit}>
             저장
           </Button>
         </div>

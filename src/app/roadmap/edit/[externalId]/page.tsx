@@ -1,8 +1,8 @@
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { getRoadmapWithSession } from "@/data/roadmap";
 import { db } from "@/db";
 import RoadmapForm from "@/features/roadmap/components/RoadmapForm";
+import { getRoadmapWithSession } from "@/features/roadmap/server/service";
 import { Roadmap } from "@/features/roadmap/type";
 import { auth } from "@/lib/auth";
 

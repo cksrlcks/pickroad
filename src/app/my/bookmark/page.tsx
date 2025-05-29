@@ -2,15 +2,15 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import FilterProvider from "@/components/FilterProvider";
 import Search from "@/components/Search";
-import { ActivityParams } from "@/data/activity";
 import BookmarkListSkeleton from "@/features/bookmark/components/BookmarkListSkeleton";
 import BookmarkPaginationedList from "@/features/bookmark/components/BookmarkPaginationedList";
+import { BookmarkParams } from "@/features/bookmark/type";
 import { FilterSearchParamsSchema } from "@/types";
 
 export default async function BookmarksPage({
   searchParams,
 }: {
-  searchParams: Promise<Partial<ActivityParams>>;
+  searchParams: Promise<Partial<BookmarkParams>>;
 }) {
   const safeParsedSearchParams = FilterSearchParamsSchema.safeParse(
     await searchParams,

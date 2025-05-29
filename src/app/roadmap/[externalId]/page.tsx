@@ -2,13 +2,16 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Spinner from "@/components/Spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getRoadmap, getRoadmapWithSession } from "@/data/roadmap";
 import RoadmapActions from "@/features/roadmap/components/RoadmapActions";
 import RoadmapDisplay from "@/features/roadmap/components/RoadmapDisplay";
 import RoadmapInfo from "@/features/roadmap/components/RoadmapInfo";
 import RoadmapItems from "@/features/roadmap/components/RoadmapItems";
 import RoadmapReviews from "@/features/roadmap/components/RoadmapReviews";
 import RoadmapTags from "@/features/roadmap/components/RoadmapTags";
+import {
+  getRoadmapWithExternalId,
+  getRoadmapWithSession,
+} from "@/features/roadmap/server/service";
 import { Roadmap } from "@/features/roadmap/type";
 import { generateRoadmapJsonLd } from "@/lib/jsonld-roadmap";
 
@@ -19,7 +22,7 @@ export async function generateMetadata({
 }) {
   const defaultTitle = "나만의 로드맵 공유 플랫폼 | Pick Road";
   const { externalId } = await params;
-  const roadmap = await getRoadmap(externalId);
+  const roadmap = await getRoadmapWithExternalId(externalId);
   const title = roadmap?.title ? `${roadmap.title} | Pick Road` : defaultTitle;
   const description = `${roadmap?.subTitle ?? defaultTitle}`;
 

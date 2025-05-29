@@ -26,12 +26,9 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  UserProfileEditForm,
-  userProfileEditSchema,
-} from "@/features/auth/type";
 import { authClient } from "@/lib/auth-client";
 import { useProfileEdit } from "../hooks/useProfileMutation";
+import { UserProfileForm, userProfileSchema } from "../type";
 
 type ProfileProps = {
   user: Partial<User>;
@@ -39,11 +36,9 @@ type ProfileProps = {
 
 export function Profile({ user }: ProfileProps) {
   const router = useRouter();
-  const form = useForm<UserProfileEditForm>({
-    resolver: zodResolver(userProfileEditSchema),
-    defaultValues: {
-      name: user.name,
-    },
+  const form = useForm<UserProfileForm>({
+    resolver: zodResolver(userProfileSchema),
+    defaultValues: user,
   });
 
   const { mutate: editProfile } = useProfileEdit({
@@ -68,6 +63,9 @@ export function Profile({ user }: ProfileProps) {
   const handleSubmit = form.handleSubmit(async (data) => {
     await editProfile(data);
   });
+
+  const isDisabledSubmit =
+    form.formState.isSubmitting || !form.formState.isValid;
 
   return (
     <Form {...form}>
@@ -109,7 +107,7 @@ export function Profile({ user }: ProfileProps) {
             </AlertDialogContent>
           </AlertDialog>
 
-          <Button type="submit" disabled={form.formState.isSubmitting}>
+          <Button type="submit" disabled={isDisabledSubmit}>
             수정
           </Button>
         </div>

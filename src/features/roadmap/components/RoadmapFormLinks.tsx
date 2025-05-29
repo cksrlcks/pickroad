@@ -15,7 +15,6 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import { ArrowDown, ArrowUp, GripVertical } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
-import { getOgData } from "@/actions/roadmap";
 import Spinner from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +26,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn, isValidUrl } from "@/lib/utils";
+import { getOgDataAction } from "../server/action";
 import { RoadmapForm } from "../type";
 import DraggableItem from "./DraggableItem";
 
@@ -69,7 +69,7 @@ export default function RoadmapFormLinks() {
         return undefined;
       }
 
-      const response = await getOgData(url);
+      const response = await getOgDataAction(url);
 
       if (!response.success) {
         toast.error(response.message);

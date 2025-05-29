@@ -2,18 +2,24 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { and, eq } from "drizzle-orm";
-import { db } from "@/db";
-import { comments, roadmaps } from "@/db/schema";
 import {
   Comment,
   CommentForm,
   commentInsertSchema,
+  LoadmoreCommentParams,
 } from "@/features/comment/type";
+import { getRoadmapExternalId } from "@/features/roadmap/server/service";
 import { auth } from "@/lib/auth";
-import { BaseParams, ServerActionResult } from "@/types";
+import { ServerActionResult } from "@/types";
+import {
+  createComment,
+  deleteComment,
+  getComment,
+  getMoreComments,
+  updateComment,
+} from "./service";
 
-export const createRoadmapComment = async (
+export const createRoadmapCommentAction = async (
   data: CommentForm,
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
@@ -38,23 +44,17 @@ export const createRoadmapComment = async (
 
   try {
     const authorId = session.user.id;
-    const roadmap = await db.query.roadmaps.findFirst({
-      where: eq(roadmaps.id, data.targetId),
-    });
-
-    if (!roadmap) {
+    const externalId = await getRoadmapExternalId(data.targetId);
+    if (!externalId) {
       return {
         success: false,
         message: "로드맵이 존재하지 않습니다.",
       };
     }
 
-    await db.insert(comments).values({
-      ...parsed.data,
-      authorId,
-    });
+    await createComment({ ...parsed.data, authorId });
 
-    revalidatePath(`/roadmap/${roadmap.externalId}`);
+    revalidatePath(`/roadmap/${externalId}`);
 
     return {
       success: true,
@@ -69,7 +69,7 @@ export const createRoadmapComment = async (
   }
 };
 
-export const editRoadmapComment = async (
+export const updateRoadmapCommentAction = async (
   data: CommentForm,
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
@@ -94,11 +94,8 @@ export const editRoadmapComment = async (
 
   try {
     const authorId = session.user.id;
-    const roadmap = await db.query.roadmaps.findFirst({
-      where: eq(roadmaps.id, data.targetId),
-    });
-
-    if (!roadmap) {
+    const externalId = await getRoadmapExternalId(data.targetId);
+    if (!externalId) {
       return {
         success: false,
         message: "로드맵이 존재하지 않습니다.",
@@ -112,9 +109,7 @@ export const editRoadmapComment = async (
       };
     }
 
-    const comment = await db.query.comments.findFirst({
-      where: and(eq(comments.id, data.id)),
-    });
+    const comment = await getComment(data.id);
 
     if (!comment) {
       return {
@@ -130,14 +125,9 @@ export const editRoadmapComment = async (
       };
     }
 
-    await db
-      .update(comments)
-      .set({
-        content: parsed.data.content,
-      })
-      .where(and(eq(comments.id, data.id!), eq(comments.authorId, authorId)));
+    await updateComment(data);
 
-    revalidatePath(`/roadmap/${roadmap.externalId}`);
+    revalidatePath(`/roadmap/${externalId}`);
 
     return {
       success: true,
@@ -152,7 +142,7 @@ export const editRoadmapComment = async (
   }
 };
 
-export const deleteRoadmapComment = async (
+export const deleteRoadmapCommentAction = async (
   commentId: Comment["id"],
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
@@ -168,14 +158,20 @@ export const deleteRoadmapComment = async (
 
   try {
     const authorId = session.user.id;
-    const comment = await db.query.comments.findFirst({
-      where: and(eq(comments.id, commentId)),
-    });
-
+    const comment = await getComment(commentId);
     if (!comment) {
       return {
         success: false,
         message: "댓글이 존재하지 않습니다.",
+      };
+    }
+
+    const externalId = await getRoadmapExternalId(comment.targetId);
+
+    if (!externalId) {
+      return {
+        success: false,
+        message: "로드맵이 존재하지 않습니다.",
       };
     }
 
@@ -186,19 +182,8 @@ export const deleteRoadmapComment = async (
       };
     }
 
-    const roadmap = await db.query.roadmaps.findFirst({
-      where: eq(roadmaps.id, comment.targetId),
-    });
-
-    if (!roadmap) {
-      return {
-        success: false,
-        message: "로드맵이 존재하지 않습니다.",
-      };
-    }
-
-    await db.delete(comments).where(eq(comments.id, commentId));
-    revalidatePath(`/roadmap/${roadmap.externalId}`);
+    await deleteComment(commentId);
+    revalidatePath(`/roadmap/${externalId}`);
 
     return {
       success: true,
@@ -213,29 +198,11 @@ export const deleteRoadmapComment = async (
   }
 };
 
-type LoadmoreCommentParams = Partial<BaseParams> & {
-  targetId: Comment["targetId"];
-  targetType: Comment["targetType"];
-};
-
-export const loadmoreComment = async (
+export const loadmoreCommentAction = async (
   params: LoadmoreCommentParams,
 ): Promise<ServerActionResult<{ comments: Comment[] }>> => {
-  const { targetId, targetType, page = 1, limit = 10 } = params;
-
   try {
-    const data = await db.query.comments.findMany({
-      with: {
-        author: true,
-      },
-      where: and(
-        eq(comments.targetId, targetId),
-        eq(comments.targetType, targetType),
-      ),
-      orderBy: (fields, { desc }) => desc(fields.createdAt),
-      limit,
-      offset: (page - 1) * limit,
-    });
+    const data = await getMoreComments(params);
 
     return {
       success: true,

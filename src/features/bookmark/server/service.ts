@@ -1,26 +1,13 @@
 import "server-only";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { and, desc, eq, ilike, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { bookmarks, roadmaps } from "@/db/schema";
-import { Bookmark } from "@/features/bookmark/type";
-import { auth } from "@/lib/auth";
-import { ActivityParams } from "./activity";
+import { Bookmark, BookmarkParams } from "@/features/bookmark/type";
 
 export const getMyBookmarks = async (
-  params: ActivityParams,
+  params: BookmarkParams,
 ): Promise<{ totalCount: number; data: Bookmark[] }> => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/login");
-  }
-
-  const { page = 1, limit = 10, keyword } = params;
-  const authorId = session.user.id;
+  const { page = 1, limit = 10, keyword, authorId } = params;
 
   const conditions = [
     eq(bookmarks.userId, authorId),

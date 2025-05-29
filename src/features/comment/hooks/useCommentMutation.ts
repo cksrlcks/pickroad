@@ -1,10 +1,10 @@
 import { useTransition } from "react";
-import {
-  createRoadmapComment,
-  deleteRoadmapComment,
-  editRoadmapComment,
-} from "@/actions/comment";
 import { MutationOption, MutationResult } from "@/types";
+import {
+  createRoadmapCommentAction,
+  deleteRoadmapCommentAction,
+  updateRoadmapCommentAction,
+} from "../server/action";
 import { Comment, CommentForm } from "../type";
 
 export const useCreateComment = (
@@ -14,7 +14,7 @@ export const useCreateComment = (
 
   const mutate = async (data: CommentForm) => {
     startTransition(async () => {
-      const response = await createRoadmapComment(data);
+      const response = await createRoadmapCommentAction(data);
 
       if (response.success) {
         options?.onSuccess?.(response);
@@ -37,7 +37,7 @@ export const useEditComment = (
 
   const mutate = async (data: CommentForm) => {
     startTransition(async () => {
-      const response = await editRoadmapComment(data);
+      const response = await updateRoadmapCommentAction(data);
 
       if (response.success) {
         options?.onSuccess?.(response);
@@ -61,7 +61,7 @@ export const useDeleteComment = (
 
   const mutate = async () => {
     startTransition(async () => {
-      const response = await deleteRoadmapComment(comment.id);
+      const response = await deleteRoadmapCommentAction(comment.id);
 
       if (response.success) {
         options?.onSuccess?.(response);

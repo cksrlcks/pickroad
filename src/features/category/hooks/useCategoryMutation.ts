@@ -1,11 +1,11 @@
 import { useTransition } from "react";
-import {
-  createCategory,
-  deleteCategory,
-  editCategory,
-  reorderCategories,
-} from "@/actions/category";
 import { MutationOption, MutationResult } from "@/types";
+import {
+  createCategoryAction,
+  deleteCategoryAction,
+  updateCategoryAction,
+  reorderCategoriesAction,
+} from "../server/action";
 import { CategoryForm, ReorderCategoriesForm, RoadmapCategory } from "../type";
 
 export const useCreateCategory = (
@@ -15,7 +15,7 @@ export const useCreateCategory = (
 
   const mutate = async (data: CategoryForm) => {
     startTransition(async () => {
-      const response = await createCategory(data);
+      const response = await createCategoryAction(data);
 
       if (response.success) {
         options?.onSuccess?.(response);
@@ -38,7 +38,7 @@ export const useEditCategory = (
 
   const mutate = async (data: CategoryForm) => {
     startTransition(async () => {
-      const response = await editCategory(data);
+      const response = await updateCategoryAction(data);
 
       if (response.success) {
         options?.onSuccess?.(response);
@@ -62,7 +62,7 @@ export const useDeleteCategory = (
 
   const mutate = async () => {
     startTransition(async () => {
-      const response = await deleteCategory(category.id);
+      const response = await deleteCategoryAction(category.id);
 
       if (response.success) {
         options?.onSuccess?.(response);
@@ -85,7 +85,7 @@ export const useReorderCategories = (
 
   const mutate = async (data: ReorderCategoriesForm) => {
     startTransition(async () => {
-      const response = await reorderCategories(data);
+      const response = await reorderCategoriesAction(data);
 
       if (response.success) {
         options?.onSuccess?.(response);

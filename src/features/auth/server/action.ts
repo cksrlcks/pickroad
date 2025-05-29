@@ -2,15 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { user } from "@/db/schema";
-import { UserProfileEditForm } from "@/features/auth/type";
 import { auth } from "@/lib/auth";
 import { ServerActionResult } from "@/types";
+import { UserProfileForm } from "../type";
+import { updateUserProfile } from "./service";
 
-export const editUserProfileAction = async (
-  data: UserProfileEditForm,
+export const updateUserProfileAction = async (
+  data: UserProfileForm,
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -24,14 +22,9 @@ export const editUserProfileAction = async (
   }
 
   try {
-    const authorId = session.user.id;
+    const userId = session.user.id;
 
-    await db
-      .update(user)
-      .set({
-        ...data,
-      })
-      .where(eq(user.id, authorId));
+    await updateUserProfile({ ...data, id: userId });
 
     revalidatePath("/my");
 

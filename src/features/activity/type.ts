@@ -1,3 +1,5 @@
+import { User } from "better-auth";
+import { BaseParams } from "@/types";
 import { Comment } from "../comment/type";
 import { Like, RoadmapCompact } from "../roadmap/type";
 
@@ -22,3 +24,8 @@ export type ActivityLike = Like & {
 };
 
 export type Activity = ActivityRoadmap | ActivityComment | ActivityLike;
+
+export type ActivityParams = Partial<BaseParams> & {
+  type?: ActivityType;
+  authorId: User["id"];
+};

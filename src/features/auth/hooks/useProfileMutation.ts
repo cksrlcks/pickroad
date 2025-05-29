@@ -1,16 +1,16 @@
 import { useTransition } from "react";
-import { editUserProfileAction } from "@/actions/auth";
 import { MutationOption, MutationResult } from "@/types";
-import { UserProfileEditForm } from "../type";
+import { updateUserProfileAction } from "../server/action";
+import { UserProfileForm } from "../type";
 
 export const useProfileEdit = (
   options: MutationOption,
-): MutationResult<void, UserProfileEditForm> => {
+): MutationResult<void, UserProfileForm> => {
   const [isPending, startTransition] = useTransition();
 
-  const mutate = async (data: UserProfileEditForm) => {
+  const mutate = async (data: UserProfileForm) => {
     startTransition(async () => {
-      const response = await editUserProfileAction(data);
+      const response = await updateUserProfileAction(data);
 
       if (response.success) {
         options.onSuccess?.(response);

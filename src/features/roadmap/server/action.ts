@@ -4,7 +4,6 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { inArray, and, eq } from "drizzle-orm";
 import { ulid } from "ulid";
 import urlMetadata from "url-metadata";
 import {
@@ -17,11 +16,18 @@ import { auth } from "@/lib/auth";
 import { r2 } from "@/lib/r2-client";
 import { isValidUrl } from "@/lib/utils";
 import { ServerActionResult } from "@/types";
-import { db } from "../db";
-import { likes, roadmapItems, roadmaps, roadmapTags, tags } from "../db/schema";
-import { bookmarks } from "../db/schema/bookmarks";
+import {
+  bookmarkRoadmap,
+  createRoadmap,
+  deleteRoadmap,
+  updateRoadmap,
+  getRoadmapAuthorId,
+  likeRoadmap,
+  unbookmarkRoadmap,
+  unlikeRoadmap,
+} from "./service";
 
-export const getPresignedUrl = async (): Promise<
+export const getPresignedUrlAction = async (): Promise<
   ServerActionResult<{ presignedUrl: string; fileUrl: string }>
 > => {
   const key = `uploads/${ulid()}`;
@@ -51,7 +57,7 @@ export const getPresignedUrl = async (): Promise<
   }
 };
 
-export const createRoadmap = async (
+export const createRoadmapAction = async (
   form: RoadmapFormWithUploadedUrl,
 ): Promise<ServerActionResult<{ externalId?: string }>> => {
   const session = await auth.api.getSession({
@@ -75,51 +81,9 @@ export const createRoadmap = async (
   }
 
   try {
-    const externalId = ulid();
-
-    await db.transaction(async (tx) => {
-      const [newRoadmap] = await tx
-        .insert(roadmaps)
-        .values({
-          ...form,
-          externalId: externalId,
-          authorId: session.session.userId,
-        })
-        .returning();
-
-      if (form.items && form.items.length > 0) {
-        await tx.insert(roadmapItems).values(
-          form.items.map((item, idx) => ({
-            roadmapId: newRoadmap.id,
-            order: idx + 1,
-            title: item.title,
-            description: item.description,
-            url: item.url,
-            thumbnail: item.thumbnail,
-          })),
-        );
-      }
-
-      if (form.tags && form.tags.length > 0) {
-        await tx
-          .insert(tags)
-          .values(form.tags.map((name) => ({ name })))
-          .onConflictDoNothing();
-
-        const tagRecords = await tx
-          .select({ id: tags.id, name: tags.name })
-          .from(tags)
-          .where(inArray(tags.name, form.tags));
-
-        await tx //
-          .insert(roadmapTags)
-          .values(
-            tagRecords.map((tag) => ({
-              roadmapId: newRoadmap.id,
-              tagId: tag.id,
-            })),
-          );
-      }
+    const { externalId } = await createRoadmap({
+      ...form,
+      authorId: session.user.id,
     });
 
     revalidatePath("/");
@@ -140,7 +104,7 @@ export const createRoadmap = async (
   }
 };
 
-export const editRoadmap = async (
+export const updateRoadmapAction = async (
   form: RoadmapFormWithUploadedUrl,
 ): Promise<ServerActionResult<{ externalId?: string }>> => {
   const session = await auth.api.getSession({
@@ -171,57 +135,16 @@ export const editRoadmap = async (
   }
 
   try {
-    await db.transaction(async (tx) => {
-      await tx.update(roadmaps).set(form).where(eq(roadmaps.id, form.id!));
-
-      // 기존 items를 지우고 다시 삽입
-      await tx.delete(roadmapItems).where(eq(roadmapItems.roadmapId, form.id!));
-      if (form.items && form.items.length > 0) {
-        await tx.insert(roadmapItems).values(
-          form.items.map((item, idx) => ({
-            roadmapId: form.id!,
-            order: idx + 1,
-            title: item.title,
-            description: item.description,
-            url: item.url,
-            thumbnail: item.thumbnail,
-          })),
-        );
-      }
-
-      // 기존 태그 테이블 제거
-      await tx.delete(roadmapTags).where(eq(roadmapTags.roadmapId, form.id!));
-
-      if (form.tags && form.tags.length > 0) {
-        await tx
-          .insert(tags)
-          .values(form.tags.map((name) => ({ name })))
-          .onConflictDoNothing();
-
-        const tagRecords = await tx
-          .select({ id: tags.id, name: tags.name })
-          .from(tags)
-          .where(inArray(tags.name, form.tags));
-
-        await tx //
-          .insert(roadmapTags)
-          .values(
-            tagRecords.map((tag) => ({
-              roadmapId: form.id,
-              tagId: tag.id,
-            })),
-          );
-      }
-    });
+    const { externalId } = await updateRoadmap(form);
 
     revalidatePath("/");
-    revalidatePath(`/roadmap/${form.externalId}`);
+    revalidatePath(`/roadmap/${externalId}`);
 
     return {
       success: true,
       message: "성공적으로 수정되었습니다.",
       payload: {
-        externalId: form.externalId,
+        externalId: externalId,
       },
     };
   } catch (error) {
@@ -233,7 +156,7 @@ export const editRoadmap = async (
   }
 };
 
-export const deleteRoadmap = async (
+export const deleteRoadmapAction = async (
   id: Roadmap["id"],
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
@@ -247,14 +170,9 @@ export const deleteRoadmap = async (
     };
   }
 
-  const roadmap = await db.query.roadmaps.findFirst({
-    where: eq(roadmaps.id, id),
-    columns: {
-      authorId: true,
-    },
-  });
+  const { authorId } = await getRoadmapAuthorId(id);
 
-  if (roadmap?.authorId !== session.user.id) {
+  if (authorId !== session.user.id) {
     return {
       success: false,
       message: "권한이 없습니다.",
@@ -262,7 +180,7 @@ export const deleteRoadmap = async (
   }
 
   try {
-    await db.delete(roadmaps).where(eq(roadmaps.id, id));
+    await deleteRoadmap(id);
 
     revalidatePath("/");
 
@@ -279,7 +197,7 @@ export const deleteRoadmap = async (
   }
 };
 
-export const getOgData = async (
+export const getOgDataAction = async (
   url: string,
 ): Promise<ServerActionResult<RoadmapItemMetaData>> => {
   if (!isValidUrl(url)) {
@@ -316,7 +234,7 @@ export const getOgData = async (
   }
 };
 
-export const likeRoadmap = async (
+export const likeRoadmapAction = async (
   id: Roadmap["id"],
   externalId: Roadmap["externalId"],
 ): Promise<ServerActionResult> => {
@@ -332,12 +250,7 @@ export const likeRoadmap = async (
   }
 
   try {
-    await db.insert(likes).values({
-      userId: session.user.id,
-      targetType: "roadmap",
-      targetId: id,
-    });
-
+    await likeRoadmap(session.user.id, id);
     revalidatePath(`/roadmap/${externalId}`);
 
     return {
@@ -353,7 +266,7 @@ export const likeRoadmap = async (
   }
 };
 
-export const unlikeRoadmap = async (
+export const unlikeRoadmapAction = async (
   id: Roadmap["id"],
   externalId: Roadmap["externalId"],
 ): Promise<ServerActionResult> => {
@@ -369,15 +282,7 @@ export const unlikeRoadmap = async (
   }
 
   try {
-    await db
-      .delete(likes)
-      .where(
-        and(
-          eq(likes.targetType, "roadmap"),
-          eq(likes.targetId, id),
-          eq(likes.userId, session.user.id),
-        ),
-      );
+    await unlikeRoadmap(session.user.id, id);
 
     revalidatePath(`/roadmap/${externalId}`);
 
@@ -394,7 +299,7 @@ export const unlikeRoadmap = async (
   }
 };
 
-export const bookmarkRoadmap = async (
+export const bookmarkRoadmapAction = async (
   id: Roadmap["id"],
   externalId: Roadmap["externalId"],
 ): Promise<ServerActionResult> => {
@@ -410,11 +315,7 @@ export const bookmarkRoadmap = async (
   }
 
   try {
-    await db.insert(bookmarks).values({
-      userId: session.user.id,
-      targetType: "roadmap",
-      targetId: id,
-    });
+    await bookmarkRoadmap(session.user.id, id);
 
     revalidatePath(`/roadmap/${externalId}`);
 
@@ -431,7 +332,7 @@ export const bookmarkRoadmap = async (
   }
 };
 
-export const unbookmarkRoadmap = async (
+export const unbookmarkRoadmapAction = async (
   id: Roadmap["id"],
   externalId: Roadmap["externalId"],
 ): Promise<ServerActionResult> => {
@@ -447,15 +348,7 @@ export const unbookmarkRoadmap = async (
   }
 
   try {
-    await db
-      .delete(bookmarks)
-      .where(
-        and(
-          eq(bookmarks.targetType, "roadmap"),
-          eq(bookmarks.targetId, id),
-          eq(bookmarks.userId, session.user.id),
-        ),
-      );
+    await unbookmarkRoadmap(session.user.id, id);
 
     revalidatePath(`/roadmap/${externalId}`);
 

@@ -43,12 +43,13 @@ export default function CommentForm({
 
   const form = useForm<CommentFormType>({
     resolver: zodResolver(commentInsertSchema),
-    mode: "onSubmit",
+    mode: "all",
     defaultValues: isEditMode
       ? initialData
       : {
           targetId,
           targetType,
+          authorId: session?.user.id,
         },
   });
 

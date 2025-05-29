@@ -21,8 +21,8 @@ export type MutationResult<TPayload = unknown, TInput = void> = {
   state?: TPayload;
 };
 
-export type MutationOption<T = unknown> = {
-  onSuccess?: (response: ServerActionSuccess<T>) => void;
+export type MutationOption<TPayload = unknown> = {
+  onSuccess?: (response: ServerActionSuccess<TPayload>) => void;
   onError?: (response: ServerActionFailure) => void;
 };
 

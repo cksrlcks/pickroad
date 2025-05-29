@@ -1,14 +1,14 @@
 import { useOptimistic, useTransition } from "react";
-import {
-  bookmarkRoadmap,
-  createRoadmap,
-  deleteRoadmap,
-  editRoadmap,
-  likeRoadmap,
-  unbookmarkRoadmap,
-  unlikeRoadmap,
-} from "@/actions/roadmap";
 import { MutationOption, MutationResult } from "@/types";
+import {
+  bookmarkRoadmapAction,
+  createRoadmapAction,
+  deleteRoadmapAction,
+  updateRoadmapAction,
+  likeRoadmapAction,
+  unbookmarkRoadmapAction,
+  unlikeRoadmapAction,
+} from "../server/action";
 import { Roadmap, RoadmapForm, RoadmapFormWithUploadedUrl } from "../type";
 
 type CreateRoadmapPayload = { externalId?: string };
@@ -37,7 +37,9 @@ export const useCreateRoadmap = (
         }
       }
 
-      const response = await createRoadmap(data as RoadmapFormWithUploadedUrl);
+      const response = await createRoadmapAction(
+        data as RoadmapFormWithUploadedUrl,
+      );
 
       if (response.success) {
         options?.onSuccess?.(response);
@@ -79,7 +81,9 @@ export const useEditRoadmap = (
         }
       }
 
-      const response = await editRoadmap(data as RoadmapFormWithUploadedUrl);
+      const response = await updateRoadmapAction(
+        data as RoadmapFormWithUploadedUrl,
+      );
 
       if (response.success) {
         options?.onSuccess?.(response);
@@ -103,7 +107,7 @@ export const useDeleteRoadmap = (
 
   const mutate = async () => {
     startTransition(async () => {
-      const response = await deleteRoadmap(roadmap.id);
+      const response = await deleteRoadmapAction(roadmap.id);
 
       if (response.success) {
         options?.onSuccess?.(response);
@@ -147,8 +151,8 @@ export const useLikeRoadmap = (
       setState(nextLike);
 
       const response = nextLike
-        ? await likeRoadmap(roadmap.id, roadmap.externalId)
-        : await unlikeRoadmap(roadmap.id, roadmap.externalId);
+        ? await likeRoadmapAction(roadmap.id, roadmap.externalId)
+        : await unlikeRoadmapAction(roadmap.id, roadmap.externalId);
 
       if (response.success) {
         options?.onSuccess?.(response);
@@ -186,8 +190,8 @@ export const useBookmarkRoadmap = (
       setState(nextBookmark);
 
       const response = nextBookmark
-        ? await bookmarkRoadmap(roadmap.id, roadmap.externalId)
-        : await unbookmarkRoadmap(roadmap.id, roadmap.externalId);
+        ? await bookmarkRoadmapAction(roadmap.id, roadmap.externalId)
+        : await unbookmarkRoadmapAction(roadmap.id, roadmap.externalId);
 
       if (response.success) {
         options?.onSuccess?.(response);

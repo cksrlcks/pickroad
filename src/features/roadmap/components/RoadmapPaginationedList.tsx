@@ -1,7 +1,8 @@
 import Pagination from "@/components/Pagination";
 import PendingBoundary from "@/components/PendingBoundary";
-import { getRoadmaps, GetRoadmapsParams } from "@/data/roadmap";
 import RoadmapList from "@/features/roadmap/components/RoadmapList";
+import { getRoadmaps } from "../server/service";
+import { GetRoadmapsParams } from "../type";
 import RoadmapListSkeleton from "./RoadmapListSkeleton";
 
 type RoadmapPaginationedListProps = GetRoadmapsParams;

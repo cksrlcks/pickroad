@@ -2,9 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
-import { eq, sql } from "drizzle-orm";
-import { db } from "@/db";
-import { categories } from "@/db/schema";
 import {
   CategoryForm,
   categoryInsertSchema,
@@ -14,13 +11,20 @@ import {
 } from "@/features/category/type";
 import { auth } from "@/lib/auth";
 import { ServerActionResult } from "@/types";
+import {
+  createCategory,
+  deleteCategory,
+  reorderCategories,
+  updateCategory,
+} from "./service";
 
-export const createCategory = async (
+export const createCategoryAction = async (
   data: CategoryForm,
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+
   if (!session || session.user.role !== "admin") {
     return {
       success: false,
@@ -38,12 +42,7 @@ export const createCategory = async (
   }
 
   try {
-    console.log(parsed.data);
-    await db.insert(categories).values({
-      name: parsed.data.name,
-      emoji: parsed.data.emoji,
-      order: sql`(select coalesce(max("order"), 0) + 1 from ${categories})`,
-    });
+    await createCategory(parsed.data);
 
     revalidatePath("/admin");
 
@@ -61,12 +60,13 @@ export const createCategory = async (
   }
 };
 
-export const deleteCategory = async (
+export const deleteCategoryAction = async (
   id: RoadmapCategory["id"],
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+
   if (!session || session.user.role !== "admin") {
     return {
       success: false,
@@ -75,7 +75,7 @@ export const deleteCategory = async (
   }
 
   try {
-    await db.delete(categories).where(eq(categories.id, id));
+    await deleteCategory(id);
 
     revalidatePath("/admin");
 
@@ -93,12 +93,13 @@ export const deleteCategory = async (
   }
 };
 
-export const editCategory = async (
+export const updateCategoryAction = async (
   data: CategoryForm,
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+
   if (!session || session.user.role !== "admin") {
     return {
       success: false,
@@ -116,15 +117,7 @@ export const editCategory = async (
   }
 
   try {
-    await db
-      .update(categories)
-      .set({
-        name: parsed.data.name,
-        emoji: parsed.data.emoji,
-      })
-      .where(eq(categories.id, parsed.data.id!));
-
-    revalidatePath("/admin");
+    await updateCategory(parsed.data);
 
     return {
       success: true,
@@ -140,7 +133,7 @@ export const editCategory = async (
   }
 };
 
-export const reorderCategories = async (
+export const reorderCategoriesAction = async (
   data: ReorderCategoriesForm,
 ): Promise<ServerActionResult> => {
   const session = await auth.api.getSession({
@@ -164,14 +157,7 @@ export const reorderCategories = async (
   }
 
   try {
-    await db.transaction(async (tx) => {
-      for (const [index, category] of parsed.data.categories.entries()) {
-        await tx
-          .update(categories)
-          .set({ order: index })
-          .where(eq(categories.id, category.id!));
-      }
-    });
+    await reorderCategories(parsed.data);
 
     revalidatePath("/admin/order");
 

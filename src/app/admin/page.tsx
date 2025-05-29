@@ -1,9 +1,9 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
-import { getCategoriesWithCount } from "@/data/category";
 import CategoryAddButton from "@/features/category/components/CategoryAddButton";
 import CategoryList from "@/features/category/components/CategoryList";
+import { getCategoriesWithCount } from "@/features/category/server/service";
 import { auth } from "@/lib/auth";
 
 export default async function AdminPage() {

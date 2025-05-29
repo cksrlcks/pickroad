@@ -2,6 +2,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { FILE_LIMIT_SIZE } from "@/constants";
 import { likes, roadmapItems, roadmaps, tags } from "@/db/schema";
+import { BaseParams } from "@/types";
 import { Author } from "../auth/type";
 import { RoadmapCategory } from "../category/type";
 
@@ -18,7 +19,7 @@ export type RoadmapItemMetaData = {
   image: string;
 };
 
-export type Roadmap = Omit<RoadmapBase, "categoryId" | "authorId"> & {
+export type Roadmap = RoadmapBase & {
   category: RoadmapCategory | null;
   author: Author | null;
   tags: RoadmapTag[] | null;
@@ -86,6 +87,7 @@ export const roadmapTagsInsertSchema = createInsertSchema(tags, {
       .min(2, { message: "두글자 이상 적어주세요" })
       .max(20, { message: "20글자 이하로 적어주세요" }),
 });
+
 export const roadmapItemsInsertSchema = createInsertSchema(roadmapItems, {
   title: () =>
     z
@@ -101,15 +103,11 @@ export const roadmapItemsInsertSchema = createInsertSchema(roadmapItems, {
       .nullable(),
 });
 
-export const roadmapInsertSchema = roadmapBaseInsertSchema
-  .omit({
-    createdAt: true,
-    updatedAt: true,
-  })
-  .extend({
-    tags: z.array(roadmapTagsInsertSchema.shape.name).optional(),
-    items: z.array(roadmapItemsInsertSchema).optional(),
-  });
+export const roadmapInsertSchema = roadmapBaseInsertSchema.extend({
+  tags: z.array(roadmapTagsInsertSchema.shape.name).optional(),
+  items: z.array(roadmapItemsInsertSchema).optional(),
+});
+
 export type RoadmapForm = z.infer<typeof roadmapInsertSchema>;
 export type RoadmapFormWithUploadedUrl = Omit<RoadmapForm, "thumbnail"> & {
   thumbnail: string | null;
@@ -117,3 +115,7 @@ export type RoadmapFormWithUploadedUrl = Omit<RoadmapForm, "thumbnail"> & {
 
 export const LikeSchema = createSelectSchema(likes);
 export type Like = z.infer<typeof LikeSchema>;
+
+export type GetRoadmapsParams = Partial<BaseParams> & {
+  categoryId?: RoadmapCategory["id"];
+};

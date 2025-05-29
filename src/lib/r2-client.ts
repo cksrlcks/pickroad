@@ -1,5 +1,5 @@
 import { S3Client } from "@aws-sdk/client-s3";
-import { getPresignedUrl } from "@/actions/roadmap";
+import { getPresignedUrlAction } from "@/features/roadmap/server/action";
 
 export const r2 = new S3Client({
   region: "auto",
@@ -12,7 +12,7 @@ export const r2 = new S3Client({
 
 export const uploadImageByClient = async (file: File) => {
   try {
-    const response = await getPresignedUrl();
+    const response = await getPresignedUrlAction();
 
     if (!response.success || !response.payload) {
       throw new Error(response.message);

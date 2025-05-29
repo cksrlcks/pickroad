@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import { GetRoadmapsParams } from "@/data/roadmap";
 import RoadmapListSkeleton from "@/features/roadmap/components/RoadmapListSkeleton";
 import RoadmapPaginationedList from "@/features/roadmap/components/RoadmapPaginationedList";
+import { GetRoadmapsParams } from "@/features/roadmap/type";
 import { FilterSearchParamsSchema } from "@/types";
 
 export default async function Home({

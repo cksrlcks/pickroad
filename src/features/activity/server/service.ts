@@ -1,7 +1,4 @@
 import "server-only";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import { User } from "better-auth";
 import { and, desc, eq, ilike, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { comments, likes, roadmaps, user } from "@/db/schema";
@@ -9,22 +6,12 @@ import {
   ACTIVITY_TYPES,
   ActivityComment,
   ActivityLike,
+  ActivityParams,
   ActivityRoadmap,
-  ActivityType,
 } from "@/features/activity/type";
-import { auth } from "@/lib/auth";
-import { BaseParams } from "@/types";
-
-export type ActivityParams = Partial<BaseParams> & {
-  type?: ActivityType;
-};
-
-export type ActivityParamsWithSession = ActivityParams & {
-  authorId: User["id"];
-};
 
 export const getMyRoadmaps = async (
-  params: ActivityParamsWithSession,
+  params: ActivityParams,
 ): Promise<{ totalCount: number; data: ActivityRoadmap[] }> => {
   const { page = 1, limit = 10, keyword, authorId } = params;
 
@@ -61,7 +48,7 @@ export const getMyRoadmaps = async (
 };
 
 export const getMyComments = async (
-  params: ActivityParamsWithSession,
+  params: ActivityParams,
 ): Promise<{
   totalCount: number;
   data: ActivityComment[];
@@ -88,6 +75,7 @@ export const getMyComments = async (
       updatedAt: comments.updatedAt,
       targetType: comments.targetType,
       targetId: comments.targetId,
+      authorId: comments.authorId,
       author: {
         id: user.id,
         name: user.name,
@@ -116,7 +104,7 @@ export const getMyComments = async (
 };
 
 export const getMyLikes = async (
-  params: ActivityParamsWithSession,
+  params: ActivityParams,
 ): Promise<{
   totalCount: number;
   data: ActivityLike[];
@@ -164,23 +152,21 @@ export const getMyLikes = async (
 };
 
 export const getMyActivity = async (params: ActivityParams) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const {
+    page = 1,
+    limit = 10,
+    keyword,
+    type = ACTIVITY_TYPES.ROADMAP,
+    authorId,
+  } = params;
 
-  if (!session) {
-    redirect("/login");
-  }
-
-  const authorId = session.user.id;
-
-  switch (params.type || ACTIVITY_TYPES.ROADMAP) {
+  switch (type) {
     case ACTIVITY_TYPES.ROADMAP:
-      return await getMyRoadmaps({ ...params, authorId });
+      return await getMyRoadmaps({ page, limit, keyword, authorId });
     case ACTIVITY_TYPES.COMMENT:
-      return await getMyComments({ ...params, authorId });
+      return await getMyComments({ page, limit, keyword, authorId });
     case ACTIVITY_TYPES.LIKE:
-      return await getMyLikes({ ...params, authorId });
+      return await getMyLikes({ page, limit, keyword, authorId });
     default:
       throw new Error("Invalid activity type.");
   }

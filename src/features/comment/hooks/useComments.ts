@@ -1,6 +1,6 @@
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { loadmoreComment } from "@/actions/comment";
+import { loadmoreCommentAction } from "../server/action";
 import { Comment } from "../type";
 
 type useCommentsProps = {
@@ -32,7 +32,7 @@ export function useComments({
 
   const handleLoadmore = async () => {
     setTransition(async () => {
-      const response = await loadmoreComment({
+      const response = await loadmoreCommentAction({
         targetId,
         targetType,
         page: comments.page + 1,

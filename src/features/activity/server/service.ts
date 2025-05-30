@@ -1,9 +1,10 @@
 import "server-only";
 import { and, desc, eq, ilike, isNotNull, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { comments, likes, roadmaps, user } from "@/db/schema";
+import { bookmarks, comments, likes, roadmaps, user } from "@/db/schema";
 import {
   ACTIVITY_TYPES,
+  ActivityBookmark,
   ActivityComment,
   ActivityLike,
   ActivityParams,
@@ -151,6 +152,51 @@ export const getMyLikes = async (
   };
 };
 
+export const getMyBookmarks = async (
+  params: ActivityParams,
+): Promise<{ totalCount: number; data: ActivityBookmark[] }> => {
+  const { page = 1, limit = 10, keyword, authorId } = params;
+
+  const conditions = [
+    eq(bookmarks.userId, authorId),
+    eq(bookmarks.targetType, "roadmap"),
+    keyword ? ilike(roadmaps.title, `%${keyword}%`) : undefined,
+    isNotNull(roadmaps.id),
+  ].filter(Boolean);
+
+  const [{ count: totalCount }] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(bookmarks)
+    .leftJoin(roadmaps, eq(bookmarks.targetId, roadmaps.id))
+    .where(and(...conditions));
+
+  const data = await db
+    .select({
+      id: bookmarks.targetId,
+      userId: bookmarks.userId,
+      targetId: bookmarks.targetId,
+      targetType: bookmarks.targetType,
+      createdAt: bookmarks.createdAt,
+      roadmap: {
+        title: roadmaps.title,
+        subTitle: roadmaps.subTitle,
+        externalId: roadmaps.externalId,
+        thumbnail: roadmaps.thumbnail,
+      },
+    })
+    .from(bookmarks)
+    .leftJoin(roadmaps, eq(bookmarks.targetId, roadmaps.id))
+    .where(and(...conditions))
+    .orderBy(desc(bookmarks.createdAt))
+    .limit(limit)
+    .offset((page - 1) * limit);
+
+  return {
+    totalCount,
+    data: data.map((item) => ({ ...item, type: ACTIVITY_TYPES.BOOKMARK })),
+  };
+};
+
 export const getMyActivity = async (params: ActivityParams) => {
   const {
     page = 1,
@@ -167,6 +213,8 @@ export const getMyActivity = async (params: ActivityParams) => {
       return await getMyComments({ page, limit, keyword, authorId });
     case ACTIVITY_TYPES.LIKE:
       return await getMyLikes({ page, limit, keyword, authorId });
+    case ACTIVITY_TYPES.BOOKMARK:
+      return await getMyBookmarks({ page, limit, keyword, authorId });
     default:
       throw new Error("Invalid activity type.");
   }

@@ -1,4 +1,5 @@
 import { Activity, ACTIVITY_TYPES } from "../type";
+import ActivityBookmarkItem from "./ActivityBookmarkItem";
 import { ActivityCommentItem } from "./ActivityCommentItem";
 import { ActivityLikeItem } from "./ActivityLikeItem";
 import { ActivityRoadmapItem } from "./ActivityRoadmapItem";
@@ -42,6 +43,12 @@ export default function ActivityList({ data, keyword }: ActivityListProps) {
         return (
           <li key={`${item.userId}-${item.roadmap?.externalId}`}>
             <ActivityLikeItem item={item} />
+          </li>
+        );
+      case ACTIVITY_TYPES.BOOKMARK:
+        return (
+          <li key={`${item.userId}-${item.roadmap?.externalId}`}>
+            <ActivityBookmarkItem item={item} />
           </li>
         );
       default:

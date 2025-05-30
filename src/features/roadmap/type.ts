@@ -1,7 +1,7 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import { z } from "zod";
 import { FILE_LIMIT_SIZE } from "@/constants";
-import { likes, roadmapItems, roadmaps, tags } from "@/db/schema";
+import { roadmapItems, roadmaps, tags } from "@/db/schema";
 import { BaseParams } from "@/types";
 import { Author } from "../auth/type";
 import { RoadmapCategory } from "../category/type";
@@ -112,9 +112,6 @@ export type RoadmapForm = z.infer<typeof roadmapInsertSchema>;
 export type RoadmapFormWithUploadedUrl = Omit<RoadmapForm, "thumbnail"> & {
   thumbnail: string | null;
 };
-
-export const LikeSchema = createSelectSchema(likes);
-export type Like = z.infer<typeof LikeSchema>;
 
 export type GetRoadmapsParams = Partial<BaseParams> & {
   categoryId?: RoadmapCategory["id"];

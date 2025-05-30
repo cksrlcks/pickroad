@@ -2,15 +2,15 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import FilterProvider from "@/components/FilterProvider";
 import Search from "@/components/Search";
-import BookmarkListSkeleton from "@/features/bookmark/components/BookmarkListSkeleton";
-import BookmarkPaginationedList from "@/features/bookmark/components/BookmarkPaginationedList";
-import { BookmarkParams } from "@/features/bookmark/type";
+import ActivityListSkeleton from "@/features/activity/components/ActivityListSkeleton";
+import ActivityPaginationedList from "@/features/activity/components/ActivityPaginationedList";
+import { ACTIVITY_TYPES, ActivityParams } from "@/features/activity/type";
 import { FilterSearchParamsSchema } from "@/types";
 
 export default async function BookmarksPage({
   searchParams,
 }: {
-  searchParams: Promise<Partial<BookmarkParams>>;
+  searchParams: Promise<Partial<ActivityParams>>;
 }) {
   const safeParsedSearchParams = FilterSearchParamsSchema.safeParse(
     await searchParams,
@@ -27,9 +27,10 @@ export default async function BookmarksPage({
           <Search placeholder="즐겨찾기 검색" />
         </div>
       </Suspense>
-      <Suspense fallback={<BookmarkListSkeleton />}>
-        <BookmarkPaginationedList
+      <Suspense fallback={<ActivityListSkeleton />}>
+        <ActivityPaginationedList
           page={safeParsedSearchParams.data?.page}
+          type={ACTIVITY_TYPES.BOOKMARK}
           keyword={safeParsedSearchParams.data?.keyword}
         />
       </Suspense>

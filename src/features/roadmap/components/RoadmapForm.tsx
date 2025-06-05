@@ -101,9 +101,6 @@ export default function RoadmapForm({
 
   useConfirmNavigation(form.formState.isDirty);
 
-  const isDisabledSubmit =
-    !form.formState.isValid || form.formState.isSubmitting;
-
   const formData = form.watch();
   const previewData = createPreviewData(formData, {
     thumbnail: preview,
@@ -112,7 +109,7 @@ export default function RoadmapForm({
       categories.find((item) => item.id === formData.categoryId) || null,
   });
 
-  const { mutate: create } = useCreateRoadmap({
+  const { mutate: create, isPending: isCreatePending } = useCreateRoadmap({
     onSuccess: (result) => {
       toast.success(result.message);
       if (result.payload?.externalId) {
@@ -124,7 +121,7 @@ export default function RoadmapForm({
     },
   });
 
-  const { mutate: edit } = useEditRoadmap({
+  const { mutate: edit, isPending: isEditPending } = useEditRoadmap({
     onSuccess: (result) => {
       toast.success(result.message);
       if (result.payload?.externalId) {
@@ -138,9 +135,10 @@ export default function RoadmapForm({
 
   const action = isEditMode ? edit : create;
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    await action(data);
-  });
+  const handleSubmit = form.handleSubmit(action);
+
+  const isDisabledSubmit =
+    !form.formState.isValid || isCreatePending || isEditPending;
 
   return (
     <div className="flex flex-col justify-between gap-14 md:flex-row">

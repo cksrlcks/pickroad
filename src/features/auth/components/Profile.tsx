@@ -41,7 +41,7 @@ export function Profile({ user }: ProfileProps) {
     defaultValues: user,
   });
 
-  const { mutate: editProfile } = useProfileEdit({
+  const { mutate: editProfile, isPending: isEditPending } = useProfileEdit({
     onSuccess: (response) => {
       router.refresh();
       toast.success(response.message);
@@ -60,12 +60,9 @@ export function Profile({ user }: ProfileProps) {
     }
   };
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    await editProfile(data);
-  });
+  const handleSubmit = form.handleSubmit(editProfile);
 
-  const isDisabledSubmit =
-    form.formState.isSubmitting || !form.formState.isValid;
+  const isDisabledSubmit = !form.formState.isValid || isEditPending;
 
   return (
     <Form {...form}>

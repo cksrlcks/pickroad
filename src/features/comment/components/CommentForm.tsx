@@ -64,18 +64,20 @@ export default function CommentForm({
     },
   };
 
-  const { mutate: create } = useCreateComment(mutateOptions);
-  const { mutate: edit } = useEditComment(mutateOptions);
+  const { mutate: create, isPending: isCreatePending } =
+    useCreateComment(mutateOptions);
+  const { mutate: edit, isPending: isEditPending } =
+    useEditComment(mutateOptions);
 
   const action = isEditMode ? edit : create;
 
-  const handleSubmit = form.handleSubmit(async (data) => {
+  const handleSubmit = form.handleSubmit((data) => {
     if (!session) {
       toast.error("로그인 후 이용해주세요.");
       return;
     }
 
-    await action(data);
+    action(data);
   });
 
   const handleCancel = () => {
@@ -84,7 +86,7 @@ export default function CommentForm({
   };
 
   const isDisabledSubmit =
-    !form.formState.isValid || form.formState.isSubmitting;
+    !form.formState.isValid || isCreatePending || isEditPending;
 
   return (
     <Form {...form}>

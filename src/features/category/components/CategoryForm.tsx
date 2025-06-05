@@ -55,17 +55,17 @@ export default function CategoryForm({
     },
   };
 
-  const { mutate: create } = useCreateCategory(mutateOptions);
-  const { mutate: edit } = useEditCategory(mutateOptions);
+  const { mutate: create, isPending: isCreatePending } =
+    useCreateCategory(mutateOptions);
+  const { mutate: edit, isPending: isEditPending } =
+    useEditCategory(mutateOptions);
 
   const action = isEditMode ? edit : create;
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    await action(data);
-  });
+  const handleSubmit = form.handleSubmit(action);
 
   const isDisabledSubmit =
-    form.formState.isSubmitting || !form.formState.isValid;
+    !form.formState.isValid || isCreatePending || isEditPending;
 
   return (
     <Form {...form}>

@@ -39,16 +39,14 @@ export default function CategoryReorderForm({ categories }: CategoryFormProps) {
     control: form.control,
   });
 
-  const { mutate: edit } = useReorderCategories({
+  const { mutate: edit, isPending: isEditPending } = useReorderCategories({
     onSuccess: (response) => {
       router.refresh();
       toast.success(response.message);
     },
   });
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    await edit(data);
-  });
+  const handleSubmit = form.handleSubmit(edit);
 
   const handleDragDrop = async (e: DragEndEvent) => {
     if (e.active.id === e.over?.id) return;
@@ -58,6 +56,8 @@ export default function CategoryReorderForm({ categories }: CategoryFormProps) {
 
     move(startLinkIndex, dropLinkIndex);
   };
+
+  const isDisabledSubmit = form.formState.isSubmitting || isEditPending;
 
   return (
     <Form {...form}>
@@ -103,7 +103,7 @@ export default function CategoryReorderForm({ categories }: CategoryFormProps) {
           </DndContext>
         </div>
         <div className="flex justify-end gap-1">
-          <Button type="submit" disabled={form.formState.isSubmitting}>
+          <Button type="submit" disabled={isDisabledSubmit}>
             저장하기
           </Button>
         </div>

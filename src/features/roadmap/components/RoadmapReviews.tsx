@@ -1,5 +1,5 @@
 import Comment from "@/features/comment/components/Comment";
-import { getComments } from "@/features/comment/server/service";
+import { getComments } from "@/features/comment/server/db";
 import { Roadmap } from "../type";
 
 type RoadmapReviewsProps = {

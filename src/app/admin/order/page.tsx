@@ -1,6 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import CategoryReorderForm from "@/features/category/components/CategoryReorderForm";
-import { getCategories } from "@/features/category/server/service";
+import { getCategories } from "@/features/category/server/db";
 
 export default async function OrderPage() {
   const categories = await getCategories();

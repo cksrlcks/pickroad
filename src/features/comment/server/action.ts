@@ -8,7 +8,7 @@ import {
   commentInsertSchema,
   LoadmoreCommentParams,
 } from "@/features/comment/type";
-import { getRoadmapExternalId } from "@/features/roadmap/server/service";
+import { getRoadmapExternalId } from "@/features/roadmap/server/db";
 import { auth } from "@/lib/auth";
 import { ServerActionResult } from "@/types";
 import {
@@ -17,7 +17,7 @@ import {
   getComment,
   getMoreComments,
   updateComment,
-} from "./service";
+} from "./db";
 
 export const createRoadmapCommentAction = async (
   data: CommentForm,

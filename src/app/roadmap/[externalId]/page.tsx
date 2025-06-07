@@ -11,7 +11,7 @@ import RoadmapTags from "@/features/roadmap/components/RoadmapTags";
 import {
   getRoadmapWithExternalId,
   getRoadmapWithSession,
-} from "@/features/roadmap/server/service";
+} from "@/features/roadmap/server/db";
 import { Roadmap } from "@/features/roadmap/type";
 import { generateRoadmapJsonLd } from "@/lib/jsonld-roadmap";
 

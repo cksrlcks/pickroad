@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { ServerActionResult } from "@/types";
 import { UserProfileForm } from "../type";
-import { updateUserProfile } from "./service";
+import { updateUserProfile } from "./db";
 
 export const updateUserProfileAction = async (
   data: UserProfileForm,

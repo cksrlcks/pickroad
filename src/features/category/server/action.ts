@@ -16,7 +16,7 @@ import {
   deleteCategory,
   reorderCategories,
   updateCategory,
-} from "./service";
+} from "./db";
 
 export const createCategoryAction = async (
   data: CategoryForm,

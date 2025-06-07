@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import Pagination from "@/components/Pagination";
 import PendingBoundary from "@/components/PendingBoundary";
 import { auth } from "@/lib/auth";
-import { getMyActivity } from "../server/service";
+import { getMyActivity } from "../server/db";
 import { ACTIVITY_TYPES, ActivityParams } from "../type";
 import ActivityList from "./ActivityList";
 import ActivityListSkeleton from "./ActivityListSkeleton";

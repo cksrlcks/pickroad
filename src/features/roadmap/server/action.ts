@@ -25,7 +25,7 @@ import {
   likeRoadmap,
   unbookmarkRoadmap,
   unlikeRoadmap,
-} from "./service";
+} from "./db";
 
 export const getPresignedUrlAction = async (): Promise<
   ServerActionResult<{ presignedUrl: string; fileUrl: string }>

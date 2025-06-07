@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import CategoryAddButton from "@/features/category/components/CategoryAddButton";
 import CategoryList from "@/features/category/components/CategoryList";
-import { getCategoriesWithCount } from "@/features/category/server/service";
+import { getCategoriesWithCount } from "@/features/category/server/db";
 import { auth } from "@/lib/auth";
 
 export default async function AdminPage() {

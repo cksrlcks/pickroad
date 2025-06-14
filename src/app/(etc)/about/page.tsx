@@ -5,33 +5,21 @@ import LottieClap from "@/assets/img/lottie-clap.json";
 import LottieRocket from "@/assets/img/lottie-rocket.json";
 import LottieStar from "@/assets/img/lottie-star.json";
 import LottieWand from "@/assets/img/lottie-wand.json";
+import AboutSlogan from "@/components/AboutSlogan";
 import LottieIcon from "@/components/LottieIcon";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 export default function AboutPage() {
   return (
-    <div className="py-10 break-keep md:py-20">
-      <section className="w-[90%]">
-        <h2 className="mb-8 text-2xl leading-tight font-semibold tracking-tight md:text-4xl">
-          <span className="bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
-            링크로 만든 나만의 로드맵
-          </span>
-          <br />
-          누군가에게는 큰 영감이 됩니다.
-        </h2>
-        <p className="text-muted-foreground">
-          내가 모은 링크들, 그냥 흘려보내기엔 아깝잖아요. PickRoad에 정리하면,
-          글을 쓰지 않아도 충분히 설명이 됩니다. 정보는 많지만 정리는 어렵고,
-          소개는 더 어려울 때 Pick한 링크들로 나만의 큐레이션 카드를
-          만들어보세요.
-        </p>
-      </section>
-      <Separator className="my-14 md:my-20" />
+    <div className="pb-10 break-keep md:pb-20">
+      <AboutSlogan />
+
+      <Separator className="my-14" />
       <section className="mb-20 w-[90%]">
-        <h3 className="mb-8 text-lg font-semibold">
+        <h2 className="mb-8 text-lg font-semibold">
           <span className="roboto-serif">Pick Road</span> 는 이런 서비스예요
-        </h3>
+        </h2>
         <ul className="mb-10 space-y-1 font-medium">
           <li>링크 정리를 넘어서 누군가에게 방향을 제시하고 싶은 사람</li>
           <li>블로그 글 하나 쓰기엔 벅차지만 큐레이션은 하고 싶은 사람</li>

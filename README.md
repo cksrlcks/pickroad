@@ -1,4 +1,5 @@
-![Logo](https://github.com/user-attachments/assets/bac0ca5e-6e1d-48e0-b559-a40e97bc059d)
+
+![Sequence 01_1](https://github.com/user-attachments/assets/340cc854-51c8-4305-9ed9-919a644d377d)
 
 #### 즐겨찾기를 재해석한 나만의 로드맵 공유 플랫폼
 

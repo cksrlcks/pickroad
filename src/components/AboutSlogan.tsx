@@ -1,7 +1,7 @@
 "use client";
 
 import { useGSAP } from "@gsap/react";
-import { useRef } from "react";
+import { RefObject, useRef } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import Logo from "@/assets/img/logo.svg";
@@ -39,6 +39,65 @@ const TITLE_DURATION = 0.8;
 const SCENE_REPEAT_DELAY = 2;
 const TITLE_EXIT_DISTANCE_RATIO = 0.1;
 const SPAN_DELAY = 0.4;
+const TITLE_START_OFFSET = "-=1.4";
+const SCENE_SHOW_OFFSET = "-=0.6";
+const ANIMATION_EASE = "power2.out";
+
+const addScene = (
+  tl: RefObject<gsap.core.Timeline | null>,
+  index: number,
+  total: number,
+) => {
+  const sceneClass = `.scene-${index + 1}`;
+  const title = `${sceneClass} .title`;
+  const spans = `${sceneClass} span`;
+
+  const isFirst = index === 0;
+  const isLast = index === total - 1;
+
+  if (!isFirst) {
+    tl.current!.to(sceneClass, { opacity: 1, duration: 0 }, SCENE_SHOW_OFFSET);
+  }
+
+  tl.current!.from(
+    title,
+    {
+      y: HEADING_SLIDING_DISTANCE,
+      duration: TITLE_DURATION,
+    },
+    isFirst ? undefined : TITLE_START_OFFSET,
+  )
+    .from(
+      spans,
+      {
+        y: TEXT_SLIDING_DISTANCE,
+        duration: TEXT_DURATION,
+        ease: ANIMATION_EASE,
+        stagger: TEXT_STAGGER,
+        delay: !isFirst ? SPAN_DELAY : 0,
+      },
+      "<",
+    )
+    .to(
+      spans,
+      {
+        opacity: 1,
+        duration: 0,
+        stagger: TEXT_STAGGER,
+        delay: TEXT_DURATION * TEXT_SHOW_DELAY,
+      },
+      "<",
+    );
+
+  if (!isLast) {
+    tl.current!.to(title, {
+      y: -HEADING_SLIDING_DISTANCE * TITLE_EXIT_DISTANCE_RATIO,
+      ease: ANIMATION_EASE,
+      duration: TITLE_DURATION,
+      delay: SCENE_REPEAT_DELAY,
+    });
+  }
+};
 
 type AboutSloganProps = {
   className?: string;
@@ -50,119 +109,16 @@ export default function AboutSlogan({ className }: AboutSloganProps) {
 
   useGSAP(
     () => {
-      tl.current = gsap
-        .timeline({ repeat: -1, repeatDelay: SCENE_REPEAT_DELAY })
-        .from(".scene-1 .title", {
-          y: HEADING_SLIDING_DISTANCE,
-          duration: TITLE_DURATION,
-        })
-        .from(
-          ".scene-1 span",
-          {
-            y: TEXT_SLIDING_DISTANCE,
-            duration: TEXT_DURATION,
-            ease: "power2.out",
-            stagger: TEXT_STAGGER,
-          },
-          "<",
-        )
-        .to(
-          ".scene-1 span",
-          {
-            opacity: 1,
-            duration: 0,
-            stagger: TEXT_STAGGER,
-            delay: TEXT_DURATION * TEXT_SHOW_DELAY,
-          },
-          "<",
-        )
-        .to(".scene-1 .title", {
-          y: -HEADING_SLIDING_DISTANCE * TITLE_EXIT_DISTANCE_RATIO,
-          ease: "power2.out",
-          duration: TITLE_DURATION,
-          delay: SCENE_REPEAT_DELAY,
-        })
-        .to(
-          ".scene-2",
-          {
-            opacity: 1,
-            duration: 0,
-          },
-          "-=0.6",
-        )
-        .from(
-          ".scene-2 .title",
-          {
-            y: HEADING_SLIDING_DISTANCE,
-            duration: TITLE_DURATION,
-          },
-          "-=1.4",
-        )
-        .from(
-          ".scene-2 span",
-          {
-            y: TEXT_SLIDING_DISTANCE,
-            duration: TEXT_DURATION,
-            ease: "power2.out",
-            stagger: TEXT_STAGGER,
-            delay: SPAN_DELAY,
-          },
-          "<",
-        )
-        .to(
-          ".scene-2 span",
-          {
-            opacity: 1,
-            duration: 0,
-            stagger: TEXT_STAGGER,
-            delay: TEXT_DURATION * TEXT_SHOW_DELAY,
-          },
-          "<",
-        )
-        .to(".scene-2 .title", {
-          y: -HEADING_SLIDING_DISTANCE * TITLE_EXIT_DISTANCE_RATIO,
-          ease: "power2.out",
-          duration: TITLE_DURATION,
-          delay: SCENE_REPEAT_DELAY,
-        })
-        .to(
-          ".scene-3",
-          {
-            opacity: 1,
-            duration: 0,
-          },
-          "-=0.6",
-        )
-        .from(
-          ".scene-3 .title",
-          {
-            y: HEADING_SLIDING_DISTANCE,
-            duration: TITLE_DURATION,
-          },
-          "-=1.4",
-        )
-        .from(
-          ".scene-3 span",
-          {
-            y: TEXT_SLIDING_DISTANCE,
-            duration: TEXT_DURATION,
-            ease: "power2.out",
-            stagger: TEXT_STAGGER,
-            delay: 0.4,
-          },
-          "<",
-        )
-        .to(
-          ".scene-3 span",
-          {
-            opacity: 1,
-            duration: 0,
-            stagger: TEXT_STAGGER,
-            delay: TEXT_DURATION * TEXT_SHOW_DELAY,
-          },
-          "<",
-        );
+      tl.current = gsap.timeline({
+        repeat: -1,
+        repeatDelay: SCENE_REPEAT_DELAY,
+      });
+
+      SLOGAN_SCENES.forEach((_, index) => {
+        addScene(tl, index, SLOGAN_SCENES.length);
+      });
     },
+
     { scope: container },
   );
 

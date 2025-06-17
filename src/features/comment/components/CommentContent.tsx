@@ -54,7 +54,6 @@ export function CommentContent({
                 <button
                   type="button"
                   className="text-xs opacity-70 hover:opacity-100"
-                  disabled={isPendingDelete}
                 >
                   삭제
                 </button>
@@ -68,7 +67,12 @@ export function CommentContent({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>취소</AlertDialogCancel>
-                  <AlertDialogAction onClick={onDelete}>삭제</AlertDialogAction>
+                  <AlertDialogAction
+                    onClick={onDelete}
+                    disabled={isPendingDelete}
+                  >
+                    삭제
+                  </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

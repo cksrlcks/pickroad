@@ -21,7 +21,7 @@ type CategoryDeleteButtonProps = {
 export default function CategoryDeleteButton({
   category,
 }: CategoryDeleteButtonProps) {
-  const { mutate: deleteCategory } = useDeleteCategory(category, {
+  const { mutate: deleteCategory, isPending } = useDeleteCategory(category, {
     onSuccess: (response) => {
       toast.success(response.message);
     },
@@ -50,7 +50,9 @@ export default function CategoryDeleteButton({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>취소</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>삭제</AlertDialogAction>
+          <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+            삭제
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

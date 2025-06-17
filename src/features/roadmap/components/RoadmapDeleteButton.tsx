@@ -41,7 +41,9 @@ export function RoadmapDeleteButton({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>취소</AlertDialogCancel>
-          <AlertDialogAction onClick={onDelete}>삭제</AlertDialogAction>
+          <AlertDialogAction onClick={onDelete} disabled={isPending}>
+            삭제
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

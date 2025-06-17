@@ -26,8 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth-client";
-import { useProfileEdit } from "../hooks/useProfileMutation";
+import { useDeleteProfile, useEditProfile } from "../hooks/useProfileMutation";
 import { UserProfileForm, userProfileSchema } from "../type";
 
 type ProfileProps = {
@@ -41,7 +40,7 @@ export function Profile({ user }: ProfileProps) {
     defaultValues: user,
   });
 
-  const { mutate: editProfile, isPending: isEditPending } = useProfileEdit({
+  const { mutate: editProfile, isPending: isEditPending } = useEditProfile({
     onSuccess: (response) => {
       router.refresh();
       toast.success(response.message);
@@ -51,14 +50,14 @@ export function Profile({ user }: ProfileProps) {
     },
   });
 
-  const handleUserDelete = async () => {
-    try {
-      await authClient.deleteUser();
+  const { mutate: deleteUser, isPending: isDeletePending } = useDeleteProfile({
+    onSuccess: () => {
       window.location.href = "/";
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "회원탈퇴 실패");
-    }
-  };
+    },
+    onError: (response) => {
+      toast.error(response.message);
+    },
+  });
 
   const handleSubmit = form.handleSubmit(editProfile);
 
@@ -97,7 +96,10 @@ export function Profile({ user }: ProfileProps) {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>취소</AlertDialogCancel>
-                <AlertDialogAction onClick={handleUserDelete}>
+                <AlertDialogAction
+                  onClick={deleteUser}
+                  disabled={isDeletePending}
+                >
                   탈퇴
                 </AlertDialogAction>
               </AlertDialogFooter>

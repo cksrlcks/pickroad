@@ -2,9 +2,9 @@ import { Mail } from "lucide-react";
 
 export default function PrivacyPage() {
   return (
-    <div className="mx-auto mb-10 max-w-xl md:py-20">
+    <div className="break-keep">
       <h2 className="mb-4 text-lg font-semibold">개인정보처리방침</h2>
-      <div className="space-y-4 text-sm">
+      <div className="mb-8 space-y-2 text-sm">
         <p>
           본 서비스는 로그인 시 이메일, 이름, 프로필 이미지와 같은 최소한의
           개인정보를 소셜 로그인(Google, Kakao 등)을 통해 수집합니다.
@@ -17,6 +17,8 @@ export default function PrivacyPage() {
           개인정보처리방침에 대한 문의사항이 있으신 경우, 아래의 이메일로 문의해
           주시기 바랍니다.
         </p>
+      </div>
+      <div className="text-sm">
         <a
           href="mailto:pickroad.master@gmail.com"
           className="font-semibold hover:underline"

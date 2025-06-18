@@ -12,10 +12,9 @@ import { Separator } from "@/components/ui/separator";
 
 export default function AboutPage() {
   return (
-    <div className="pb-10 break-keep md:pb-20">
-      <AboutSlogan />
+    <div className="break-keep">
+      <AboutSlogan className="mb-20" />
 
-      <Separator className="my-14" />
       <section className="mb-20 w-[90%]">
         <h2 className="mb-8 text-lg font-semibold">
           <span className="roboto-serif">Pick Road</span> 는 이런 서비스예요

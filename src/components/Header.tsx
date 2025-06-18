@@ -22,7 +22,7 @@ export default async function Header() {
     <div className="bg-background border-foreground/10 sticky top-0 z-10 mb-4 w-full border-b pt-[10px] md:mb-8">
       <Inner>
         <div className="flex flex-wrap items-center gap-3 py-[14px] md:flex-nowrap">
-          <Link href="/" className="md:mr-4">
+          <Link href="/roadmap" className="md:mr-4">
             <Image src={Logo} alt="Pick Road" className="dark:invert" />
           </Link>
           <div className="order-last w-full md:order-none md:w-auto md:flex-1">

@@ -1,3 +1,4 @@
+![Logo](https://github.com/user-attachments/assets/bac0ca5e-6e1d-48e0-b559-a40e97bc059d)
 
 #### 즐겨찾기를 재해석한 나만의 로드맵 공유 플랫폼
 

@@ -22,11 +22,11 @@ export default async function RoadmapPaginationedList({
   });
 
   return (
-    <div className="space-y-10">
-      <PendingBoundary fallback={<RoadmapListSkeleton />}>
+    <PendingBoundary fallback={<RoadmapListSkeleton />}>
+      <div className="space-y-10">
         <RoadmapList data={data} keyword={keyword} />
-      </PendingBoundary>
-      <Pagination totalCount={totalCount} limit={LIMIT} />
-    </div>
+        <Pagination totalCount={totalCount} limit={LIMIT} />
+      </div>
+    </PendingBoundary>
   );
 }

@@ -65,7 +65,7 @@ export default function RootLayout({
       </head>
       <body className="group antialiased">
         <Suspense>
-          <FilterProvider basePath="/">
+          <FilterProvider basePath="/roadmap">
             <ThemeProvider
               attribute="class"
               defaultTheme="system"

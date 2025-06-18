@@ -1,12 +1,8 @@
-import { Suspense } from "react";
 import { Metadata } from "next";
 import { Roboto_Serif } from "next/font/google";
-import FilterProvider from "@/components/FilterProvider";
+import { Toaster } from "sonner";
 import Footer from "@/components/Footer";
-import Header from "@/components/Header";
-import Inner from "@/components/Inner";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
 const robotoSerif = Roboto_Serif({
@@ -64,23 +60,16 @@ export default function RootLayout({
         ></script>
       </head>
       <body className="group antialiased">
-        <Suspense>
-          <FilterProvider basePath="/">
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <Header />
-              <Inner className="pb-10">
-                <main>{children}</main>
-              </Inner>
-              <Footer />
-              <Toaster />
-            </ThemeProvider>
-          </FilterProvider>
-        </Suspense>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Footer />
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

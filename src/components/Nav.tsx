@@ -24,8 +24,8 @@ export default function Nav({ categories }: NavProps) {
   ) => {
     startTransition(() => {
       updateFilters({
+        ...filters,
         category: categoryId === 9999 ? undefined : categoryId,
-        keyword: undefined,
         page: undefined,
       });
       emblaApi?.scrollTo(index);

@@ -13,7 +13,7 @@ const MENU = [
   },
 ];
 
-export default function MypageLayout({ children }: PropsWithChildren) {
+export default function AdminLayout({ children }: PropsWithChildren) {
   return (
     <div className="min-h-[400px]">
       <header className="pt-4 md:pt-0">

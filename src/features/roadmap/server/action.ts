@@ -86,7 +86,7 @@ export const createRoadmapAction = async (
       authorId: session.user.id,
     });
 
-    revalidatePath("/");
+    revalidatePath("/", 'layout');
 
     return {
       success: true,
@@ -137,7 +137,7 @@ export const updateRoadmapAction = async (
   try {
     const { externalId } = await updateRoadmap(form);
 
-    revalidatePath("/");
+    revalidatePath("/", 'layout');
     revalidatePath(`/roadmap/${externalId}`);
 
     return {
@@ -182,7 +182,7 @@ export const deleteRoadmapAction = async (
   try {
     await deleteRoadmap(id);
 
-    revalidatePath("/");
+    revalidatePath("/", 'layout');
 
     return {
       success: true,
